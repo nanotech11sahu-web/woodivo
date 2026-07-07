@@ -1,0 +1,16 @@
+# Netlify redirects file — read from the publish directory (dist),
+# placed here in public/ so Vite copies it over on every build.
+#
+# Replace REPLACE_WITH_YOUR_BACKEND_DOMAIN below with your deployed
+# backend's real origin (no trailing slash, no /api/v1 — sitemap.xml and
+# robots.txt are served at the backend's own root, excluded from its
+# api/v1 prefix; see backend/src/main.ts). Status 200 makes these
+# transparent rewrites/proxies, not redirects — the browser URL stays
+# yoursite.com/sitemap.xml, matching what frontend/nginx.conf already
+# does for the Docker deploy path. See DEPLOYMENT.md Path B.
+/sitemap.xml  https://REPLACE_WITH_YOUR_BACKEND_DOMAIN/sitemap.xml  200
+/robots.txt   https://REPLACE_WITH_YOUR_BACKEND_DOMAIN/robots.txt   200
+
+# React Router client-side routing: any other path falls back to
+# index.html so deep links and refreshes don't 404.
+/*            /index.html   200

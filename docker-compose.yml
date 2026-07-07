@@ -1,0 +1,72 @@
+# WOODIVO — full stack via Docker Compose
+#
+# Quick start:
+#   1. cp backend/.env.example backend/.env   and fill in real secrets
+#      (JWT secrets, Cloudinary, SMTP). Leave MONGODB_URI as-is below —
+#      it already points at the "mongo" service on the compose network.
+#   2. cp .env.example .env   (this file, root) and set the public URLs
+#      the frontend/CMS should call — see comments in that file for why
+#      these are build-time, not runtime, values.
+#   3. docker compose up --build
+#
+# This gives you a full stack on localhost. For an actual public deploy
+# you still need a real domain + TLS in front of this (see
+# DEPLOYMENT.md) — Compose alone doesn't provide HTTPS.
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-woodivo}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Overrides whatever MONGODB_URI is in backend/.env so this always
+      # points at the "mongo" service above rather than localhost — the
+      # one value that has to differ between local `npm run start:dev`
+      # and this compose stack.
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-woodivo}:${MONGO_ROOT_PASSWORD:-changeme}@mongo:27017/woodivo?authSource=admin
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${FRONTEND_API_BASE_URL:-http://localhost:4000/api/v1}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+  cms:
+    build:
+      context: ./cms
+      args:
+        VITE_API_BASE_URL: ${CMS_API_BASE_URL:-http://localhost:4000/api/v1}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8081:80"
+
+volumes:
+  mongo_data:

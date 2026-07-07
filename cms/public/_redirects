@@ -1,0 +1,5 @@
+# CMS is an internal admin tool, not a public page — SPA fallback so
+# deep links (e.g. /products/edit/abc123) don't 404, no sitemap/robots
+# proxy needed (see netlify.toml / _headers for the noindex header
+# instead).
+/*  /index.html  200
