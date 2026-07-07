@@ -1,0 +1,16 @@
+{
+  "name": "woodivo-blog-uploader",
+  "version": "1.0.0",
+  "description": "Reads Blog Factory zips from draft-blogs/, uploads images + posts to the Woodivo API as drafts.",
+  "main": "upload-blogs.js",
+  "scripts": {
+    "upload": "node upload-blogs.js",
+    "watch": "node upload-blogs.js --watch"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "form-data": "^4.0.1"
+  }
+}
