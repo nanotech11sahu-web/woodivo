@@ -23,6 +23,22 @@ export interface RelatedProductRef {
   status?: ProductStatus;
 }
 
+/** Blog post referenced for internal linking from a product's detail page. */
+export interface RelatedBlogRef {
+  _id: string;
+  title: string;
+  slug: string;
+  featuredImage?: MediaAsset;
+  status?: string;
+}
+
+/** Per-product FAQ pair — mirrors BlogFaqItem, distinct from the site-wide
+ * homepage FAQs collection. */
+export interface ProductFaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface Product {
   _id: string;
   category: CategoryRef;
@@ -33,6 +49,8 @@ export interface Product {
   specifications: SpecificationItem[];
   isFeatured: boolean;
   relatedProducts: RelatedProductRef[];
+  relatedBlogs: RelatedBlogRef[];
+  faqs: ProductFaqItem[];
   displayOrder: number;
   status: ProductStatus;
   createdAt: string;
@@ -59,6 +77,8 @@ export interface ProductPayload {
   specifications?: SpecificationItem[];
   isFeatured: boolean;
   relatedProducts?: string[];
+  relatedBlogs?: string[];
+  faqs?: ProductFaqItem[];
   displayOrder?: number;
   status: ProductStatus;
 }

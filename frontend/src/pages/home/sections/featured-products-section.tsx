@@ -1,8 +1,9 @@
+import { Link } from 'react-router-dom';
 import { useFeaturedProducts } from '@/features/products/products-api';
-import { SectionHeading } from '@/components/shared/section-heading';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 import { ProductCard } from '@/components/shared/product-card';
+import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
 
 export function FeaturedProductsSection() {
   const { data, isLoading, isError } = useFeaturedProducts(8);
@@ -13,23 +14,26 @@ export function FeaturedProductsSection() {
   }
 
   return (
-    <section className="bg-ivory-deep px-4 py-24 sm:px-6 lg:px-8">
+    <section className="bg-ivory-deep px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionHeading
-          eyebrow="Featured work"
-          title="A few pieces we're proud of"
-          description="A cross-section of what leaves the workshop — every item shown is available to order in your own dimensions and wood."
-        />
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-xl sm:text-2xl">Featured Products</h2>
+          <Link to="/categories" className="text-sm font-medium text-brass hover:text-brass-light">
+            View all
+          </Link>
+        </div>
 
         {isLoading ? <SectionSpinner /> : null}
-        {isError ? <div className="mt-10"><ErrorNote label="Products" /></div> : null}
+        {isError ? <div className="mt-6"><ErrorNote label="Products" /></div> : null}
 
         {products && products.length > 0 ? (
-          <div className="mt-14 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+          <CardSlider className="mt-6">
             {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <div key={product._id} className={sliderItemWidths.product}>
+                <ProductCard product={product} />
+              </div>
             ))}
-          </div>
+          </CardSlider>
         ) : null}
       </div>
     </section>

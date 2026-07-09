@@ -10,6 +10,7 @@ export type EnquirySource =
 export interface CreateEnquiryPayload {
   fullName: string;
   mobileNumber: string;
+  state?: string;
   city?: string;
   interestedCategory?: string;
   message?: string;

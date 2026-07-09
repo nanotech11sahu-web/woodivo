@@ -10,6 +10,7 @@ import {
 import type { EnquirySource } from '@/types/enquiry';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { INDIAN_STATES, getCitiesForState } from '@/lib/use-india-locations';
 
 interface EnquiryFormProps {
   source: EnquirySource;
@@ -30,22 +31,29 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<EnquiryFormValues>({
     resolver: zodResolver(enquiryFormSchema),
     defaultValues: {
       fullName: '',
       mobileNumber: '',
+      state: '',
       city: '',
       interestedCategory: presetCategorySlug ?? '',
       message: '',
     },
   });
 
+  const selectedState = watch('state');
+  const cityOptions = getCitiesForState(selectedState);
+
   const onSubmit = handleSubmit((values) => {
     createEnquiry.mutate(
       {
         ...values,
+        state: values.state || undefined,
         city: values.city || undefined,
         message: values.message || undefined,
         interestedCategory: values.interestedCategory || undefined,
@@ -102,29 +110,66 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="city" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-            City
-          </label>
-          <input id="city" className={inputClass} {...register('city')} />
-        </div>
-
-        <div>
-          <label htmlFor="interestedCategory" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-            Interested in
+          <label htmlFor="state" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
+            State
           </label>
           <select
-            id="interestedCategory"
+            id="state"
             className={inputClass}
-            {...register('interestedCategory')}
+            {...register('state', {
+              onChange: () => setValue('city', ''),
+            })}
           >
-            <option value="">Any category</option>
-            {categories?.map((category) => (
-              <option key={category._id} value={category.slug}>
-                {category.name}
+            <option value="">Select state</option>
+            {INDIAN_STATES.map((state) => (
+              <option key={state} value={state}>
+                {state}
               </option>
             ))}
           </select>
         </div>
+
+        <div>
+          <label htmlFor="city" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
+            City
+          </label>
+          {cityOptions.length > 0 ? (
+            <select id="city" className={inputClass} {...register('city')}>
+              <option value="">Select city</option>
+              {cityOptions.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id="city"
+              className={inputClass}
+              placeholder="Select a state first"
+              disabled={!selectedState}
+              {...register('city')}
+            />
+          )}
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="interestedCategory" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
+          Interested in
+        </label>
+        <select
+          id="interestedCategory"
+          className={inputClass}
+          {...register('interestedCategory')}
+        >
+          <option value="">Any category</option>
+          {categories?.map((category) => (
+            <option key={category._id} value={category.slug}>
+              {category.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

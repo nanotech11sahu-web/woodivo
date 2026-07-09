@@ -60,7 +60,7 @@ export function AboutPage() {
       >
         <div className="absolute inset-0 bg-teak-deep/80" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,_rgba(176,129,63,0.18),_transparent_45%)]" />
-        <div className="relative mx-auto max-w-4xl px-4 py-20 text-center sm:px-6">
+        <div className="relative mx-auto max-w-4xl px-4 py-14 text-center sm:px-6">
           <div className="mb-6 flex justify-center">
             <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
           </div>
@@ -141,7 +141,7 @@ export function AboutPage() {
           )}
 
           {about.values.length > 0 && (
-            <section className="bg-teak px-4 py-24 text-ivory sm:px-6 lg:px-8">
+            <section className="bg-teak px-4 py-16 text-ivory sm:px-6 lg:px-8">
               <div className="mx-auto max-w-7xl">
                 <SectionHeading eyebrow="What We Stand For" title="Our Values" tone="dark" />
                 <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">

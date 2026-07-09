@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import type { MediaAsset } from '@/types/common';
 import type { ProductCategoryRef } from '@/types/product';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
-import { Button } from '@/components/ui/button';
 
 /**
  * Deliberately narrower than the full `Product` type. The two places this
@@ -26,16 +26,23 @@ export interface ProductCardItem {
  * (category listing grid, product-detail "related products") and forking
  * near-identical copies would drift the moment one gets a design tweak the
  * others don't.
+ *
+ * Visual language matches the reference storefront's product tile: white
+ * card, square image, name, price-row-shaped action row — but since
+ * Woodivo products carry no price (custom-order, quote-based), the pill
+ * reads "Enquire Now" in the same slot the reference uses for "Add +". It's
+ * rendered as a solid filled button (not a thin outline) so it reads as a
+ * real, clickable call-to-action rather than a decorative label.
  */
 export function ProductCard({ product }: { product: ProductCardItem }) {
   const { openEnquiryDialog } = useEnquiryDialog();
   const categorySlug = typeof product.category === 'object' ? product.category.slug : undefined;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory">
+    <div className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory transition-shadow hover:shadow-lg hover:shadow-charcoal/10">
       <Link
         to={`/products/${product.slug}`}
-        className="relative block aspect-square overflow-hidden bg-brass-pale"
+        className="relative block aspect-square overflow-hidden bg-ivory-deep"
       >
         {product.images?.[0]?.url ? (
           <img
@@ -47,18 +54,21 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
           />
         ) : null}
       </Link>
-      <div className="flex flex-1 flex-col p-4">
-        <Link to={`/products/${product.slug}`} className="text-sm font-medium text-charcoal hover:text-brass">
+      <div className="flex flex-1 flex-col gap-2.5 p-3.5">
+        <Link
+          to={`/products/${product.slug}`}
+          className="text-sm font-medium leading-snug text-charcoal hover:text-brass"
+        >
           {product.name}
         </Link>
-        <Button
-          variant="link"
-          size="sm"
-          className="mt-2 self-start"
+        <button
+          type="button"
           onClick={() => openEnquiryDialog('product', categorySlug)}
+          className="mt-auto inline-flex h-9 w-fit items-center gap-1.5 rounded-[var(--radius-pill)] bg-brass px-4 text-xs font-semibold uppercase tracking-wide text-ivory shadow-sm transition-all hover:bg-brass-light hover:shadow-md active:scale-95"
         >
-          Get Quote →
-        </Button>
+          Enquire Now
+          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+        </button>
       </div>
     </div>
   );

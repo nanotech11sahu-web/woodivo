@@ -15,14 +15,21 @@
  * collections but not others) never creates duplicates or overwrites
  * anything a real editor already wrote.
  *
- * Every image URL below points at picsum.photos with a fixed seed
- * (`picsum.photos/seed/<name>/<w>/<h>`) — a real, publicly reachable
- * placeholder image service, not a fake/broken URL, so the CMS Media
- * Library previews and the public site's <img> tags both render
- * something real immediately. These are NOT uploaded through Cloudinary
- * (no MediaAsset.publicId is set) — swap them for real product photography
- * via the CMS's own Media Library/upload flow whenever real images are
- * ready; nothing about this script needs to be re-run or undone first.
+ * Every image URL below points at loremflickr.com with topic keywords
+ * (`loremflickr.com/<w>/<h>/<comma,separated,keywords>?lock=<n>`) — a real,
+ * publicly reachable placeholder image service that returns photos matching
+ * the given keywords (unlike a plain random-seed placeholder, which returns
+ * whatever unrelated photo happens to hash to that seed — a coffee cup for
+ * a "coffee table" category thumbnail, a beach for a dining table). The
+ * `lock` query param pins a specific photo to that number so re-running the
+ * seed (or reloading the page) always shows the same image per row instead
+ * of a different random one every time. Keywords are always wood/furniture/
+ * interior related so the CMS Media Library previews and the public site's
+ * <img> tags render something on-topic immediately. These are NOT uploaded
+ * through Cloudinary (no MediaAsset.publicId is set) — swap them for real
+ * product photography via the CMS's own Media Library/upload flow whenever
+ * real images are ready; nothing about this script needs to be re-run or
+ * undone first.
  *
  * Every `slug` below is set explicitly via `slugify()`, not left for each
  * schema's own `pre('save')` slug-generation hook to fill in. Mongoose
@@ -86,9 +93,19 @@ import {
 
 const logger = new Logger('DemoDataSeeder');
 
-function img(seed: string, width: number, height: number, alt: string) {
+// Every call below increments this so two images that ask for the same
+// keywords (e.g. a product's main shot + "alternate angle") still lock to
+// two different photos instead of literally the same file twice.
+let imgLockCounter = 0;
+
+function img(keywords: string, width: number, height: number, alt: string) {
+  imgLockCounter += 1;
+  const tags = keywords
+    .split(',')
+    .map((k) => encodeURIComponent(k.trim()))
+    .join(',');
   return {
-    url: `https://picsum.photos/seed/${seed}/${width}/${height}`,
+    url: `https://loremflickr.com/${width}/${height}/${tags}?lock=${imgLockCounter}`,
     alt,
   };
 }
@@ -105,35 +122,48 @@ async function seedCategories(model: Model<Category>) {
       description:
         'Solid-wood dining tables built to seat a family for decades, not a season.',
       isFeatured: true,
+      keywords: 'dining table,wood furniture',
     },
     {
       name: 'Coffee Tables',
       description:
         'Living-room centerpieces in teak, sheesham, and reclaimed wood.',
       isFeatured: true,
+      keywords: 'coffee table,wood furniture',
     },
     {
       name: 'Wardrobes',
       description:
         'Custom-fit wardrobes and armoires, hand-jointed, no chipboard.',
       isFeatured: true,
+      keywords: 'wardrobe,wood furniture',
     },
     {
       name: 'Bookshelves',
       description:
         'Open and closed bookshelves sized to the room, not a catalog.',
       isFeatured: false,
+      keywords: 'bookshelf,wood furniture',
     },
     {
       name: 'Outdoor Furniture',
       description: 'Weather-treated teak benches, loungers, and dining sets.',
       isFeatured: true,
+      keywords: 'teak bench,outdoor furniture',
     },
     {
       name: 'Custom Cabinetry',
       description:
         'Kitchen and study cabinetry built to an exact room measurement.',
       isFeatured: false,
+      keywords: 'kitchen cabinet,wood',
+    },
+    {
+      name: 'Wooden Chairs',
+      description:
+        'Dining and accent chairs in solid wood, joined and finished by hand.',
+      isFeatured: true,
+      keywords: 'wooden chair,furniture',
     },
   ];
 
@@ -145,8 +175,8 @@ async function seedCategories(model: Model<Category>) {
       isFeatured: d.isFeatured,
       displayOrder: i,
       status: CategoryStatus.ACTIVE,
-      banner: img(`cat-banner-${i}`, 1600, 500, `${d.name} banner`),
-      thumbnail: img(`cat-thumb-${i}`, 600, 750, d.name),
+      banner: img(d.keywords, 1600, 500, `${d.name} banner`),
+      thumbnail: img(d.keywords, 600, 750, d.name),
     })),
   );
   logger.log(`Seeded ${created.length} categories.`);
@@ -246,25 +276,50 @@ async function seedProducts(
       category: 'Custom Cabinetry',
       desc: 'Built-in study cabinetry with adjustable shelving.',
     },
+    {
+      name: 'Solid Wood Dining Chair Set',
+      category: 'Wooden Chairs',
+      desc: 'Set of four solid-wood dining chairs with a cane-woven seat.',
+    },
+    {
+      name: 'Carved Accent Chair',
+      category: 'Wooden Chairs',
+      desc: 'Hand-carved single accent chair for living rooms and studies.',
+    },
   ];
 
-  const docs = defs.map((d, i) => ({
+  // Category → search keywords, so each product's placeholder photo is
+  // actually a photo of that kind of furniture instead of a random one.
+  const categoryKeywords: Record<string, string> = {
+    'Dining Tables': 'dining table,wood furniture',
+    'Coffee Tables': 'coffee table,wood furniture',
+    Wardrobes: 'wardrobe,wood furniture',
+    Bookshelves: 'bookshelf,wood furniture',
+    'Outdoor Furniture': 'teak bench,outdoor furniture',
+    'Custom Cabinetry': 'kitchen cabinet,wood',
+    'Wooden Chairs': 'wooden chair,furniture',
+  };
+
+  const docs = defs.map((d, i) => {
+    const keywords = categoryKeywords[d.category] ?? 'wood furniture';
+    return {
     category: byName(d.category),
     name: d.name,
     slug: slugify(d.name),
     description: d.desc,
     images: [
-      img(`product-${i}-a`, 900, 900, d.name),
-      img(`product-${i}-b`, 900, 900, `${d.name} — alternate angle`),
+      img(keywords, 900, 900, d.name),
+      img(keywords, 900, 900, `${d.name} — alternate angle`),
     ],
     specifications: [
       { key: 'Material', value: 'Solid wood, hand-finished' },
       { key: 'Warranty', value: '2 years against manufacturing defects' },
     ],
-    isFeatured: i % 5 === 0,
+    isFeatured: i % 5 === 0 || i % 5 === 2,
     displayOrder: i,
     status: ProductStatus.ACTIVE,
-  }));
+    };
+  });
 
   const created = await model.create(docs);
   logger.log(`Seeded ${created.length} products.`);
@@ -349,7 +404,22 @@ async function seedBlogs(
         'Apartment living does not have to mean flat-pack furniture.\n\nThe right approach is furniture that does more than one job — a coffee table with storage, a dining table that extends only when guests arrive, a bookshelf that doubles as a room divider. Scale matters more than quantity: one well-proportioned solid-wood piece beats three that crowd a room.\n\nWe design several of our smaller pieces specifically with apartment dimensions in mind, not as scaled-down versions of larger furniture.',
       featured: false,
     },
+    {
+      title: 'Reading Wood Grain: What to Look for Before You Buy',
+      category: 'Craftsmanship',
+      excerpt:
+        'A short guide to spotting real solid-wood grain versus a printed veneer finish.',
+      content:
+        'Grain should never look perfectly repeating — real wood grain wanders, and no two panels on a genuine solid-wood piece will match exactly.\n\nRun a hand across the surface: a true wood finish has faint texture even under a smooth lacquer, where veneer over particleboard tends to feel uniformly flat. Check an edge or the underside of a drawer, where veneer seams are easiest to spot.\n\nWe are happy to show grain photos of the actual timber before a custom order goes into production, not just a catalog rendering.',
+      featured: false,
+    },
   ];
+
+  const blogKeywords: Record<string, string> = {
+    Craftsmanship: 'woodworking,carpenter',
+    'Care & Maintenance': 'wood furniture,polish',
+    'Design Trends': 'interior design,living room',
+  };
 
   const docs = defs.map((d, i) => ({
     title: d.title,
@@ -357,7 +427,12 @@ async function seedBlogs(
     excerpt: d.excerpt,
     content: d.content,
     category: byName(d.category),
-    featuredImage: img(`blog-${i}`, 1200, 750, d.title),
+    featuredImage: img(
+      blogKeywords[d.category] ?? 'wood furniture',
+      1200,
+      750,
+      d.title,
+    ),
     tags: [d.category.toLowerCase().replace(/\s+/g, '-')],
     status: BlogStatus.PUBLISHED,
     publishAt: new Date(
@@ -432,7 +507,33 @@ async function seedProjects(
       year: '2023',
       desc: 'Full kitchen cabinetry replacement in solid wood.',
     },
+    {
+      title: 'Hillside Bungalow Study',
+      category: 'Wooden Chairs',
+      client: 'Private Residence',
+      location: 'Shimla',
+      year: '2023',
+      desc: 'A reading nook fitted with carved accent chairs and a custom bookshelf.',
+    },
+    {
+      title: 'Riverside Restaurant Fit-Out',
+      category: 'Dining Tables',
+      client: 'Commercial Client',
+      location: 'Indore',
+      year: '2025',
+      desc: 'Solid-wood dining tables and chairs for a 60-seat riverside restaurant.',
+    },
   ];
+
+  const projectKeywords: Record<string, string> = {
+    'Dining Tables': 'dining table,wood furniture',
+    'Coffee Tables': 'coffee table,wood furniture',
+    Wardrobes: 'wardrobe,wood furniture',
+    Bookshelves: 'bookshelf,wood furniture',
+    'Outdoor Furniture': 'teak bench,outdoor furniture',
+    'Custom Cabinetry': 'kitchen cabinet,wood',
+    'Wooden Chairs': 'wooden chair,furniture',
+  };
 
   const docs = defs.map((d, i) => ({
     title: d.title,
@@ -441,9 +542,21 @@ async function seedProjects(
     location: d.location,
     completionYear: d.year,
     category: byName(d.category),
-    coverImage: img(`project-${i}`, 1200, 900, d.title),
-    images: [img(`project-${i}-detail`, 1200, 900, `${d.title} detail`)],
-    isFeatured: i < 3,
+    coverImage: img(
+      projectKeywords[d.category] ?? 'wood furniture,interior',
+      1200,
+      900,
+      d.title,
+    ),
+    images: [
+      img(
+        projectKeywords[d.category] ?? 'wood furniture,interior',
+        1200,
+        900,
+        `${d.title} detail`,
+      ),
+    ],
+    isFeatured: true,
     displayOrder: i,
     status: ProjectStatus.ACTIVE,
   }));
@@ -474,7 +587,12 @@ async function seedGallery(model: Model<GalleryItem>) {
   ];
 
   const docs = tags.map((t, i) => ({
-    media: img(`gallery-${i}`, 1000, 1250, `Gallery image ${i + 1}`),
+    media: img(
+      `${t.join(',')},wood furniture`,
+      1000,
+      1250,
+      `Gallery image ${i + 1}`,
+    ),
     caption: `Woodivo craftsmanship — ${t[0].replace('-', ' ')}`,
     type: GalleryItemType.IMAGE,
     tags: t,
@@ -528,16 +646,30 @@ async function seedTestimonials(model: Model<Testimonial>) {
       text: 'A small custom order but they treated it with the same care as a full-room commission.',
       rating: 5,
     },
+    {
+      name: 'Arjun Verma',
+      location: 'Indore',
+      type: 'Coffee Table',
+      text: 'The live-edge coffee table is the first thing every guest asks about. Genuinely a piece of furniture, not a purchase.',
+      rating: 5,
+    },
+    {
+      name: 'Kavya Menon',
+      location: 'Chennai',
+      type: 'Dining Set',
+      text: 'Delivery to Chennai took a bit longer than quoted, but the finish quality made the wait worth it.',
+      rating: 4,
+    },
   ];
 
   const docs = defs.map((d, i) => ({
     clientName: d.name,
     clientLocation: d.location,
     projectType: d.type,
-    clientPhoto: img(`testimonial-${i}`, 200, 200, d.name),
+    clientPhoto: img('portrait,person', 200, 200, d.name),
     testimonialText: d.text,
     rating: d.rating,
-    isFeatured: i < 3,
+    isFeatured: true,
     displayOrder: i,
     status: TestimonialStatus.ACTIVE,
   }));
@@ -557,11 +689,32 @@ async function seedBanners(model: Model<Banner>) {
     title: string;
     subtitle: string;
   }[] = [
+    // Four HERO banners (not just one) so the homepage hero slider actually
+    // has multiple slides to auto-advance through — a single hero banner
+    // renders fine but never visibly slides.
     {
       placement: BannerPlacement.HERO,
       title: 'Handcrafted Furniture, Built to Last Generations',
       subtitle:
         'Solid wood furniture made the slow way — hand-jointed, not mass-produced.',
+    },
+    {
+      placement: BannerPlacement.HERO,
+      title: 'Teak, Sheesham & Mango Wood — Nothing Else',
+      subtitle:
+        'No MDF, no veneer, no laminate shortcuts. Every piece is solid wood through and through.',
+    },
+    {
+      placement: BannerPlacement.HERO,
+      title: 'Made to Your Room, Not Off a Shelf',
+      subtitle:
+        'Dining tables, wardrobes and cabinetry built to the exact dimensions you send us.',
+    },
+    {
+      placement: BannerPlacement.HERO,
+      title: 'Delivered Pan-India, With Installation Guidance',
+      subtitle:
+        'Careful packing and delivery to your doorstep, wherever in India you are.',
     },
     {
       placement: BannerPlacement.CATEGORY,
@@ -595,11 +748,21 @@ async function seedBanners(model: Model<Banner>) {
     },
   ];
 
-  const docs = defs.map((d, i) => ({
+  const bannerKeywords: Record<BannerPlacement, string> = {
+    [BannerPlacement.HERO]: 'wood furniture,carpentry workshop',
+    [BannerPlacement.CATEGORY]: 'wood furniture,showroom',
+    [BannerPlacement.PRODUCT]: 'wood furniture,dining table',
+    [BannerPlacement.BLOG]: 'woodworking,carpenter',
+    [BannerPlacement.PROJECTS]: 'interior design,wood furniture',
+    [BannerPlacement.ABOUT]: 'carpentry workshop,wood',
+    [BannerPlacement.CONTACT]: 'carpentry workshop,wood',
+  };
+
+  const docs = defs.map((d) => ({
     title: d.title,
     subtitle: d.subtitle,
-    desktopImage: img(`banner-${i}`, 1920, 700, d.title),
-    mobileImage: img(`banner-${i}-mobile`, 800, 900, d.title),
+    desktopImage: img(bannerKeywords[d.placement], 1920, 700, d.title),
+    mobileImage: img(bannerKeywords[d.placement], 800, 900, d.title),
     ctaLabel:
       d.placement === BannerPlacement.CONTACT ? 'Get in Touch' : 'Explore',
     ctaLink: d.placement === BannerPlacement.CONTACT ? '/contact' : '/products',
@@ -609,7 +772,9 @@ async function seedBanners(model: Model<Banner>) {
   }));
 
   const created = await model.create(docs);
-  logger.log(`Seeded ${created.length} banners (one per placement).`);
+  logger.log(
+    `Seeded ${created.length} banners (${defs.filter((d) => d.placement === BannerPlacement.HERO).length} hero slides, one banner per other placement).`,
+  );
 }
 
 async function seedFaqs(model: Model<Faq>) {
@@ -683,11 +848,21 @@ async function seedAboutPage(model: Model<AboutPage>) {
     key: ABOUT_PAGE_SINGLETON_KEY,
     heroTitle: 'Three Generations of Woodworking Craft',
     heroSubtitle: 'From a single workshop to furniture in homes across India.',
-    heroImage: img('about-hero', 1920, 800, 'Woodivo workshop'),
+    heroImage: img(
+      'carpentry workshop,wood',
+      1920,
+      800,
+      'Woodivo workshop',
+    ),
     storyTitle: 'How Woodivo Started',
     storyContent:
       'Woodivo began as a single carpentry workshop, three generations ago, building furniture for a handful of families in one neighborhood.\n\nThe tools have changed — we now work alongside CNC precision cutting for the parts that benefit from it — but the standard has not: every joint that matters is still cut and fitted by hand, and every piece is inspected by someone who would be comfortable putting their name on it.\n\nToday we build for homes across India, but the workshop still operates the way it did the first year: one piece at a time, built to be handed down.',
-    storyImage: img('about-story', 1200, 900, 'Woodivo craftsman at work'),
+    storyImage: img(
+      'carpenter,woodworking',
+      1200,
+      900,
+      'Woodivo craftsman at work',
+    ),
     missionText:
       'To build solid wood furniture that outlasts trends, using techniques that respect both the material and the people who make it.',
     visionText:
@@ -734,19 +909,19 @@ async function seedAboutPage(model: Model<AboutPage>) {
       {
         name: 'Arvind Kumar',
         role: 'Founder & Master Craftsman',
-        photo: img('team-1', 400, 400, 'Arvind Kumar'),
+        photo: img('portrait,person', 400, 400, 'Arvind Kumar'),
         bio: 'Three decades of hand-joinery experience, trained under his father in the original workshop.',
       },
       {
         name: 'Sunita Desai',
         role: 'Head of Design',
-        photo: img('team-2', 400, 400, 'Sunita Desai'),
+        photo: img('portrait,person', 400, 400, 'Sunita Desai'),
         bio: 'Leads every custom commission from first sketch to final finish selection.',
       },
       {
         name: 'Farhan Ali',
         role: 'Workshop Manager',
-        photo: img('team-3', 400, 400, 'Farhan Ali'),
+        photo: img('portrait,person', 400, 400, 'Farhan Ali'),
         bio: 'Oversees quality control on every piece before it leaves the workshop.',
       },
     ],
@@ -794,13 +969,13 @@ async function seedWebsiteSettings(model: Model<WebsiteSettings>) {
     let changed = false;
     if (!existing.contact?.phone && !existing.contact?.email) {
       existing.contact = {
-        phone: '+91 98765 43210',
-        whatsapp: '+91 98765 43210',
+        phone: '+91 62650 07710',
+        whatsapp: '+91 62650 07710',
         email: 'hello@woodivo.example',
-        address: '14 Workshop Lane, Industrial Area',
+        address: 'Plot no. 32, Sector A, Mahalaxmi Nagar',
         city: 'Indore',
         state: 'Madhya Pradesh',
-        pincode: '452001',
+        pincode: '452010',
       };
       changed = true;
     }
@@ -834,13 +1009,13 @@ async function seedWebsiteSettings(model: Model<WebsiteSettings>) {
     siteName: 'Woodivo',
     tagline: 'Handcrafted Furniture, Built to Last Generations',
     contact: {
-      phone: '+91 98765 43210',
-      whatsapp: '+91 98765 43210',
+      phone: '+91 62650 07710',
+      whatsapp: '+91 62650 07710',
       email: 'hello@woodivo.example',
-      address: '14 Workshop Lane, Industrial Area',
+      address: 'Plot no. 32, Sector A, Mahalaxmi Nagar',
       city: 'Indore',
       state: 'Madhya Pradesh',
-      pincode: '452001',
+      pincode: '452010',
     },
     socialLinks: {
       facebook: 'https://facebook.com/woodivo',

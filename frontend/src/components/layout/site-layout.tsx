@@ -2,6 +2,8 @@ import { Outlet } from 'react-router-dom';
 import { SiteHeader } from './site-header';
 import { SiteFooter } from './site-footer';
 import { WhatsAppFloatButton } from './whatsapp-float-button';
+import { MobileTabBar } from './mobile-tab-bar';
+import { ScrollToTop } from './scroll-to-top';
 import { EnquiryDialog } from '@/components/shared/enquiry-dialog';
 import { useSettings } from '@/features/settings/settings-api';
 import { useJsonLd } from '@/lib/use-json-ld';
@@ -55,11 +57,13 @@ export function SiteLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <ScrollToTop />
       <SiteHeader />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 sm:pb-0">
         <Outlet />
       </main>
       <SiteFooter />
+      <MobileTabBar />
       <WhatsAppFloatButton />
       <EnquiryDialog />
     </div>

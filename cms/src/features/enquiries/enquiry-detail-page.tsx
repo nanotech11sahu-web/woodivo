@@ -117,6 +117,7 @@ export function EnquiryDetailPage() {
                 </a>
               }
             />
+            <DetailRow label="State" value={enquiry.state || '\u2014'} />
             <DetailRow label="City" value={enquiry.city || '\u2014'} />
             <DetailRow label="Interested in" value={enquiry.interestedCategory?.name ?? '\u2014'} />
             <DetailRow label="Source" value={SOURCE_LABELS[enquiry.source]} />

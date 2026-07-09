@@ -53,6 +53,7 @@ export class EnquiriesService {
     const enquiry = await new this.enquiryModel({
       fullName: dto.fullName,
       mobileNumber: dto.mobileNumber,
+      state: dto.state,
       city: dto.city,
       message: dto.message,
       source: dto.source,
@@ -63,6 +64,7 @@ export class EnquiriesService {
     void this.mailService.sendEnquiryNotification({
       fullName: enquiry.fullName,
       mobileNumber: enquiry.mobileNumber,
+      state: enquiry.state,
       city: enquiry.city,
       categoryName: categoryDoc?.name,
       message: enquiry.message,
@@ -95,6 +97,7 @@ export class EnquiriesService {
       filter.$or = [
         { fullName: { $regex: search, $options: 'i' } },
         { mobileNumber: { $regex: search, $options: 'i' } },
+        { state: { $regex: search, $options: 'i' } },
         { city: { $regex: search, $options: 'i' } },
       ];
     }

@@ -5,6 +5,7 @@ import {
   Category,
   CategorySchema,
 } from '@modules/categories/schemas/category.schema';
+import { Blog, BlogSchema } from '@modules/blogs/schemas/blog.schema';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
@@ -18,6 +19,10 @@ import { ProductsAdminController } from './products.admin.controller';
       // module dependency, since CategoriesModule imports ProductsModule
       // for its own referential-integrity checks.
       { name: Category.name, schema: CategorySchema },
+      // Same reasoning — registered directly rather than importing
+      // BlogsModule, so ProductsService can validate/populate
+      // `relatedBlogs` without introducing a module dependency either way.
+      { name: Blog.name, schema: BlogSchema },
     ]),
     SeoEntriesModule,
   ],

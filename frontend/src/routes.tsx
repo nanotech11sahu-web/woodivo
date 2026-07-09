@@ -2,7 +2,9 @@ import { createBrowserRouter } from 'react-router-dom';
 import { SiteLayout } from '@/components/layout/site-layout';
 import { HomePage } from '@/pages/home/home-page';
 import { CategoryListingPage } from '@/pages/categories/category-listing-page';
+import { CategoriesIndexPage } from '@/pages/categories/categories-index-page';
 import { ProductDetailsPage } from '@/pages/products/product-details-page';
+import { SearchResultsPage } from '@/pages/products/search-results-page';
 import { ProjectListingPage } from '@/pages/projects/project-listing-page';
 import { ProjectDetailsPage } from '@/pages/projects/project-details-page';
 import { GalleryPage } from '@/pages/gallery/gallery-page';
@@ -29,8 +31,10 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'about', element: <AboutPage /> },
+      { path: 'categories', element: <CategoriesIndexPage /> },
       { path: 'categories/:slug', element: <CategoryListingPage /> },
       { path: 'products/:slug', element: <ProductDetailsPage /> },
+      { path: 'search', element: <SearchResultsPage /> },
       { path: 'projects', element: <ProjectListingPage /> },
       { path: 'projects/:slug', element: <ProjectDetailsPage /> },
       { path: 'gallery', element: <GalleryPage /> },
