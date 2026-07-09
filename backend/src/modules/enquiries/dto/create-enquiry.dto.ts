@@ -21,6 +21,11 @@ export class CreateEnquiryDto {
   @IsOptional()
   @IsString()
   @MaxLength(80)
+  state?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
   city?: string;
 
   @IsOptional()

@@ -16,6 +16,7 @@ import {
 import { MediaAssetDto } from '@common/dto/media-asset.dto';
 import { SpecificationItemDto } from '@common/dto/specification-item.dto';
 import { ProductStatus } from '../schemas/product.schema';
+import { ProductFaqItemDto } from './product-faq-item.dto';
 
 export class UpdateProductDto {
   @IsOptional()
@@ -59,6 +60,17 @@ export class UpdateProductDto {
   @IsArray()
   @IsMongoId({ each: true })
   relatedProducts?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsMongoId({ each: true })
+  relatedBlogs?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductFaqItemDto)
+  faqs?: ProductFaqItemDto[];
 
   @IsOptional()
   @Type(() => Number)

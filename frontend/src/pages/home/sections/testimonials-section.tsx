@@ -3,9 +3,10 @@ import { useTestimonials } from '@/features/testimonials/testimonials-api';
 import { SectionHeading } from '@/components/shared/section-heading';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
+import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
 
 export function TestimonialsSection() {
-  const { data, isLoading, isError } = useTestimonials(true, 6);
+  const { data, isLoading, isError } = useTestimonials(true, 7);
   const testimonials = data?.items;
 
   if (!isLoading && !isError && (!testimonials || testimonials.length === 0)) {
@@ -13,7 +14,7 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="bg-ivory-deep px-4 py-24 sm:px-6 lg:px-8">
+    <section className="bg-ivory-deep px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading eyebrow="Client stories" title="What our clients say" />
 
@@ -21,11 +22,11 @@ export function TestimonialsSection() {
         {isError ? <div className="mt-10"><ErrorNote label="Testimonials" /></div> : null}
 
         {testimonials && testimonials.length > 0 ? (
-          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <CardSlider className="mt-14">
             {testimonials.map((testimonial) => (
               <figure
                 key={testimonial._id}
-                className="flex flex-col rounded-[var(--radius-card)] border border-border-warm bg-ivory p-6"
+                className={`flex flex-col rounded-[var(--radius-card)] border border-border-warm bg-ivory p-6 ${sliderItemWidths.testimonial}`}
               >
                 {testimonial.rating ? (
                   <div className="mb-3 flex gap-0.5">
@@ -66,7 +67,7 @@ export function TestimonialsSection() {
                 </figcaption>
               </figure>
             ))}
-          </div>
+          </CardSlider>
         ) : null}
       </div>
     </section>

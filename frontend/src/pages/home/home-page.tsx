@@ -40,10 +40,10 @@ export function HomePage() {
       <HeroSection />
       <FeaturedCategoriesSection />
       <FeaturedProductsSection />
+      <BlogsSection />
       <WhyWoodivoSection />
       <ProjectsSection />
       <TestimonialsSection />
-      <BlogsSection />
       <FaqsSection />
       <CtaSection />
     </>

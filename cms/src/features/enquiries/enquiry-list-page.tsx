@@ -83,6 +83,7 @@ export function EnquiryListPage() {
           <p className="text-xs text-ink-muted">
             {row.mobileNumber}
             {row.city ? ` \u00b7 ${row.city}` : ''}
+            {row.state ? `, ${row.state}` : ''}
           </p>
         </div>
       ),
@@ -162,7 +163,7 @@ export function EnquiryListPage() {
 
       <div className="mb-4 flex flex-wrap gap-3">
         <Input
-          placeholder="Search name, mobile, city…"
+          placeholder="Search name, mobile, state, city…"
           value={search}
           onChange={(event) => handleSearchChange(event.target.value)}
           className="max-w-xs"

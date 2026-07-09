@@ -68,7 +68,7 @@ export function ProjectListingPage() {
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,_rgba(176,129,63,0.18),_transparent_45%)]" />
         )}
-        <div className="relative mx-auto max-w-5xl px-4 py-20 text-center sm:px-6">
+        <div className="relative mx-auto max-w-5xl px-4 py-14 text-center sm:px-6">
           <div className="mb-6 flex justify-center">
             <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Projects' }]} />
           </div>

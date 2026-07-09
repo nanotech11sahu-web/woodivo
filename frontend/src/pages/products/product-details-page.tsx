@@ -10,6 +10,7 @@ import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 import { EntityNotFound } from '@/components/shared/entity-not-found';
 import { ProductCard } from '@/components/shared/product-card';
+import { BlogCard } from '@/components/shared/blog-card';
 import { JaliDivider } from '@/components/shared/jali-divider';
 import { MediaGallery } from '@/components/shared/media-gallery';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,33 @@ function useProductJsonLd(product: Product | undefined, canonicalHref: string): 
   useJsonLd('entity', schema);
 }
 
+/**
+ * Sibling to `useProductJsonLd` — a separate `'faq'` key so the two scripts
+ * don't clobber each other (`useJsonLd` upserts per-key). Mirrors the blog
+ * details page's `useFaqJsonLd`: only emitted when the product actually has
+ * FAQ entries, and the FAQ section below always renders alongside it, per
+ * Google's guidance that `FAQPage` markup should match visible content.
+ */
+function useProductFaqJsonLd(faqs: Product['faqs'] | undefined): void {
+  const schema =
+    faqs && faqs.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faqs.map((faq) => ({
+            '@type': 'Question',
+            name: faq.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: faq.answer,
+            },
+          })),
+        }
+      : undefined;
+
+  useJsonLd('faq', schema);
+}
+
 export function ProductDetailsPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading, isError, error } = useProduct(slug);
@@ -73,6 +101,7 @@ export function ProductDetailsPage() {
   });
 
   useProductJsonLd(product, toAbsoluteUrl(canonicalPath ?? window.location.pathname));
+  useProductFaqJsonLd(product?.faqs);
 
   if (isLoading) {
     return <SectionSpinner />;
@@ -100,6 +129,8 @@ export function ProductDetailsPage() {
 
   const category = typeof product.category === 'object' ? product.category : undefined;
   const relatedProducts = product.relatedProducts;
+  const relatedBlogs = product.relatedBlogs;
+  const faqs = product.faqs;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -162,6 +193,20 @@ export function ProductDetailsPage() {
         </div>
       </div>
 
+      {faqs.length > 0 ? (
+        <section className="mt-20">
+          <h2 className="text-2xl text-teak">Frequently asked questions</h2>
+          <div className="mt-6 space-y-4">
+            {faqs.map((faq, index) => (
+              <div key={index} className="border-b border-border-warm pb-4">
+                <p className="font-semibold text-teak">{faq.question}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-charcoal-soft">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {relatedProducts.length > 0 ? (
         <section className="mt-24">
           <div className="mb-10 w-32">
@@ -171,6 +216,20 @@ export function ProductDetailsPage() {
           <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((related) => (
               <ProductCard key={related._id} product={related} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {relatedBlogs.length > 0 ? (
+        <section className="mt-24">
+          <div className="mb-10 w-32">
+            <JaliDivider />
+          </div>
+          <h2 className="text-2xl text-teak">Related reading</h2>
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedBlogs.map((blog) => (
+              <BlogCard key={blog._id} blog={blog} />
             ))}
           </div>
         </section>

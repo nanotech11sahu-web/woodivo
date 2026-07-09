@@ -16,7 +16,7 @@ export function FaqsSection() {
   }
 
   return (
-    <section className="bg-ivory-deep px-4 py-24 sm:px-6 lg:px-8">
+    <section className="bg-ivory-deep px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <SectionHeading eyebrow="Questions" title="Frequently asked questions" />
 

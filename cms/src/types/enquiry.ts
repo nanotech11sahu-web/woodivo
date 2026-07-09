@@ -12,6 +12,7 @@ export interface Enquiry {
   _id: string;
   fullName: string;
   mobileNumber: string;
+  state?: string;
   city?: string;
   interestedCategory?: EnquiryCategoryRef;
   message?: string;

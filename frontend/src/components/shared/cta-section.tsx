@@ -28,7 +28,7 @@ export function CtaSection({
   const { openEnquiryDialog } = useEnquiryDialog();
 
   return (
-    <section className="relative overflow-hidden bg-teak-deep px-4 py-24 text-center text-ivory sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-teak-deep px-4 py-16 text-center text-ivory sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,_rgba(176,129,63,0.25),_transparent_55%)]" />
       <div className="relative mx-auto max-w-2xl">
         <h2 className="text-4xl leading-tight sm:text-5xl">{title}</h2>

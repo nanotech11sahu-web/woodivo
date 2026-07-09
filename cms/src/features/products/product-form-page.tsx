@@ -20,9 +20,11 @@ import { useProduct, useCreateProduct, useUpdateProduct } from './products-api';
 import { useCategoryOptions } from '@/features/categories/categories-api';
 import { SpecificationsEditor } from './specifications-editor';
 import { RelatedProductsPicker } from './related-products-picker';
+import { RelatedBlogsPicker } from './related-blogs-picker';
+import { ProductFaqEditor } from './product-faq-editor';
 import { productFormSchema, PRODUCT_FORM_DEFAULTS, type ProductFormValues } from './product-form-schema';
 import type { MediaAsset } from '@/types/common';
-import type { RelatedProductRef } from '@/types/product';
+import type { RelatedProductRef, RelatedBlogRef, ProductFaqItem } from '@/types/product';
 
 export function ProductFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +38,8 @@ export function ProductFormPage() {
 
   const [images, setImages] = useState<MediaAsset[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<RelatedProductRef[]>([]);
+  const [relatedBlogs, setRelatedBlogs] = useState<RelatedBlogRef[]>([]);
+  const [faqs, setFaqs] = useState<ProductFaqItem[]>([]);
 
   const {
     register,
@@ -62,6 +66,8 @@ export function ProductFormPage() {
     });
     setImages(product.images ?? []);
     setRelatedProducts(product.relatedProducts ?? []);
+    setRelatedBlogs(product.relatedBlogs ?? []);
+    setFaqs(product.faqs ?? []);
   }, [product, reset]);
 
   async function onSubmit(values: ProductFormValues) {
@@ -76,6 +82,8 @@ export function ProductFormPage() {
       status: values.status,
       isFeatured: values.isFeatured,
       relatedProducts: relatedProducts.map((p) => p._id),
+      relatedBlogs: relatedBlogs.map((b) => b._id),
+      faqs,
     };
 
     try {
@@ -165,6 +173,9 @@ export function ProductFormPage() {
         <Card>
           <CardHeader>
             <CardTitle>Related products</CardTitle>
+            <p className="mt-1 text-xs text-ink-muted">
+              Optional — leave empty and the product page automatically shows other active products from the same category instead.
+            </p>
           </CardHeader>
           <CardContent>
             <RelatedProductsPicker
@@ -172,6 +183,30 @@ export function ProductFormPage() {
               onChange={setRelatedProducts}
               excludeProductId={id}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Related blog posts</CardTitle>
+            <p className="mt-1 text-xs text-ink-muted">
+              Optional — leave empty and the product page automatically shows the most recently published blog posts instead.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <RelatedBlogsPicker value={relatedBlogs} onChange={setRelatedBlogs} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>FAQs</CardTitle>
+            <p className="mt-1 text-xs text-ink-muted">
+              Optional — leave empty and a generic set of furniture FAQs (customization, delivery, warranty, care) is shown instead.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <ProductFaqEditor value={faqs} onChange={setFaqs} />
           </CardContent>
         </Card>
 

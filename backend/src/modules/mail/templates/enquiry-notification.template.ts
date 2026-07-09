@@ -1,6 +1,7 @@
 export interface EnquiryNotificationData {
   fullName: string;
   mobileNumber: string;
+  state?: string;
   city?: string;
   categoryName?: string;
   message?: string;
@@ -15,6 +16,7 @@ export function buildEnquiryNotificationEmail(data: EnquiryNotificationData): {
   const rows: Array<[string, string]> = [
     ['Name', escapeHtml(data.fullName)],
     ['Mobile', escapeHtml(data.mobileNumber)],
+    ['State', data.state ? escapeHtml(data.state) : '—'],
     ['City', data.city ? escapeHtml(data.city) : '—'],
     [
       'Interested Category',

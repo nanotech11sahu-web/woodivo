@@ -3,16 +3,17 @@ import { SectionHeading } from '@/components/shared/section-heading';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 import { BlogCard } from '@/components/shared/blog-card';
+import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
 
 export function BlogsSection() {
-  const { data: blogs, isLoading, isError } = useLatestBlogs(3);
+  const { data: blogs, isLoading, isError } = useLatestBlogs(8);
 
   if (!isLoading && !isError && (!blogs || blogs.length === 0)) {
     return null;
   }
 
   return (
-    <section className="bg-ivory px-4 py-24 sm:px-6 lg:px-8">
+    <section className="bg-ivory px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="From the workshop"
@@ -24,11 +25,13 @@ export function BlogsSection() {
         {isError ? <div className="mt-10"><ErrorNote label="Blogs" /></div> : null}
 
         {blogs && blogs.length > 0 ? (
-          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <CardSlider className="mt-14">
             {blogs.map((blog) => (
-              <BlogCard key={blog._id} blog={blog} />
+              <div key={blog._id} className={sliderItemWidths.blog}>
+                <BlogCard blog={blog} />
+              </div>
             ))}
-          </div>
+          </CardSlider>
         ) : null}
       </div>
     </section>

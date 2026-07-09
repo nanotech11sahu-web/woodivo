@@ -30,6 +30,9 @@ export class Enquiry {
   mobileNumber!: string;
 
   @Prop({ trim: true, maxlength: 80 })
+  state?: string;
+
+  @Prop({ trim: true, maxlength: 80 })
   city?: string;
 
   @Prop({ type: Types.ObjectId, ref: Category.name, index: true })

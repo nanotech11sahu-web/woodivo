@@ -33,6 +33,28 @@ export interface RelatedProductRef {
   images?: MediaAsset[];
 }
 
+// What findBySlugPublic's relatedBlogs populate actually returns
+// (select: 'title slug excerpt featuredImage publishAt createdAt',
+// filtered to published posts only via match) -- mirrors the CMS's
+// RelatedBlogRef, and matches BlogCardItem's shape so the same card
+// component can render it.
+export interface RelatedBlogRef {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  featuredImage?: MediaAsset;
+  publishAt?: string;
+  createdAt: string;
+}
+
+// Per-product FAQ pair — mirrors Blog['faqs'], distinct from the site-wide
+// homepage FAQs collection.
+export interface ProductFaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface Product {
   _id: string;
   category: ProductCategoryRef | string;
@@ -43,6 +65,8 @@ export interface Product {
   specifications: SpecificationItem[];
   isFeatured: boolean;
   relatedProducts: RelatedProductRef[];
+  relatedBlogs: RelatedBlogRef[];
+  faqs: ProductFaqItem[];
   displayOrder: number;
   createdAt: string;
   updatedAt: string;

@@ -1,4 +1,4 @@
-import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
@@ -15,19 +15,12 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig>('app');
 
-  // Crawlers expect these two at the root of whatever origin serves them,
-  // not under /api/v1 — excluded here rather than moved off API_PREFIX
-  // entirely. NOTE: this only puts them at the API's own root
-  // (http://api-host/sitemap.xml). If the public frontend is a separately
-  // hosted static SPA on a different origin, add a reverse-proxy rewrite
-  // there (e.g. nginx/Vercel rule for /sitemap.xml and /robots.txt ->
-  // this API) so they resolve at the frontend's root too.
-  app.setGlobalPrefix(API_PREFIX, {
-    exclude: [
-      { path: 'sitemap.xml', method: RequestMethod.GET },
-      { path: 'robots.txt', method: RequestMethod.GET },
-    ],
-  });
+  // NOTE: sitemap.xml/robots.txt used to be excluded here and served by
+  // this API directly. They're now generated as static files on the
+  // frontend (frontend/scripts/generate-sitemap.mjs) from the
+  // /seo/sitemap-data endpoint below, so no prefix exclusion is needed —
+  // that endpoint lives under the normal API_PREFIX like everything else.
+  app.setGlobalPrefix(API_PREFIX);
 
   app.use(helmet());
   app.use(compression());

@@ -1,26 +1,44 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Color — warm heartwood + brass, distinct from the CMS's admin palette.
-     Named after what they actually are in the workshop, not generic "primary/accent". */
-  --color-ivory: #faf5ec;
-  --color-ivory-deep: #f1e6d3;
-  --color-charcoal: #241a12;
-  --color-charcoal-soft: #5c4a3a;
-  --color-teak: #4a2e1b;
-  --color-teak-deep: #2a1810;
-  --color-brass: #b0813f;
-  --color-brass-light: #d9b77c;
-  --color-brass-pale: #f2e4c8;
-  --color-vermilion: #a23e2e;
-  --color-vermilion-pale: #f3e0da;
-  --color-border-warm: #e4d5bd;
+  /* Color — clean marketplace palette (white surfaces, near-black text,
+     blue accent for links/CTAs, warm-orange for footer service icons),
+     matching the storefront reference. Token names kept as-is (brass/teak/
+     ivory) so every component that already reads them repaints for free —
+     only the values changed, not what they mean. */
+  --color-ivory: #ffffff;
+  --color-ivory-deep: #f5f6f8;
+  --color-charcoal: #17181c;
+  --color-charcoal-soft: #6b7280;
+  --color-teak: #14161a;
+  --color-teak-deep: #0b0c0e;
+  --color-brass: #2563eb;
+  --color-brass-light: #4f8cf7;
+  --color-brass-pale: #eaf1ff;
+  --color-vermilion: #f2760f;
+  --color-vermilion-pale: #fdece0;
+  --color-border-warm: #e6e8ec;
 
-  /* Type */
-  --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
+  /* Type — one clean sans family throughout, no serif; weight carries the
+     hierarchy instead. */
+  --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Sora', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-card: 0.375rem;
+  --radius-card: 0.625rem;
+  --radius-pill: 999px;
+}
+
+@layer utilities {
+  /* Hides the scrollbar on horizontal card sliders while keeping native
+     touch/trackpad/keyboard scrolling fully functional. */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -44,7 +62,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.01em;
   }
 

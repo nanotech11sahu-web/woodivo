@@ -13,6 +13,7 @@ import {
   BlogDocument,
   BlogStatus,
 } from './schemas/blog.schema';
+import { Product, ProductDocument } from '@modules/products/schemas/product.schema';
 import { slugify } from '@common/utils/slugify';
 import {
   buildPaginationMeta,
@@ -34,6 +35,8 @@ export class BlogsService {
     private readonly blogModel: Model<BlogDocument>,
     @InjectModel(BlogCategory.name)
     private readonly blogCategoryModel: Model<BlogCategoryDocument>,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<ProductDocument>,
     private readonly seoEntriesService: SeoEntriesService,
   ) {}
 
@@ -203,6 +206,12 @@ export class BlogsService {
     if (result.deletedCount === 0) {
       throw new NotFoundException('Blog not found');
     }
+    // Detach this post from any product's relatedBlogs list — mirrors
+    // ProductsService.remove's cleanup of relatedProducts.
+    await this.productModel.updateMany(
+      { relatedBlogs: id },
+      { $pull: { relatedBlogs: id } },
+    );
     await this.seoEntriesService.removeForEntity(SeoPageType.BLOG, id);
   }
 

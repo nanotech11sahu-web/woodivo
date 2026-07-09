@@ -16,6 +16,7 @@ import {
   CategoryDocument,
   CategoryStatus,
 } from '@modules/categories/schemas/category.schema';
+import { Blog, BlogDocument, BlogStatus } from '@modules/blogs/schemas/blog.schema';
 import { slugify } from '@common/utils/slugify';
 import {
   buildPaginationMeta,
@@ -29,6 +30,43 @@ import { QueryProductDto } from './dto/query-product.dto';
 import { QueryPublicProductDto } from './dto/query-public-product.dto';
 
 const CATEGORY_POPULATE_FIELDS = 'name slug thumbnail status';
+const RELATED_FALLBACK_LIMIT = 8;
+const RELATED_BLOGS_FALLBACK_LIMIT = 3;
+
+/**
+ * Shown on a product's detail page only when that product has no FAQs of
+ * its own in the CMS — generic enough to apply to any piece of furniture,
+ * so a product never ships with a bare FAQ section. As soon as an editor
+ * adds even one FAQ row in the CMS, these are fully replaced (never
+ * merged) by that product's own list.
+ */
+const DEFAULT_PRODUCT_FAQS = [
+  {
+    question: 'What wood is this piece made from?',
+    answer:
+      'Every piece is solid wood, hand-selected and finished to order — get in touch and we can confirm the exact species and finish options for this product.',
+  },
+  {
+    question: 'Can I customize the size, wood, or finish?',
+    answer:
+      'Yes — most pieces can be made to your preferred dimensions, wood type, and finish. Use the Enquire or Get Quote button above and we\u2019ll work out the details with you.',
+  },
+  {
+    question: 'How long does delivery take?',
+    answer:
+      'Since each piece is made to order, timelines vary by design and customization. Reach out via the enquiry form and we\u2019ll give you an estimate for this specific product.',
+  },
+  {
+    question: 'Do you offer a warranty?',
+    answer:
+      'Our handcrafted furniture is built to last generations. Contact us for details on the warranty coverage for this product.',
+  },
+  {
+    question: 'How do I care for solid wood furniture?',
+    answer:
+      'Keep it out of direct, prolonged sunlight and away from excess moisture, and dust with a soft, dry cloth. We\u2019re happy to share wood-specific care tips for this piece on request.',
+  },
+];
 
 @Injectable()
 export class ProductsService {
@@ -37,6 +75,8 @@ export class ProductsService {
     private readonly productModel: Model<ProductDocument>,
     @InjectModel(Category.name)
     private readonly categoryModel: Model<CategoryDocument>,
+    @InjectModel(Blog.name)
+    private readonly blogModel: Model<BlogDocument>,
     private readonly seoEntriesService: SeoEntriesService,
   ) {}
 
@@ -45,6 +85,7 @@ export class ProductsService {
     const slug = slugify(dto.slug || dto.name);
     await this.ensureSlugAvailable(slug);
     await this.ensureRelatedProductsExist(dto.relatedProducts);
+    await this.ensureRelatedBlogsExist(dto.relatedBlogs);
 
     const product = new this.productModel({
       ...dto,
@@ -149,12 +190,25 @@ export class ProductsService {
       .findById(id)
       .populate('category', CATEGORY_POPULATE_FIELDS)
       .populate('relatedProducts', 'name slug images status')
+      .populate('relatedBlogs', 'title slug featuredImage status')
       .exec();
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }
 
-  async findBySlugPublic(slug: string): Promise<ProductDocument> {
+  /**
+   * Public product detail. Three fields fall back to sensible defaults
+   * whenever the CMS hasn't set them for this specific product, so a
+   * freshly-created product never shows a bare "no related items"/"no
+   * FAQs" page:
+   *  - `relatedProducts` empty -> other active products in the same category
+   *  - `relatedBlogs` empty    -> the most recently published blog posts
+   *  - `faqs` empty            -> `DEFAULT_PRODUCT_FAQS` (generic, not saved)
+   * The moment a CMS editor adds even one item to any of these, that
+   * product's own picks are used instead — fallbacks never merge with
+   * real editorial choices.
+   */
+  async findBySlugPublic(slug: string): Promise<Record<string, unknown>> {
     const product = await this.productModel
       .findOne({ slug: slugify(slug), status: ProductStatus.ACTIVE })
       .populate('category', CATEGORY_POPULATE_FIELDS)
@@ -163,9 +217,62 @@ export class ProductsService {
         match: { status: ProductStatus.ACTIVE },
         select: 'name slug images',
       })
+      .populate({
+        path: 'relatedBlogs',
+        match: { status: BlogStatus.PUBLISHED },
+        select: 'title slug excerpt featuredImage publishAt createdAt',
+      })
       .exec();
     if (!product) throw new NotFoundException('Product not found');
-    return product;
+
+    const result = product.toObject() as unknown as Record<string, unknown>;
+
+    // populate() with `match` leaves a `null` in the array for any ref that
+    // didn't match (e.g. a related product that went inactive) rather than
+    // shortening it — filter those out before deciding whether the CMS
+    // picks are actually "empty".
+    const pickedRelatedProducts = (
+      result.relatedProducts as Array<unknown> | undefined
+    )?.filter(Boolean) ?? [];
+    const pickedRelatedBlogs = (
+      result.relatedBlogs as Array<unknown> | undefined
+    )?.filter(Boolean) ?? [];
+
+    if (pickedRelatedProducts.length > 0) {
+      result.relatedProducts = pickedRelatedProducts;
+    } else {
+      const categoryId =
+        typeof product.category === 'object' && product.category !== null
+          ? (product.category as { _id: Types.ObjectId })._id
+          : product.category;
+      result.relatedProducts = await this.productModel
+        .find({
+          category: categoryId,
+          status: ProductStatus.ACTIVE,
+          _id: { $ne: product._id },
+        })
+        .select('name slug images')
+        .sort({ displayOrder: 1 })
+        .limit(RELATED_FALLBACK_LIMIT)
+        .exec();
+    }
+
+    if (pickedRelatedBlogs.length > 0) {
+      result.relatedBlogs = pickedRelatedBlogs;
+    } else {
+      result.relatedBlogs = await this.blogModel
+        .find({ status: BlogStatus.PUBLISHED })
+        .select('title slug excerpt featuredImage publishAt createdAt')
+        .sort({ publishAt: -1, createdAt: -1 })
+        .limit(RELATED_BLOGS_FALLBACK_LIMIT)
+        .exec();
+    }
+
+    if (!Array.isArray(result.faqs) || result.faqs.length === 0) {
+      result.faqs = DEFAULT_PRODUCT_FAQS;
+    }
+
+    return result;
   }
 
   async update(id: string, dto: UpdateProductDto): Promise<ProductDocument> {
@@ -187,6 +294,10 @@ export class ProductsService {
 
     if (dto.relatedProducts) {
       await this.ensureRelatedProductsExist(dto.relatedProducts, id);
+    }
+
+    if (dto.relatedBlogs) {
+      await this.ensureRelatedBlogsExist(dto.relatedBlogs);
     }
 
     Object.assign(product, {
@@ -250,6 +361,19 @@ export class ProductsService {
     if (count !== new Set(ids).size) {
       throw new BadRequestException(
         'One or more relatedProducts ids do not exist',
+      );
+    }
+  }
+
+  private async ensureRelatedBlogsExist(
+    ids: string[] | undefined,
+  ): Promise<void> {
+    if (!ids?.length) return;
+
+    const count = await this.blogModel.countDocuments({ _id: { $in: ids } });
+    if (count !== new Set(ids).size) {
+      throw new BadRequestException(
+        'One or more relatedBlogs ids do not exist',
       );
     }
   }

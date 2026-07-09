@@ -48,7 +48,7 @@ export function WhyWoodivoSection() {
     : DEFAULT_POINTS;
 
   return (
-    <section className="bg-teak px-4 py-24 text-ivory sm:px-6 lg:px-8">
+    <section className="bg-teak px-4 py-16 text-ivory sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="Why Woodivo"
