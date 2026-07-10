@@ -23,11 +23,13 @@ export enum MediaFolder {
   TESTIMONIALS = 'testimonials',
   SETTINGS = 'settings',
   ABOUT = 'about',
+  ENQUIRIES = 'enquiries',
   MISC = 'misc',
 }
 
 export const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 export const MAX_FILES_PER_UPLOAD = 10;
+export const MAX_CUSTOM_ORDER_IMAGES = 4;
 export const ALLOWED_IMAGE_MIME_TYPES = [
   'image/jpeg',
   'image/png',

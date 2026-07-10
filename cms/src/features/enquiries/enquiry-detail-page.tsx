@@ -120,6 +120,9 @@ export function EnquiryDetailPage() {
             <DetailRow label="State" value={enquiry.state || '\u2014'} />
             <DetailRow label="City" value={enquiry.city || '\u2014'} />
             <DetailRow label="Interested in" value={enquiry.interestedCategory?.name ?? '\u2014'} />
+            {enquiry.interestedProduct ? (
+              <DetailRow label="Product to customize" value={enquiry.interestedProduct.name} />
+            ) : null}
             <DetailRow label="Source" value={SOURCE_LABELS[enquiry.source]} />
             <div>
               <p className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-muted">
@@ -129,6 +132,30 @@ export function EnquiryDetailPage() {
                 {enquiry.message || 'No message was left with this enquiry.'}
               </p>
             </div>
+            {enquiry.referenceImages && enquiry.referenceImages.length > 0 ? (
+              <div>
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-muted">
+                  Reference photos ({enquiry.referenceImages.length})
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  {enquiry.referenceImages.map((image, index) => (
+                    <a
+                      key={image.publicId ?? index}
+                      href={image.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block overflow-hidden rounded-md border border-border-warm"
+                    >
+                      <img
+                        src={image.url}
+                        alt={image.alt || `Reference photo ${index + 1}`}
+                        className="aspect-square w-full object-cover transition-transform hover:scale-105"
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 

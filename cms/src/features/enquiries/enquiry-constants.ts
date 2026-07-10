@@ -11,6 +11,8 @@ export const ENQUIRY_SOURCES: EnquirySource[] = [
   'category',
   'project',
   'floating_cta',
+  'about',
+  'custom_order',
 ];
 
 export const SOURCE_LABELS: Record<EnquirySource, string> = {
@@ -20,4 +22,6 @@ export const SOURCE_LABELS: Record<EnquirySource, string> = {
   project: 'Project page',
   contact: 'Contact page',
   floating_cta: 'Floating CTA',
+  about: 'About page',
+  custom_order: 'Customize request',
 };

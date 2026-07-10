@@ -11,9 +11,10 @@ const PAGE_SIZE = 100;
 
 // Aggregates every public category/product/blog/project (slug + updatedAt)
 // for the sitemap. This is the ONLY thing the backend does for SEO now —
-// the actual sitemap.xml/sitemap-*.xml/robots.txt files are generated as
-// static files on the frontend from this data
-// (frontend/scripts/generate-sitemap.mjs), not served by this API.
+// the actual sitemap.xml/sitemap-*.xml/robots.txt files are generated on
+// every request by frontend serverless functions (frontend/api/sitemap.js,
+// sitemap-index.js, robots.js) that call this endpoint live, not baked
+// into a static file at frontend build time.
 @Injectable()
 export class SeoService {
   constructor(

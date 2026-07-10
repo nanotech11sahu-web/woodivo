@@ -4,6 +4,8 @@ export interface EnquiryNotificationData {
   state?: string;
   city?: string;
   categoryName?: string;
+  productName?: string;
+  referenceImageCount?: number;
   message?: string;
   source: string;
   submittedAt: Date;
@@ -22,6 +24,16 @@ export function buildEnquiryNotificationEmail(data: EnquiryNotificationData): {
       'Interested Category',
       data.categoryName ? escapeHtml(data.categoryName) : '—',
     ],
+    ...(data.productName
+      ? ([['Product to Customize', escapeHtml(data.productName)]] as Array<
+          [string, string]
+        >)
+      : []),
+    ...(data.referenceImageCount
+      ? ([
+          ['Reference Photos', String(data.referenceImageCount)],
+        ] as Array<[string, string]>)
+      : []),
     ['Source', escapeHtml(data.source)],
     [
       'Submitted',

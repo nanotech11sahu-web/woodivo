@@ -11,6 +11,11 @@ import {
   CategoryDocument,
   CategoryStatus,
 } from '@modules/categories/schemas/category.schema';
+import {
+  Product,
+  ProductDocument,
+  ProductStatus,
+} from '@modules/products/schemas/product.schema';
 import { MailService } from '@modules/mail/mail.service';
 import { slugify } from '@common/utils/slugify';
 import {
@@ -33,11 +38,14 @@ export class EnquiriesService {
     private readonly enquiryModel: Model<EnquiryDocument>,
     @InjectModel(Category.name)
     private readonly categoryModel: Model<CategoryDocument>,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<ProductDocument>,
     private readonly mailService: MailService,
   ) {}
 
   async create(dto: CreateEnquiryDto): Promise<EnquiryDocument> {
     let categoryDoc: CategoryDocument | null = null;
+    let productDoc: ProductDocument | null = null;
 
     if (dto.interestedCategory) {
       categoryDoc = await this.categoryModel
@@ -50,6 +58,16 @@ export class EnquiriesService {
       // capture the lead, just without the category link.
     }
 
+    if (dto.interestedProduct) {
+      productDoc = await this.productModel
+        .findOne({
+          slug: slugify(dto.interestedProduct),
+          status: ProductStatus.ACTIVE,
+        })
+        .exec();
+      // Same non-fatal treatment as category above.
+    }
+
     const enquiry = await new this.enquiryModel({
       fullName: dto.fullName,
       mobileNumber: dto.mobileNumber,
@@ -58,6 +76,8 @@ export class EnquiriesService {
       message: dto.message,
       source: dto.source,
       interestedCategory: categoryDoc?._id,
+      interestedProduct: productDoc?._id,
+      referenceImages: dto.referenceImages,
     }).save();
 
     // Fire-and-forget: never let a slow/broken mailbox fail the enquiry.
@@ -67,6 +87,8 @@ export class EnquiriesService {
       state: enquiry.state,
       city: enquiry.city,
       categoryName: categoryDoc?.name,
+      productName: productDoc?.name,
+      referenceImageCount: enquiry.referenceImages?.length ?? 0,
       message: enquiry.message,
       source: enquiry.source,
       submittedAt: enquiry.createdAt ?? new Date(),
@@ -111,6 +133,7 @@ export class EnquiriesService {
       this.enquiryModel
         .find(filter)
         .populate('interestedCategory', 'name slug')
+        .populate('interestedProduct', 'name slug')
         .sort(sort)
         .skip(skip)
         .limit(limit)
@@ -125,6 +148,7 @@ export class EnquiriesService {
     const enquiry = await this.enquiryModel
       .findById(id)
       .populate('interestedCategory', 'name slug')
+      .populate('interestedProduct', 'name slug')
       .exec();
     if (!enquiry) throw new NotFoundException('Enquiry not found');
     return enquiry;

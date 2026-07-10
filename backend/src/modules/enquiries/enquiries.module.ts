@@ -5,7 +5,9 @@ import {
   Category,
   CategorySchema,
 } from '@modules/categories/schemas/category.schema';
+import { Product, ProductSchema } from '@modules/products/schemas/product.schema';
 import { MailModule } from '@modules/mail/mail.module';
+import { MediaModule } from '@modules/media/media.module';
 import { EnquiriesService } from './enquiries.service';
 import { EnquiriesController } from './enquiries.controller';
 import { EnquiriesAdminController } from './enquiries.admin.controller';
@@ -18,8 +20,14 @@ import { EnquiriesAdminController } from './enquiries.admin.controller';
       // this module lightweight and avoid pulling in Categories' own
       // ProductsModule dependency chain.
       { name: Category.name, schema: CategorySchema },
+      // Same reasoning — needed to resolve `interestedProduct` (customize
+      // requests are always product-scoped) without importing ProductsModule.
+      { name: Product.name, schema: ProductSchema },
     ]),
     MailModule,
+    // For the public "upload-images" endpoint the customize-request form
+    // posts reference photos to, ahead of the enquiry itself.
+    MediaModule,
   ],
   controllers: [EnquiriesController, EnquiriesAdminController],
   providers: [EnquiriesService],

@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useProduct } from '@/features/products/products-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
+import { CustomizeProductSection } from '@/features/enquiry/customize-product-section';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useJsonLd } from '@/lib/use-json-ld';
 import { isNotFoundError } from '@/lib/http-error';
@@ -206,6 +207,8 @@ export function ProductDetailsPage() {
           </div>
         </section>
       ) : null}
+
+      <CustomizeProductSection productSlug={product.slug} productName={product.name} />
 
       {relatedProducts.length > 0 ? (
         <section className="mt-24">
