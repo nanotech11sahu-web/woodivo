@@ -63,10 +63,6 @@ import {
   BlogStatus,
 } from '@modules/blogs/schemas/blog.schema';
 import {
-  Project,
-  ProjectStatus,
-} from '@modules/projects/schemas/project.schema';
-import {
   GalleryItem,
   GalleryItemType,
   GalleryItemStatus,
@@ -446,125 +442,6 @@ async function seedBlogs(
   logger.log(`Seeded ${created.length} blogs.`);
 }
 
-async function seedProjects(
-  model: Model<Project>,
-  categories: { _id: Types.ObjectId; name: string }[],
-) {
-  if (await model.countDocuments()) {
-    logger.log('Projects already exist — skipping.');
-    return;
-  }
-
-  const byName = (name: string) =>
-    categories.find((c) => c.name === name)?._id ?? categories[0]._id;
-
-  const defs = [
-    {
-      title: 'Whitefield Family Residence',
-      category: 'Dining Tables',
-      client: 'Private Residence',
-      location: 'Bengaluru',
-      year: '2025',
-      desc: 'Full dining and living room furnishing for a four-bedroom home.',
-    },
-    {
-      title: 'Koregaon Park Apartment Refit',
-      category: 'Wardrobes',
-      client: 'Private Residence',
-      location: 'Pune',
-      year: '2025',
-      desc: 'Custom wardrobe and closet system for a renovated apartment.',
-    },
-    {
-      title: 'Seaside Villa Outdoor Deck',
-      category: 'Outdoor Furniture',
-      client: 'Private Residence',
-      location: 'Goa',
-      year: '2024',
-      desc: 'Weather-treated teak seating and dining for an oceanfront deck.',
-    },
-    {
-      title: 'Boutique Café Interior',
-      category: 'Coffee Tables',
-      client: 'Commercial Client',
-      location: 'Indore',
-      year: '2024',
-      desc: 'Custom coffee tables and seating for a 40-seat café.',
-    },
-    {
-      title: 'Home Library Build-Out',
-      category: 'Bookshelves',
-      client: 'Private Residence',
-      location: 'Jaipur',
-      year: '2024',
-      desc: 'Floor-to-ceiling bookshelf system for a dedicated home library.',
-    },
-    {
-      title: 'Modular Kitchen Renovation',
-      category: 'Custom Cabinetry',
-      client: 'Private Residence',
-      location: 'Ahmedabad',
-      year: '2023',
-      desc: 'Full kitchen cabinetry replacement in solid wood.',
-    },
-    {
-      title: 'Hillside Bungalow Study',
-      category: 'Wooden Chairs',
-      client: 'Private Residence',
-      location: 'Shimla',
-      year: '2023',
-      desc: 'A reading nook fitted with carved accent chairs and a custom bookshelf.',
-    },
-    {
-      title: 'Riverside Restaurant Fit-Out',
-      category: 'Dining Tables',
-      client: 'Commercial Client',
-      location: 'Indore',
-      year: '2025',
-      desc: 'Solid-wood dining tables and chairs for a 60-seat riverside restaurant.',
-    },
-  ];
-
-  const projectKeywords: Record<string, string> = {
-    'Dining Tables': 'dining table,wood furniture',
-    'Coffee Tables': 'coffee table,wood furniture',
-    Wardrobes: 'wardrobe,wood furniture',
-    Bookshelves: 'bookshelf,wood furniture',
-    'Outdoor Furniture': 'teak bench,outdoor furniture',
-    'Custom Cabinetry': 'kitchen cabinet,wood',
-    'Wooden Chairs': 'wooden chair,furniture',
-  };
-
-  const docs = defs.map((d, i) => ({
-    title: d.title,
-    slug: slugify(d.title),
-    description: d.desc,
-    location: d.location,
-    completionYear: d.year,
-    category: byName(d.category),
-    coverImage: img(
-      projectKeywords[d.category] ?? 'wood furniture,interior',
-      1200,
-      900,
-      d.title,
-    ),
-    images: [
-      img(
-        projectKeywords[d.category] ?? 'wood furniture,interior',
-        1200,
-        900,
-        `${d.title} detail`,
-      ),
-    ],
-    isFeatured: true,
-    displayOrder: i,
-    status: ProjectStatus.ACTIVE,
-  }));
-
-  const created = await model.create(docs);
-  logger.log(`Seeded ${created.length} projects.`);
-}
-
 async function seedGallery(model: Model<GalleryItem>) {
   if (await model.countDocuments()) {
     logger.log('Gallery items already exist — skipping.');
@@ -732,11 +609,6 @@ async function seedBanners(model: Model<Banner>) {
       subtitle: 'Craftsmanship notes, care guides, and design ideas.',
     },
     {
-      placement: BannerPlacement.PROJECTS,
-      title: 'Projects We\u2019ve Delivered',
-      subtitle: 'A look at completed homes and spaces.',
-    },
-    {
       placement: BannerPlacement.ABOUT,
       title: 'Our Story',
       subtitle: 'Three generations of woodworking craft.',
@@ -753,7 +625,6 @@ async function seedBanners(model: Model<Banner>) {
     [BannerPlacement.CATEGORY]: 'wood furniture,showroom',
     [BannerPlacement.PRODUCT]: 'wood furniture,dining table',
     [BannerPlacement.BLOG]: 'woodworking,carpenter',
-    [BannerPlacement.PROJECTS]: 'interior design,wood furniture',
     [BannerPlacement.ABOUT]: 'carpentry workshop,wood',
     [BannerPlacement.CONTACT]: 'carpentry workshop,wood',
   };
@@ -1044,7 +915,6 @@ async function bootstrap() {
       getModelToken(BlogCategory.name),
     );
     const blogModel = app.get<Model<Blog>>(getModelToken(Blog.name));
-    const projectModel = app.get<Model<Project>>(getModelToken(Project.name));
     const galleryModel = app.get<Model<GalleryItem>>(
       getModelToken(GalleryItem.name),
     );
@@ -1061,7 +931,6 @@ async function bootstrap() {
     const categories = await seedCategories(categoryModel);
     await seedProducts(productModel, categories);
     await seedBlogs(blogCategoryModel, blogModel);
-    await seedProjects(projectModel, categories);
     await seedGallery(galleryModel);
     await seedTestimonials(testimonialModel);
     await seedBanners(bannerModel);

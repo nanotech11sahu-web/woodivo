@@ -40,11 +40,6 @@ export default async function handler(req, res) {
       return;
     }
 
-    if (type === 'projects') {
-      res.status(200).send(wrapUrlset(buildEntityUrls(data.projects, '/projects', 0.6, 'monthly')));
-      return;
-    }
-
     if (type === 'products') {
       const urls = buildEntityUrls(chunkOf(data.products, page), '/products', 0.8, 'weekly');
       res.status(200).send(wrapUrlset(urls));

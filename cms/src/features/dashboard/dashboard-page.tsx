@@ -3,7 +3,6 @@ import {
   Package,
   Inbox,
   Newspaper,
-  Building2,
   Image,
   MessageSquareQuote,
   HelpCircle,
@@ -51,7 +50,6 @@ export function DashboardPage() {
           accent="sage"
         />
         <StatCard label="Blogs" value={stats.blogs.total} icon={Newspaper} />
-        <StatCard label="Projects" value={stats.projects.total} icon={Building2} />
         <StatCard label="Gallery items" value={stats.gallery.total} icon={Image} />
         <StatCard
           label="Testimonials"

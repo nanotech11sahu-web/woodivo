@@ -7,5 +7,4 @@ export interface SitemapData {
   categories: SitemapEntry[];
   products: SitemapEntry[];
   blogs: SitemapEntry[];
-  projects: SitemapEntry[];
 }

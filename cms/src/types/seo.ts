@@ -5,12 +5,10 @@ export type SeoPageType =
   | 'about'
   | 'contact'
   | 'gallery'
-  | 'projects-listing'
   | 'blogs-listing'
   | 'product'
   | 'blog'
   | 'category'
-  | 'project'
   | 'custom';
 
 export interface SeoEntry extends SeoMeta {

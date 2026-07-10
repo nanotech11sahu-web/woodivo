@@ -16,10 +16,6 @@ import {
   BlogStatus,
 } from '@modules/blogs/schemas/blog.schema';
 import {
-  Project,
-  ProjectDocument,
-} from '@modules/projects/schemas/project.schema';
-import {
   GalleryItem,
   GalleryItemDocument,
 } from '@modules/gallery/schemas/gallery-item.schema';
@@ -38,7 +34,6 @@ export interface DashboardStats {
   products: { total: number; byStatus: Record<ProductStatus, number> };
   enquiries: EnquiryStatsSummary;
   blogs: { total: number; byStatus: Record<BlogStatus, number> };
-  projects: { total: number };
   gallery: { total: number };
   testimonials: { total: number };
   faqs: { total: number };
@@ -53,8 +48,6 @@ export class DashboardService {
     private readonly productModel: Model<ProductDocument>,
     @InjectModel(Blog.name)
     private readonly blogModel: Model<BlogDocument>,
-    @InjectModel(Project.name)
-    private readonly projectModel: Model<ProjectDocument>,
     @InjectModel(GalleryItem.name)
     private readonly galleryItemModel: Model<GalleryItemDocument>,
     @InjectModel(Testimonial.name)
@@ -70,7 +63,6 @@ export class DashboardService {
       productStatusCounts,
       enquiries,
       blogStatusCounts,
-      projectsTotal,
       galleryTotal,
       testimonialsTotal,
       faqsTotal,
@@ -83,7 +75,6 @@ export class DashboardService {
       this.blogModel.aggregate<{ _id: BlogStatus; count: number }>([
         { $group: { _id: '$status', count: { $sum: 1 } } },
       ]),
-      this.projectModel.countDocuments(),
       this.galleryItemModel.countDocuments(),
       this.testimonialModel.countDocuments(),
       this.faqModel.countDocuments(),
@@ -97,7 +88,6 @@ export class DashboardService {
       products,
       enquiries,
       blogs,
-      projects: { total: projectsTotal },
       gallery: { total: galleryTotal },
       testimonials: { total: testimonialsTotal },
       faqs: { total: faqsTotal },

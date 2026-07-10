@@ -8,8 +8,7 @@ export type BannerPlacement =
   | 'product'
   | 'blog'
   | 'contact'
-  | 'about'
-  | 'projects';
+  | 'about';
 
 export interface Banner {
   _id: string;

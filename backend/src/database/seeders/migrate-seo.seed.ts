@@ -2,7 +2,7 @@
  * One-off migration — run once, right after deploying this phase, BEFORE
  * relying on the centralized SEO CMS section. NOT wired into
  * `onApplicationBootstrap` (same reasoning as `demo-data.seed.ts`): this
- * touches every existing Product/Blog/Category/Project/AboutPage/
+ * touches every existing Product/Blog/Category/AboutPage/
  * WebsiteSettings document exactly once and has nothing useful to do on
  * a second run, so it doesn't belong in the every-boot path.
  *
@@ -30,7 +30,6 @@ import { AppModule } from '../../app.module';
 import { Product } from '@modules/products/schemas/product.schema';
 import { Blog } from '@modules/blogs/schemas/blog.schema';
 import { Category } from '@modules/categories/schemas/category.schema';
-import { Project } from '@modules/projects/schemas/project.schema';
 import { AboutPage } from '@modules/about/schemas/about-page.schema';
 import { WebsiteSettings } from '@modules/settings/schemas/website-settings.schema';
 import {
@@ -154,7 +153,6 @@ async function bootstrap(): Promise<void> {
     const productModel = app.get<Model<unknown>>(getModelToken(Product.name));
     const blogModel = app.get<Model<unknown>>(getModelToken(Blog.name));
     const categoryModel = app.get<Model<unknown>>(getModelToken(Category.name));
-    const projectModel = app.get<Model<unknown>>(getModelToken(Project.name));
     const aboutModel = app.get<Model<unknown>>(getModelToken(AboutPage.name));
     const settingsModel = app.get<Model<unknown>>(
       getModelToken(WebsiteSettings.name),
@@ -193,18 +191,6 @@ async function bootstrap(): Promise<void> {
     );
     logger.log(
       `  categories: ${categories.migrated} migrated, ${categories.skipped} skipped`,
-    );
-
-    logger.log('Migrating projects…');
-    const projects = await migrateCollection(
-      projectModel,
-      SeoPageType.PROJECT,
-      (doc) => (doc.slug ? `/projects/${doc.slug as string}` : undefined),
-      'title',
-      seoEntryModel,
-    );
-    logger.log(
-      `  projects: ${projects.migrated} migrated, ${projects.skipped} skipped`,
     );
 
     logger.log('Migrating About page singleton…');
