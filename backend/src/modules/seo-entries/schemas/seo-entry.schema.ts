@@ -11,12 +11,10 @@ export enum SeoPageType {
   ABOUT = 'about',
   CONTACT = 'contact',
   GALLERY = 'gallery',
-  PROJECTS_LISTING = 'projects-listing',
   BLOGS_LISTING = 'blogs-listing',
   PRODUCT = 'product',
   BLOG = 'blog',
   CATEGORY = 'category',
-  PROJECT = 'project',
   CUSTOM = 'custom',
 }
 
@@ -27,7 +25,6 @@ export const ENTITY_PAGE_TYPES = [
   SeoPageType.PRODUCT,
   SeoPageType.BLOG,
   SeoPageType.CATEGORY,
-  SeoPageType.PROJECT,
 ] as const;
 
 @Schema({ timestamps: true })
@@ -43,14 +40,14 @@ export class SeoEntry {
   @Prop({ type: String, enum: SeoPageType, required: true, index: true })
   pageType!: SeoPageType;
 
-  // Which Product/Blog/Category/Project document this entry mirrors, so a
+  // Which Product/Blog/Category document this entry mirrors, so a
   // rename (slug or title change) can find its existing row by identity
   // rather than by the path that's in the middle of changing. Absent for
   // static pages and admin-added CUSTOM entries.
   @Prop({ type: Types.ObjectId })
   entityId?: Types.ObjectId;
 
-  // Denormalized product/blog/category/project name, purely so the CMS's
+  // Denormalized product/blog/category name, purely so the CMS's
   // SEO list table has something readable to show per row without a join.
   @Prop({ trim: true })
   entityLabel?: string;

@@ -19,7 +19,6 @@ export enum BannerPlacement {
   BLOG = 'blog',
   CONTACT = 'contact',
   ABOUT = 'about',
-  PROJECTS = 'projects',
 }
 
 @Schema({ timestamps: true })

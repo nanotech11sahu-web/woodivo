@@ -15,7 +15,6 @@ export default async function handler(_req, res) {
       'sitemap-pages.xml',
       'sitemap-categories.xml',
       ...Array.from({ length: productPages }, (_, i) => `sitemap-products-${i + 1}.xml`),
-      'sitemap-projects.xml',
       ...Array.from({ length: blogPages }, (_, i) => `sitemap-blogs-${i + 1}.xml`),
     ];
 

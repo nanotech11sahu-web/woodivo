@@ -18,19 +18,17 @@ const PAGE_TYPE_LABELS: Record<SeoPageType, string> = {
   about: 'About',
   contact: 'Contact',
   gallery: 'Gallery',
-  'projects-listing': 'Projects listing',
   'blogs-listing': 'Blogs listing',
   product: 'Product',
   blog: 'Blog',
   category: 'Category',
-  project: 'Project',
   custom: 'Custom',
 };
 
 /**
  * One row per URL on the site — static pages (home, about, contact,
  * gallery, the two listing pages) plus one auto-generated row per
- * product/blog/category/project, kept in sync with that content's current
+ * product/blog/category, kept in sync with that content's current
  * slug by the backend (see `SeoEntriesService.syncForEntity`). Editing
  * here only ever touches meta title/description/keywords/OG
  * image/canonical URL — path, type and the content it belongs to are
@@ -157,7 +155,7 @@ export function SeoListPage() {
         isLoading={isLoading}
         isError={isError}
         emptyTitle="No SEO entries found"
-        emptyDescription="Entries appear automatically as you add products, blogs, categories and projects."
+        emptyDescription="Entries appear automatically as you add products, blogs and categories."
       />
 
       {data && <Pagination meta={data.meta} onPageChange={setPage} />}

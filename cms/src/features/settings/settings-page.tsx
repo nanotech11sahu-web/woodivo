@@ -338,7 +338,7 @@ export function SettingsPage() {
           <CardContent className="space-y-4">
             <p className="text-sm text-ink-muted">
               The "Why Woodivo" highlights shown on the homepage, between Featured Products
-              and Projects.
+              and Testimonials.
             </p>
             <HomepageHighlightsEditor control={control} register={register} />
           </CardContent>

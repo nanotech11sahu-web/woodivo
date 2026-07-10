@@ -21,7 +21,7 @@ export class SeederService implements OnApplicationBootstrap {
   private async seedStaticSeoPages(): Promise<void> {
     await this.seoEntriesService.ensureStaticPages();
     this.logger.log(
-      'Static SEO entries ensured (home, about, contact, gallery, projects, blogs)',
+      'Static SEO entries ensured (home, about, contact, gallery, blogs)',
     );
   }
 

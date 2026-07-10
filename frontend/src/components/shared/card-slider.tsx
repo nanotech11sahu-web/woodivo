@@ -9,7 +9,7 @@ interface CardSliderProps {
 
 /**
  * Generic horizontal card carousel used by every homepage "curated list +
- * View all" section (categories, products, projects, testimonials, blogs).
+ * View all" section (categories, products, testimonials, blogs).
  * Native scroll-snap does the heavy lifting — touch/trackpad swiping works
  * for free — with arrow buttons layered on top for mouse/keyboard users and
  * a small pointer-drag handler so a mouse click-drag scrolls it too.
@@ -138,7 +138,6 @@ export function CardSlider({ children, className }: CardSliderProps) {
 export const sliderItemWidths = {
   category: 'w-[42%] shrink-0 snap-start sm:w-[22%] lg:w-[16%]',
   product: 'w-[68%] shrink-0 snap-start sm:w-[42%] md:w-[30%] lg:w-[23%]',
-  project: 'w-[85%] shrink-0 snap-start sm:w-[47%] lg:w-[32%]',
   testimonial: 'w-[88%] shrink-0 snap-start sm:w-[48%] lg:w-[32%]',
   blog: 'w-[85%] shrink-0 snap-start sm:w-[47%] lg:w-[32%]',
 } as const;

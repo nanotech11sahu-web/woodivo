@@ -22,7 +22,6 @@ import { CategoriesModule } from '@modules/categories/categories.module';
 import { ProductsModule } from '@modules/products/products.module';
 import { EnquiriesModule } from '@modules/enquiries/enquiries.module';
 import { BlogsModule } from '@modules/blogs/blogs.module';
-import { ProjectsModule } from '@modules/projects/projects.module';
 import { GalleryModule } from '@modules/gallery/gallery.module';
 import { TestimonialsModule } from '@modules/testimonials/testimonials.module';
 import { FaqsModule } from '@modules/faqs/faqs.module';
@@ -71,7 +70,6 @@ import { ToolsModule } from '@modules/tools/tools.module';
     ProductsModule,
     EnquiriesModule,
     BlogsModule,
-    ProjectsModule,
     GalleryModule,
     TestimonialsModule,
     FaqsModule,

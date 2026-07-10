@@ -6,7 +6,6 @@ export type EnquirySource =
   | 'homepage'
   | 'product'
   | 'category'
-  | 'project'
   | 'contact'
   | 'floating_cta'
   | 'about'

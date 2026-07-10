@@ -14,7 +14,7 @@ function toAbsoluteUrl(path: string): string {
 
 /**
  * Every page on the site that renders a breadcrumb trail (About, Category,
- * Product, Project listing/details, Blog listing/details, Contact,
+ * Product, Blog listing/details, Contact,
  * Gallery — everywhere but Home, which has none to show) already builds
  * the exact `{ label, to }` list a `BreadcrumbList` needs. Emitting the
  * JSON-LD straight from this shared component, rather than adding a

@@ -25,8 +25,6 @@ const ProductFormPage = lazyImport(() => import('@/features/products/product-for
 const BlogListPage = lazyImport(() => import('@/features/blogs/blog-list-page'), 'BlogListPage');
 const BlogFormPage = lazyImport(() => import('@/features/blogs/blog-form-page'), 'BlogFormPage');
 const BlogCategoryManager = lazyImport(() => import('@/features/blogs/blog-category-manager'), 'BlogCategoryManager');
-const ProjectListPage = lazyImport(() => import('@/features/projects/project-list-page'), 'ProjectListPage');
-const ProjectFormPage = lazyImport(() => import('@/features/projects/project-form-page'), 'ProjectFormPage');
 const TestimonialListPage = lazyImport(() => import('@/features/testimonials/testimonial-list-page'), 'TestimonialListPage');
 const TestimonialFormPage = lazyImport(() => import('@/features/testimonials/testimonial-form-page'), 'TestimonialFormPage');
 const FaqListPage = lazyImport(() => import('@/features/faqs/faq-list-page'), 'FaqListPage');
@@ -64,9 +62,6 @@ export const router = createBrowserRouter([
           { path: '/blogs/new', element: <BlogFormPage /> },
           { path: '/blogs/categories', element: <BlogCategoryManager /> },
           { path: '/blogs/:id/edit', element: <BlogFormPage /> },
-          { path: '/projects', element: <ProjectListPage /> },
-          { path: '/projects/new', element: <ProjectFormPage /> },
-          { path: '/projects/:id/edit', element: <ProjectFormPage /> },
           { path: '/gallery', element: <GalleryListPage /> },
           { path: '/gallery/new', element: <GalleryFormPage /> },
           { path: '/gallery/:id/edit', element: <GalleryFormPage /> },

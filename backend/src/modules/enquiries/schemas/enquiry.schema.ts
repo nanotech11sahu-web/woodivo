@@ -17,7 +17,6 @@ export enum EnquirySource {
   HOMEPAGE = 'homepage',
   PRODUCT = 'product',
   CATEGORY = 'category',
-  PROJECT = 'project',
   CONTACT = 'contact',
   FLOATING_CTA = 'floating_cta',
   ABOUT = 'about',

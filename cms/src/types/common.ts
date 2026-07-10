@@ -32,7 +32,6 @@ export interface SeoMeta {
 export type MediaFolder =
   | 'categories'
   | 'products'
-  | 'projects'
   | 'gallery'
   | 'blogs'
   | 'banners'

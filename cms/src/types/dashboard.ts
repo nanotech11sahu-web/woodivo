@@ -11,7 +11,6 @@ export interface DashboardStats {
   products: { total: number; byStatus: Record<ProductStatus, number> };
   enquiries: EnquiryStatsSummary;
   blogs: { total: number; byStatus: Record<BlogStatus, number> };
-  projects: { total: number };
   gallery: { total: number };
   testimonials: { total: number };
   faqs: { total: number };

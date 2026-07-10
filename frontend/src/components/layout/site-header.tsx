@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
   { label: 'Blogs', to: '/blogs' },
-  { label: 'Projects', to: '/projects' },
   { label: 'Gallery', to: '/gallery' },
   { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },

@@ -21,12 +21,10 @@ const PAGE_TYPE_LABELS: Record<string, string> = {
   about: 'About',
   contact: 'Contact',
   gallery: 'Gallery',
-  'projects-listing': 'Projects listing',
   'blogs-listing': 'Blogs listing',
   product: 'Product',
   blog: 'Blog',
   category: 'Category',
-  project: 'Project',
   custom: 'Custom',
 };
 
@@ -117,7 +115,7 @@ export function SeoFormPage() {
         description={
           isEditMode
             ? 'Meta title, description, keywords, OG image and canonical URL for this page.'
-            : 'For a page with no product, blog, category or project behind it — a bespoke landing page, for example.'
+            : 'For a page with no product, blog or category behind it — a bespoke landing page, for example.'
         }
       />
 

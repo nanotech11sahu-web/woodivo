@@ -31,11 +31,6 @@ const STATIC_PAGES: {
   { path: '/about', pageType: SeoPageType.ABOUT, entityLabel: 'About' },
   { path: '/contact', pageType: SeoPageType.CONTACT, entityLabel: 'Contact' },
   { path: '/gallery', pageType: SeoPageType.GALLERY, entityLabel: 'Gallery' },
-  {
-    path: '/projects',
-    pageType: SeoPageType.PROJECTS_LISTING,
-    entityLabel: 'Projects',
-  },
   { path: '/blogs', pageType: SeoPageType.BLOGS_LISTING, entityLabel: 'Blogs' },
 ];
 
@@ -122,14 +117,14 @@ export class SeoEntriesService {
     const entry = await this.findByIdAdmin(id);
     if (entry.pageType !== SeoPageType.CUSTOM) {
       throw new ConflictException(
-        "Only custom SEO entries can be deleted directly — entries generated from a product, blog, category or project follow that content's own lifecycle and disappear when it does.",
+        "Only custom SEO entries can be deleted directly — entries generated from a product, blog, or category follow that content's own lifecycle and disappear when it does.",
       );
     }
     await this.seoEntryModel.deleteOne({ _id: entry._id });
   }
 
   /**
-   * Called by Products/Blogs/Categories/Projects services after every
+   * Called by Products/Blogs/Categories services after every
    * create AND update — a rename changes the URL, so this keeps the
    * entry's `path` and `entityLabel` in sync without ever touching a meta
    * field an editor has already typed into the central SEO screen.

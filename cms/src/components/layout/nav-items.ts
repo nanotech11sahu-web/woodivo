@@ -4,7 +4,6 @@ import {
   Package,
   Inbox,
   Newspaper,
-  Building2,
   Image,
   Images,
   MessageSquareQuote,
@@ -46,7 +45,6 @@ export const NAV_SECTIONS: NavSection[] = [
     label: 'Content',
     items: [
       { to: '/blogs', label: 'Blogs', icon: Newspaper },
-      { to: '/projects', label: 'Projects', icon: Building2 },
       { to: '/gallery', label: 'Gallery', icon: Image },
       { to: '/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
       { to: '/faqs', label: 'FAQs', icon: HelpCircle },

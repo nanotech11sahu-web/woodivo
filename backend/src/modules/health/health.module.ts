@@ -13,10 +13,6 @@ import {
 } from '@modules/products/schemas/product.schema';
 import { Blog, BlogSchema } from '@modules/blogs/schemas/blog.schema';
 import {
-  Project,
-  ProjectSchema,
-} from '@modules/projects/schemas/project.schema';
-import {
   GalleryItem,
   GalleryItemSchema,
 } from '@modules/gallery/schemas/gallery-item.schema';
@@ -31,15 +27,14 @@ import { EnquiriesModule } from '@modules/enquiries/enquiries.module';
   imports: [
     // Models registered directly rather than importing each feature module,
     // to keep this a read-only aggregation point with no write-side deps —
-    // same "register the schema directly" pattern used by Products/Projects
-    // for Category. Enquiries is the one exception: its stats aggregation
+    // same "register the schema directly" pattern used by Products/Categories
+    // for reads. Enquiries is the one exception: its stats aggregation
     // already exists on EnquiriesService, so that's reused via the module's
     // export instead of duplicating the $group pipeline here.
     MongooseModule.forFeature([
       { name: Category.name, schema: CategorySchema },
       { name: Product.name, schema: ProductSchema },
       { name: Blog.name, schema: BlogSchema },
-      { name: Project.name, schema: ProjectSchema },
       { name: GalleryItem.name, schema: GalleryItemSchema },
       { name: Testimonial.name, schema: TestimonialSchema },
       { name: Faq.name, schema: FaqSchema },

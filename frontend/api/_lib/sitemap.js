@@ -20,7 +20,6 @@ export const SITEMAP_CHUNK_SIZE = 100;
 export const STATIC_ROUTES = [
   { path: '/', changefreq: 'daily', priority: 1.0 },
   { path: '/about', changefreq: 'monthly', priority: 0.6 },
-  { path: '/projects', changefreq: 'weekly', priority: 0.7 },
   { path: '/gallery', changefreq: 'monthly', priority: 0.5 },
   { path: '/blogs', changefreq: 'daily', priority: 0.7 },
   { path: '/contact', changefreq: 'monthly', priority: 0.5 },
@@ -103,6 +102,5 @@ export async function fetchSitemapData() {
     categories: data.categories ?? [],
     products: data.products ?? [],
     blogs: data.blogs ?? [],
-    projects: data.projects ?? [],
   };
 }

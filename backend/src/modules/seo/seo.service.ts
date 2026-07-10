@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CategoriesService } from '@modules/categories/categories.service';
 import { ProductsService } from '@modules/products/products.service';
-import { ProjectsService } from '@modules/projects/projects.service';
 import { BlogsService } from '@modules/blogs/blogs.service';
 import type { PaginatedResult } from '@common/interfaces/paginated-result.interface';
 import { SitemapData, SitemapEntry } from './interfaces/sitemap-entry.interface';
@@ -9,7 +8,7 @@ import { SitemapData, SitemapEntry } from './interfaces/sitemap-entry.interface'
 const MAX_PAGES_PER_ENTITY = 500;
 const PAGE_SIZE = 100;
 
-// Aggregates every public category/product/blog/project (slug + updatedAt)
+// Aggregates every public category/product/blog (slug + updatedAt)
 // for the sitemap. This is the ONLY thing the backend does for SEO now —
 // the actual sitemap.xml/sitemap-*.xml/robots.txt files are generated on
 // every request by frontend serverless functions (frontend/api/sitemap.js,
@@ -20,7 +19,6 @@ export class SeoService {
   constructor(
     private readonly categoriesService: CategoriesService,
     private readonly productsService: ProductsService,
-    private readonly projectsService: ProjectsService,
     private readonly blogsService: BlogsService,
   ) {}
 
@@ -46,16 +44,13 @@ export class SeoService {
   }
 
   async getSitemapData(): Promise<SitemapData> {
-    const [categories, products, blogs, projects] = await Promise.all([
+    const [categories, products, blogs] = await Promise.all([
       this.categoriesService.findAllPublic(),
       this.collectAll((page) =>
         this.productsService.findAllPublic({ page, limit: PAGE_SIZE }),
       ),
       this.collectAll((page) =>
         this.blogsService.findAllPublic({ page, limit: PAGE_SIZE }),
-      ),
-      this.collectAll((page) =>
-        this.projectsService.findAllPublic({ page, limit: PAGE_SIZE }),
       ),
     ]);
 
@@ -71,7 +66,6 @@ export class SeoService {
       categories: categories.map(toEntry),
       products: products.map(toEntry),
       blogs: blogs.map(toEntry),
-      projects: projects.map(toEntry),
     };
   }
 }

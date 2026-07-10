@@ -2,7 +2,6 @@ import { HeroSection } from './sections/hero-section';
 import { FeaturedCategoriesSection } from './sections/featured-categories-section';
 import { FeaturedProductsSection } from './sections/featured-products-section';
 import { WhyWoodivoSection } from './sections/why-woodivo-section';
-import { ProjectsSection } from './sections/projects-section';
 import { TestimonialsSection } from './sections/testimonials-section';
 import { BlogsSection } from './sections/blogs-section';
 import { FaqsSection } from './sections/faqs-section';
@@ -12,7 +11,7 @@ import { useSettings } from '@/features/settings/settings-api';
 
 // Order follows the master prompt's "Homepage sections (CMS managed)" list
 // exactly: Hero, Featured Categories, Featured Products, Why Woodivo,
-// Projects, Testimonials, Blogs, FAQs, CTA.
+// Testimonials, Blogs, FAQs, CTA.
 //
 // Home never called a title hook before Phase 24 — it relied entirely on
 // `index.html`'s static `<title>`/description, which was fine as long as
@@ -42,7 +41,6 @@ export function HomePage() {
       <FeaturedProductsSection />
       <BlogsSection />
       <WhyWoodivoSection />
-      <ProjectsSection />
       <TestimonialsSection />
       <FaqsSection />
       <CtaSection />

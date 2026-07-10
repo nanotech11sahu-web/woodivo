@@ -7,7 +7,6 @@ export const BANNER_PLACEMENTS = [
   'blog',
   'contact',
   'about',
-  'projects',
 ] as const;
 
 export const bannerFormSchema = z.object({
@@ -39,5 +38,4 @@ export const PLACEMENT_LABELS: Record<(typeof BANNER_PLACEMENTS)[number], string
   blog: 'Blog',
   contact: 'Contact page',
   about: 'About page',
-  projects: 'Projects page',
 };
