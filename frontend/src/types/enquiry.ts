@@ -1,3 +1,5 @@
+import type { MediaAsset } from './common';
+
 export type EnquirySource =
   | 'homepage'
   | 'product'
@@ -5,7 +7,8 @@ export type EnquirySource =
   | 'project'
   | 'contact'
   | 'floating_cta'
-  | 'about';
+  | 'about'
+  | 'custom_order';
 
 export interface CreateEnquiryPayload {
   fullName: string;
@@ -13,6 +16,8 @@ export interface CreateEnquiryPayload {
   state?: string;
   city?: string;
   interestedCategory?: string;
+  interestedProduct?: string;
+  referenceImages?: MediaAsset[];
   message?: string;
   source?: EnquirySource;
 }

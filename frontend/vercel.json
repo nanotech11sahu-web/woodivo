@@ -1,5 +1,12 @@
 {
   "rewrites": [
+    { "source": "/robots.txt", "destination": "/api/robots" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap-index" },
+    { "source": "/sitemap-pages.xml", "destination": "/api/sitemap?type=pages" },
+    { "source": "/sitemap-categories.xml", "destination": "/api/sitemap?type=categories" },
+    { "source": "/sitemap-projects.xml", "destination": "/api/sitemap?type=projects" },
+    { "source": "/sitemap-products-:page.xml", "destination": "/api/sitemap?type=products&page=:page" },
+    { "source": "/sitemap-blogs-:page.xml", "destination": "/api/sitemap?type=blogs&page=:page" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

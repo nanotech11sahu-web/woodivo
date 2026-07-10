@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useBlogCategories, useBlogs } from '@/features/blogs/blogs-api';
 import { useBanners } from '@/features/banners/banners-api';
+import { SectionBannerSlider } from '@/components/shared/section-banner-slider';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { cn } from '@/lib/utils';
@@ -106,15 +107,11 @@ export function BlogListingPage() {
   return (
     <div>
       <section className="relative overflow-hidden bg-teak-deep text-ivory">
-        {banner?.desktopImage?.url ? (
-          <div className="absolute inset-0">
-            <img
-              src={banner.desktopImage.url}
-              alt={banner.desktopImage.alt || banner.title}
-              className="h-full w-full object-cover opacity-35"
-            />
+        {banners && banners.length > 0 ? (
+          <>
+            <SectionBannerSlider banners={banners} dimmed showDots={banners.length > 1} />
             <div className="absolute inset-0 bg-gradient-to-t from-teak-deep via-teak-deep/75 to-teak-deep/40" />
-          </div>
+          </>
         ) : (
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,_rgba(176,129,63,0.18),_transparent_45%)]" />
         )}

@@ -1,6 +1,7 @@
 import { Target, Eye } from 'lucide-react';
 import { useAboutPage } from '@/features/about/about-api';
 import { useBanners } from '@/features/banners/banners-api';
+import { SectionBannerSlider } from '@/components/shared/section-banner-slider';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { truncate } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
@@ -54,10 +55,15 @@ export function AboutPage() {
 
   return (
     <div>
-      <section
-        className="relative overflow-hidden bg-teak-deep bg-cover bg-center text-ivory"
-        style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}
-      >
+      <section className="relative overflow-hidden bg-teak-deep text-ivory">
+        {about?.heroImage?.url ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${about.heroImage.url})` }}
+          />
+        ) : (
+          <SectionBannerSlider banners={banners} showDots={(banners?.length ?? 0) > 1} />
+        )}
         <div className="absolute inset-0 bg-teak-deep/80" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,_rgba(176,129,63,0.18),_transparent_45%)]" />
         <div className="relative mx-auto max-w-4xl px-4 py-14 text-center sm:px-6">

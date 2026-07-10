@@ -1,8 +1,24 @@
+import type { MediaAsset } from './common';
+
 export type EnquiryStatus = 'new' | 'seen' | 'contacted' | 'closed';
 
-export type EnquirySource = 'homepage' | 'product' | 'category' | 'project' | 'contact' | 'floating_cta';
+export type EnquirySource =
+  | 'homepage'
+  | 'product'
+  | 'category'
+  | 'project'
+  | 'contact'
+  | 'floating_cta'
+  | 'about'
+  | 'custom_order';
 
 export interface EnquiryCategoryRef {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+export interface EnquiryProductRef {
   _id: string;
   name: string;
   slug: string;
@@ -15,6 +31,8 @@ export interface Enquiry {
   state?: string;
   city?: string;
   interestedCategory?: EnquiryCategoryRef;
+  interestedProduct?: EnquiryProductRef;
+  referenceImages?: MediaAsset[];
   message?: string;
   status: EnquiryStatus;
   source: EnquirySource;

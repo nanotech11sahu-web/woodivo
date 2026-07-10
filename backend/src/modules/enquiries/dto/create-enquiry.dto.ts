@@ -1,11 +1,17 @@
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEnum,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { EnquirySource } from '../schemas/enquiry.schema';
+import { MediaAssetDto } from '@common/dto/media-asset.dto';
+import { MAX_CUSTOM_ORDER_IMAGES } from '@common/constants/app.constants';
 
 export class CreateEnquiryDto {
   @IsString()
@@ -31,6 +37,22 @@ export class CreateEnquiryDto {
   @IsOptional()
   @IsString()
   interestedCategory?: string; // category slug, resolved server-side
+
+  // Product slug, resolved server-side — only meaningful when source is
+  // CUSTOM_ORDER, but not restricted to it at the DTO level (same
+  // "unknown/inactive is not fatal" treatment as interestedCategory).
+  @IsOptional()
+  @IsString()
+  interestedProduct?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(MAX_CUSTOM_ORDER_IMAGES, {
+    message: `referenceImages accepts at most ${MAX_CUSTOM_ORDER_IMAGES} images`,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => MediaAssetDto)
+  referenceImages?: MediaAssetDto[];
 
   @IsOptional()
   @IsString()
