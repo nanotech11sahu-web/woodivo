@@ -1,11 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
 import { useProduct } from '@/features/products/products-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
-import { CustomizeProductSection } from '@/features/enquiry/customize-product-section';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useJsonLd } from '@/lib/use-json-ld';
 import { isNotFoundError } from '@/lib/http-error';
-import { truncate } from '@/lib/utils';
+import { truncate, formatPrice } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -23,18 +22,25 @@ function toAbsoluteUrl(pathOrUrl: string): string {
 }
 
 /**
- * `Product` was the first of Phase 27's two named structured-data types,
- * with a specific warning attached in both the Phase 25 and 26 notes:
- * there's no `price`/`sku`/`rating` field anywhere on the schema, so
- * `offers`/`aggregateRating` are deliberately never emitted here —
- * fabricating either is a Google manual-action risk, not a minor gap. What
- * *is* on the schema (name, description, images, category, specs) maps
- * cleanly to `Product` without inventing anything: `additionalProperty`
- * carries `specifications` since `SpecificationItem.key`/`.value` is
- * already exactly `PropertyValue`'s `name`/`value` shape.
+ * `Product` was the first of Phase 27's two named structured-data types.
+ * `offers` is now emitted since every product carries a real `price` —
+ * `availability` maps from `stockStatus` (MadeToOrder for the common
+ * case, since these are handcrafted-to-order pieces, not off-the-shelf
+ * stock). What's on the schema (name, description, images, category,
+ * specs, price) maps cleanly to `Product`/`Offer` without inventing
+ * anything: `additionalProperty` carries `specifications` since
+ * `SpecificationItem.key`/`.value` is already exactly `PropertyValue`'s
+ * `name`/`value` shape.
  */
 function useProductJsonLd(product: Product | undefined, canonicalHref: string): void {
   const category = product && typeof product.category === 'object' ? product.category : undefined;
+
+  const availability =
+    product?.stockStatus === 'out_of_stock'
+      ? 'https://schema.org/OutOfStock'
+      : product?.stockStatus === 'in_stock'
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/PreOrder';
 
   const schema = product
     ? {
@@ -45,6 +51,14 @@ function useProductJsonLd(product: Product | undefined, canonicalHref: string): 
         ...(product.images.length > 0 ? { image: product.images.map((image) => image.url) } : {}),
         url: canonicalHref,
         ...(category ? { category: category.name } : {}),
+        ...(product.sku ? { sku: product.sku } : {}),
+        offers: {
+          '@type': 'Offer',
+          url: canonicalHref,
+          priceCurrency: 'INR',
+          price: product.discountPrice ?? product.price,
+          availability,
+        },
         ...(product.specifications.length > 0
           ? {
               additionalProperty: product.specifications.map((spec) => ({
@@ -129,9 +143,11 @@ export function ProductDetailsPage() {
   if (!product) return null;
 
   const category = typeof product.category === 'object' ? product.category : undefined;
+  const subCategory = typeof product.subCategory === 'object' ? product.subCategory : undefined;
   const relatedProducts = product.relatedProducts;
   const relatedBlogs = product.relatedBlogs;
   const faqs = product.faqs;
+  const hasDiscount = typeof product.discountPrice === 'number' && product.discountPrice < product.price;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -139,6 +155,9 @@ export function ProductDetailsPage() {
         items={[
           { label: 'Home', to: '/' },
           ...(category ? [{ label: category.name, to: `/categories/${category.slug}` }] : []),
+          ...(subCategory
+            ? [{ label: subCategory.name, to: `/categories/${category?.slug}?subcategory=${subCategory.slug}` }]
+            : []),
           { label: product.name },
         ]}
       />
@@ -156,6 +175,22 @@ export function ProductDetailsPage() {
             </Link>
           ) : null}
           <h1 className="mt-2 text-4xl text-teak">{product.name}</h1>
+
+          <div className="mt-3 flex items-baseline gap-3">
+            <span className="text-2xl font-semibold text-charcoal">
+              {formatPrice(hasDiscount ? product.discountPrice : product.price)}
+            </span>
+            {hasDiscount ? (
+              <>
+                <span className="text-base text-charcoal-soft/70 line-through">
+                  {formatPrice(product.price)}
+                </span>
+                <span className="rounded-[var(--radius-pill)] bg-rust px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-ivory">
+                  {Math.round(((product.price - product.discountPrice!) / product.price) * 100)}% Off
+                </span>
+              </>
+            ) : null}
+          </div>
 
           {product.description ? (
             <p className="mt-5 leading-relaxed text-charcoal-soft">{product.description}</p>
@@ -208,7 +243,26 @@ export function ProductDetailsPage() {
         </section>
       ) : null}
 
-      <CustomizeProductSection productSlug={product.slug} productName={product.name} />
+      <section className="mt-24">
+        <div className="mb-10 w-32">
+          <JaliDivider />
+        </div>
+        <div className="flex flex-col items-start gap-6 rounded-[var(--radius-card)] bg-teak-deep px-6 py-10 text-ivory sm:flex-row sm:items-center sm:justify-between sm:px-10">
+          <div>
+            <h2 className="text-2xl">Want it customized?</h2>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-ivory-deep/85">
+              Different wood, a different size, an added detail — tell us what you have in mind
+              for the {product.name} and we'll take it from there.
+            </p>
+          </div>
+          <Link
+            to={`/customize?product=${product.slug}`}
+            className="inline-flex shrink-0 items-center gap-2 rounded-[var(--radius-pill)] bg-ivory px-6 py-3 text-sm font-semibold text-charcoal transition-colors hover:bg-ivory-deep"
+          >
+            Request a Custom Order
+          </Link>
+        </div>
+      </section>
 
       {relatedProducts.length > 0 ? (
         <section className="mt-24">

@@ -16,6 +16,11 @@ import {
   CategoryDocument,
   CategoryStatus,
 } from '@modules/categories/schemas/category.schema';
+import {
+  SubCategory,
+  SubCategoryDocument,
+  SubCategoryStatus,
+} from '@modules/subcategories/schemas/subcategory.schema';
 import { Blog, BlogDocument, BlogStatus } from '@modules/blogs/schemas/blog.schema';
 import { slugify } from '@common/utils/slugify';
 import {
@@ -27,9 +32,10 @@ import { SeoPageType } from '@modules/seo-entries/schemas/seo-entry.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
-import { QueryPublicProductDto } from './dto/query-public-product.dto';
+import { QueryPublicProductDto, PublicProductSort } from './dto/query-public-product.dto';
 
 const CATEGORY_POPULATE_FIELDS = 'name slug thumbnail status';
+const SUBCATEGORY_POPULATE_FIELDS = 'name slug thumbnail status category';
 const RELATED_FALLBACK_LIMIT = 8;
 const RELATED_BLOGS_FALLBACK_LIMIT = 3;
 
@@ -75,6 +81,8 @@ export class ProductsService {
     private readonly productModel: Model<ProductDocument>,
     @InjectModel(Category.name)
     private readonly categoryModel: Model<CategoryDocument>,
+    @InjectModel(SubCategory.name)
+    private readonly subCategoryModel: Model<SubCategoryDocument>,
     @InjectModel(Blog.name)
     private readonly blogModel: Model<BlogDocument>,
     private readonly seoEntriesService: SeoEntriesService,
@@ -82,10 +90,14 @@ export class ProductsService {
 
   async create(dto: CreateProductDto): Promise<ProductDocument> {
     const category = await this.getCategoryOrThrow(dto.category);
+    if (dto.subCategory) {
+      await this.getSubCategoryOrThrow(dto.subCategory, category._id);
+    }
     const slug = slugify(dto.slug || dto.name);
     await this.ensureSlugAvailable(slug);
     await this.ensureRelatedProductsExist(dto.relatedProducts);
     await this.ensureRelatedBlogsExist(dto.relatedBlogs);
+    this.assertDiscountPriceValid(dto.price, dto.discountPrice);
 
     const product = new this.productModel({
       ...dto,
@@ -107,6 +119,8 @@ export class ProductsService {
       status,
       isFeatured,
       category,
+      subCategory,
+      needsPriceReview,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = query;
@@ -114,7 +128,11 @@ export class ProductsService {
     const filter: QueryFilter<ProductDocument> = {};
     if (status) filter.status = status;
     if (typeof isFeatured === 'boolean') filter.isFeatured = isFeatured;
+    if (typeof needsPriceReview === 'boolean') {
+      filter.needsPriceReview = needsPriceReview;
+    }
     if (category) filter.category = new Types.ObjectId(category);
+    if (subCategory) filter.subCategory = new Types.ObjectId(subCategory);
     if (search) filter.$text = { $search: search };
 
     const skip = (page - 1) * limit;
@@ -126,6 +144,7 @@ export class ProductsService {
       this.productModel
         .find(filter)
         .populate('category', CATEGORY_POPULATE_FIELDS)
+        .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
         .sort(sort)
         .skip(skip)
         .limit(limit)
@@ -144,9 +163,11 @@ export class ProductsService {
       limit = 20,
       search,
       category,
+      subCategory,
       featured,
-      sortBy = 'displayOrder',
-      sortOrder = 'asc',
+      sort,
+      minPrice,
+      maxPrice,
     } = query;
 
     const filter: QueryFilter<ProductDocument> = {
@@ -154,6 +175,13 @@ export class ProductsService {
     };
     if (typeof featured === 'boolean') filter.isFeatured = featured;
     if (search) filter.$text = { $search: search };
+
+    if (typeof minPrice === 'number' || typeof maxPrice === 'number') {
+      const priceFilter: Record<string, number> = {};
+      if (typeof minPrice === 'number') priceFilter.$gte = minPrice;
+      if (typeof maxPrice === 'number') priceFilter.$lte = maxPrice;
+      filter.effectivePrice = priceFilter;
+    }
 
     if (category) {
       const categoryDoc = await this.categoryModel
@@ -166,16 +194,29 @@ export class ProductsService {
       filter.category = categoryDoc._id;
     }
 
+    if (subCategory) {
+      const subCategoryDoc = await this.subCategoryModel
+        .findOne({
+          slug: slugify(subCategory),
+          status: SubCategoryStatus.ACTIVE,
+        })
+        .exec();
+      if (!subCategoryDoc) {
+        // Unknown subcategory slug -> empty result set, not an error.
+        return { items: [], meta: buildPaginationMeta(0, page, limit) };
+      }
+      filter.subCategory = subCategoryDoc._id;
+    }
+
     const skip = (page - 1) * limit;
-    const sort: Record<string, 1 | -1> = {
-      [sortBy]: sortOrder === 'asc' ? 1 : -1,
-    };
+    const sortSpec = this.resolvePublicSort(sort);
 
     const [items, total] = await Promise.all([
       this.productModel
         .find(filter)
         .populate('category', CATEGORY_POPULATE_FIELDS)
-        .sort(sort)
+        .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
+        .sort(sortSpec)
         .skip(skip)
         .limit(limit)
         .exec(),
@@ -185,11 +226,37 @@ export class ProductsService {
     return { items, meta: buildPaginationMeta(total, page, limit) };
   }
 
+  /** Maps the storefront-facing `sort` enum to an actual Mongo sort spec. Defaults to the same featured-first ordering the listing used before `sort` existed. */
+  private resolvePublicSort(
+    sort: PublicProductSort | undefined,
+  ): Record<string, 1 | -1> {
+    switch (sort) {
+      case PublicProductSort.LATEST:
+        return { createdAt: -1 };
+      case PublicProductSort.POPULAR:
+        return { viewCount: -1 };
+      case PublicProductSort.MOST_PURCHASED:
+        return { purchaseCount: -1 };
+      case PublicProductSort.PRICE_ASC:
+        return { effectivePrice: 1 };
+      case PublicProductSort.PRICE_DESC:
+        return { effectivePrice: -1 };
+      case PublicProductSort.NAME_ASC:
+        return { name: 1 };
+      case PublicProductSort.NAME_DESC:
+        return { name: -1 };
+      case PublicProductSort.FEATURED:
+      default:
+        return { isFeatured: -1, displayOrder: 1 };
+    }
+  }
+
   async findByIdAdmin(id: string): Promise<ProductDocument> {
     const product = await this.productModel
       .findById(id)
       .populate('category', CATEGORY_POPULATE_FIELDS)
-      .populate('relatedProducts', 'name slug images status')
+      .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
+      .populate('relatedProducts', 'name slug images price status')
       .populate('relatedBlogs', 'title slug featuredImage status')
       .exec();
     if (!product) throw new NotFoundException('Product not found');
@@ -212,10 +279,11 @@ export class ProductsService {
     const product = await this.productModel
       .findOne({ slug: slugify(slug), status: ProductStatus.ACTIVE })
       .populate('category', CATEGORY_POPULATE_FIELDS)
+      .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
       .populate({
         path: 'relatedProducts',
         match: { status: ProductStatus.ACTIVE },
-        select: 'name slug images',
+        select: 'name slug images price discountPrice',
       })
       .populate({
         path: 'relatedBlogs',
@@ -224,6 +292,13 @@ export class ProductsService {
       })
       .exec();
     if (!product) throw new NotFoundException('Product not found');
+
+    // Fire-and-forget popularity signal — never blocks or fails the
+    // response if it errors, this is a "nice to have" metric only.
+    this.productModel
+      .updateOne({ _id: product._id }, { $inc: { viewCount: 1 } })
+      .exec()
+      .catch(() => undefined);
 
     const result = product.toObject() as unknown as Record<string, unknown>;
 
@@ -251,7 +326,7 @@ export class ProductsService {
           status: ProductStatus.ACTIVE,
           _id: { $ne: product._id },
         })
-        .select('name slug images')
+        .select('name slug images price discountPrice')
         .sort({ displayOrder: 1 })
         .limit(RELATED_FALLBACK_LIMIT)
         .exec();
@@ -284,6 +359,14 @@ export class ProductsService {
       product.category = category._id;
     }
 
+    if (dto.subCategory === null) {
+      // Explicit clear.
+      product.subCategory = undefined;
+    } else if (dto.subCategory) {
+      await this.getSubCategoryOrThrow(dto.subCategory, product.category);
+      product.subCategory = new Types.ObjectId(dto.subCategory);
+    }
+
     if (dto.slug || dto.name) {
       const nextSlug = slugify(dto.slug || dto.name || product.slug);
       if (nextSlug !== product.slug) {
@@ -300,11 +383,34 @@ export class ProductsService {
       await this.ensureRelatedBlogsExist(dto.relatedBlogs);
     }
 
+    const resolvedPrice = dto.price ?? product.price;
+    const resolvedDiscountPrice =
+      dto.discountPrice === null
+        ? undefined
+        : (dto.discountPrice ?? product.discountPrice);
+    this.assertDiscountPriceValid(resolvedPrice, resolvedDiscountPrice);
+
     Object.assign(product, {
       ...dto,
       category: product.category,
+      subCategory: product.subCategory,
       slug: product.slug,
+      discountPrice: resolvedDiscountPrice,
     });
+
+    // A product only carries `needsPriceReview` because the migration
+    // script gave it a placeholder — the moment someone actually chooses
+    // a price for it here, that placeholder concern is resolved.
+    if (typeof dto.price === 'number') {
+      product.needsPriceReview = false;
+    }
+
+    // Same reasoning as needsPriceReview above — the flag only exists
+    // because the migration script couldn't confidently auto-assign one;
+    // an explicit choice here resolves it.
+    if (dto.subCategory) {
+      product.needsSubCategoryReview = false;
+    }
 
     const saved = await product.save();
     await this.syncSeoEntry(saved);
@@ -335,6 +441,18 @@ export class ProductsService {
     return product.save();
   }
 
+  private assertDiscountPriceValid(
+    price: number | undefined,
+    discountPrice: number | undefined,
+  ): void {
+    if (typeof discountPrice !== 'number') return;
+    if (typeof price !== 'number' || discountPrice >= price) {
+      throw new BadRequestException(
+        'discountPrice must be lower than price',
+      );
+    }
+  }
+
   private async getCategoryOrThrow(
     categoryId: string,
   ): Promise<CategoryDocument> {
@@ -343,6 +461,26 @@ export class ProductsService {
       throw new BadRequestException(`Category "${categoryId}" does not exist`);
     }
     return category;
+  }
+
+  private async getSubCategoryOrThrow(
+    subCategoryId: string,
+    categoryId: Types.ObjectId,
+  ): Promise<SubCategoryDocument> {
+    const subCategory = await this.subCategoryModel
+      .findById(subCategoryId)
+      .exec();
+    if (!subCategory) {
+      throw new BadRequestException(
+        `Subcategory "${subCategoryId}" does not exist`,
+      );
+    }
+    if (!subCategory.category.equals(categoryId)) {
+      throw new BadRequestException(
+        'Subcategory does not belong to the selected category',
+      );
+    }
+    return subCategory;
   }
 
   private async ensureRelatedProductsExist(

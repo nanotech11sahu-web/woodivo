@@ -80,6 +80,17 @@ export class EnquiriesService {
       referenceImages: dto.referenceImages,
     }).save();
 
+    if (productDoc) {
+      // No cart/checkout on this site — an enquiry naming a specific
+      // product is the closest signal to a "purchase", and backs the
+      // public "Most Purchased" sort (see ProductsService.findAllPublic).
+      // Fire-and-forget: never let this fail the enquiry submission.
+      void this.productModel
+        .updateOne({ _id: productDoc._id }, { $inc: { purchaseCount: 1 } })
+        .exec()
+        .catch(() => undefined);
+    }
+
     // Fire-and-forget: never let a slow/broken mailbox fail the enquiry.
     void this.mailService.sendEnquiryNotification({
       fullName: enquiry.fullName,

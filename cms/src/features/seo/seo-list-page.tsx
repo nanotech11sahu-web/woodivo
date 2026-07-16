@@ -22,6 +22,7 @@ const PAGE_TYPE_LABELS: Record<SeoPageType, string> = {
   product: 'Product',
   blog: 'Blog',
   category: 'Category',
+  subcategory: 'Subcategory',
   custom: 'Custom',
 };
 

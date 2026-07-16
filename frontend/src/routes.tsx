@@ -6,6 +6,7 @@ import { CategoriesIndexPage } from '@/pages/categories/categories-index-page';
 import { ProductDetailsPage } from '@/pages/products/product-details-page';
 import { SearchResultsPage } from '@/pages/products/search-results-page';
 import { GalleryPage } from '@/pages/gallery/gallery-page';
+import { CustomizePage } from '@/pages/customize/customize-page';
 import { BlogListingPage } from '@/pages/blogs/blog-listing-page';
 import { BlogDetailsPage } from '@/pages/blogs/blog-details-page';
 import { ContactPage } from '@/pages/contact/contact-page';
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       { path: 'products/:slug', element: <ProductDetailsPage /> },
       { path: 'search', element: <SearchResultsPage /> },
       { path: 'gallery', element: <GalleryPage /> },
+      { path: 'customize', element: <CustomizePage /> },
       { path: 'blogs', element: <BlogListingPage /> },
       { path: 'blogs/:slug', element: <BlogDetailsPage /> },
       { path: 'contact', element: <ContactPage /> },

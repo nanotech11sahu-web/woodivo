@@ -14,6 +14,10 @@ import {
   Product,
   ProductDocument,
 } from '@modules/products/schemas/product.schema';
+import {
+  SubCategory,
+  SubCategoryDocument,
+} from '@modules/subcategories/schemas/subcategory.schema';
 import { slugify } from '@common/utils/slugify';
 import {
   buildPaginationMeta,
@@ -33,6 +37,8 @@ export class CategoriesService {
     private readonly categoryModel: Model<CategoryDocument>,
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
+    @InjectModel(SubCategory.name)
+    private readonly subCategoryModel: Model<SubCategoryDocument>,
     private readonly seoEntriesService: SeoEntriesService,
   ) {}
 
@@ -129,6 +135,15 @@ export class CategoriesService {
 
   async remove(id: string): Promise<void> {
     const category = await this.findByIdAdmin(id);
+
+    const subCategoryCount = await this.subCategoryModel.countDocuments({
+      category: category._id,
+    });
+    if (subCategoryCount > 0) {
+      throw new ConflictException(
+        `Cannot delete category: ${subCategoryCount} subcategory(ies) still reference it. Reassign or remove them first.`,
+      );
+    }
 
     const productCount = await this.productModel.countDocuments({
       category: category._id,

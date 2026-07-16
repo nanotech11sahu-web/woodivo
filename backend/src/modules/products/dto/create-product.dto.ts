@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsInt,
   IsMongoId,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -15,12 +16,16 @@ import {
 } from 'class-validator';
 import { MediaAssetDto } from '@common/dto/media-asset.dto';
 import { SpecificationItemDto } from '@common/dto/specification-item.dto';
-import { ProductStatus } from '../schemas/product.schema';
+import { ProductStatus, ProductStockStatus } from '../schemas/product.schema';
 import { ProductFaqItemDto } from './product-faq-item.dto';
 
 export class CreateProductDto {
   @IsMongoId()
   category!: string;
+
+  @IsOptional()
+  @IsMongoId()
+  subCategory?: string;
 
   @IsString()
   @MaxLength(150)
@@ -49,6 +54,29 @@ export class CreateProductDto {
   @ValidateNested({ each: true })
   @Type(() => SpecificationItemDto)
   specifications?: SpecificationItemDto[];
+
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  price!: number;
+
+  // Must be lower than `price` — cross-field check happens in
+  // ProductsService (needs the resolved `price`, which DTO-level
+  // validators alone can't reliably compare against on partial updates).
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  discountPrice?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  sku?: string;
+
+  @IsOptional()
+  @IsEnum(ProductStockStatus)
+  stockStatus?: ProductStockStatus;
 
   @IsOptional()
   @IsBoolean()

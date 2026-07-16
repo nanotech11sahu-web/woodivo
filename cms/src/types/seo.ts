@@ -9,6 +9,7 @@ export type SeoPageType =
   | 'product'
   | 'blog'
   | 'category'
+  | 'subcategory'
   | 'custom';
 
 export interface SeoEntry extends SeoMeta {

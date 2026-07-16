@@ -10,6 +10,7 @@ import {
 } from '@common/schemas/specification-item.schema';
 import { slugify } from '@common/utils/slugify';
 import { Category } from '@modules/categories/schemas/category.schema';
+import { SubCategory } from '@modules/subcategories/schemas/subcategory.schema';
 import { Blog } from '@modules/blogs/schemas/blog.schema';
 
 export type ProductDocument = HydratedDocument<Product>;
@@ -17,6 +18,12 @@ export type ProductDocument = HydratedDocument<Product>;
 export enum ProductStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
+}
+
+export enum ProductStockStatus {
+  IN_STOCK = 'in_stock',
+  OUT_OF_STOCK = 'out_of_stock',
+  MADE_TO_ORDER = 'made_to_order',
 }
 
 // ─── Product FAQ item (embedded, per-product — mirrors BlogFaqItem in
@@ -44,6 +51,16 @@ export class Product {
   })
   category!: Types.ObjectId;
 
+  // Optional — a product can belong to a category without a subcategory,
+  // but when set it must belong to the same category (enforced in
+  // ProductsService, not here, since Mongoose can't cross-check refs).
+  @Prop({
+    type: Types.ObjectId,
+    ref: SubCategory.name,
+    index: true,
+  })
+  subCategory?: Types.ObjectId;
+
   @Prop({ required: true, trim: true, maxlength: 150 })
   name!: string;
 
@@ -64,6 +81,67 @@ export class Product {
 
   @Prop({ type: [SpecificationItemSchema], default: [] })
   specifications!: SpecificationItem[];
+
+  // Base selling price. Required — every product is shown with a price on
+  // the storefront now, even though pieces remain made-to-order/quote-
+  // adjustable in practice (see ProductFaqEditor defaults for the
+  // customization language that still applies).
+  @Prop({ required: true, min: 0, index: true })
+  price!: number;
+
+  // Optional discounted price. When set it must be lower than `price`
+  // (enforced in the pre-save hook below and in the DTOs) — the storefront
+  // shows it struck-through against `price`.
+  @Prop({ min: 0 })
+  discountPrice?: number;
+
+  // Kept in sync with price/discountPrice on every save so price-range
+  // filtering and price sorting can query a single indexed field instead
+  // of an `$or`/`$expr` across two — mirrors the "shown" price a customer
+  // actually sees (the discount price when present, else the base price).
+  @Prop({ min: 0, index: true })
+  effectivePrice!: number;
+
+  @Prop({ trim: true, uppercase: true, maxlength: 40 })
+  sku?: string;
+
+  @Prop({
+    type: String,
+    enum: ProductStockStatus,
+    default: ProductStockStatus.MADE_TO_ORDER,
+  })
+  stockStatus!: ProductStockStatus;
+
+  // Set by the one-off `migrate-product-pricing` script for any product
+  // that predates `price` becoming required — it got a placeholder price
+  // rather than being left broken, and this flags it so the CMS can find
+  // and correct it. Never set on normal create/update; cleared
+  // automatically the next time someone explicitly saves a `price` for
+  // this product (see ProductsService.update()).
+  @Prop({ default: false, index: true })
+  needsPriceReview!: boolean;
+
+  // Set by the one-off `migrate-subcategory` script for any product it
+  // couldn't confidently auto-assign a subCategory to (name matched zero
+  // or multiple subcategories under its category). subCategory itself
+  // stays legitimately optional otherwise — this only flags the ones the
+  // migration skipped so the CMS can find and resolve them by hand.
+  // Cleared automatically the next time someone explicitly saves a
+  // subCategory for this product (see ProductsService.update()).
+  @Prop({ default: false, index: true })
+  needsSubCategoryReview!: boolean;
+
+  // Incremented on every public product-detail view — backs the "Popular"
+  // sort option (see ProductsService.findAllPublic).
+  @Prop({ default: 0, index: true })
+  viewCount!: number;
+
+  // Incremented whenever an enquiry naming this product is submitted —
+  // there's no checkout/cart on this site, so this is the closest signal
+  // to a "purchase"/order intent and backs the "Most Purchased" sort
+  // option (see EnquiriesService.create).
+  @Prop({ default: 0, index: true })
+  purchaseCount!: number;
 
   @Prop({ default: false, index: true })
   isFeatured!: boolean;
@@ -99,6 +177,10 @@ export const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.index({ name: 'text', description: 'text' });
 ProductSchema.index({ category: 1, status: 1 });
+ProductSchema.index({ subCategory: 1, status: 1 });
+ProductSchema.index({ status: 1, effectivePrice: 1 });
+ProductSchema.index({ status: 1, viewCount: -1 });
+ProductSchema.index({ status: 1, purchaseCount: -1 });
 
 ProductSchema.pre('save', function () {
   if (this.isModified('name') && !this.slug) {
@@ -106,4 +188,17 @@ ProductSchema.pre('save', function () {
   } else if (this.isModified('slug') && this.slug) {
     this.slug = slugify(this.slug);
   }
+
+  if (
+    typeof this.discountPrice === 'number' &&
+    this.discountPrice >= this.price
+  ) {
+    // A discount price that isn't actually lower than price is not a
+    // discount — drop it rather than reject the save, so a CMS editor
+    // clearing/raising price after setting a discount doesn't get stuck.
+    this.discountPrice = undefined;
+  }
+
+  this.effectivePrice =
+    typeof this.discountPrice === 'number' ? this.discountPrice : this.price;
 });

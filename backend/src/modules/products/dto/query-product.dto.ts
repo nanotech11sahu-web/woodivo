@@ -16,4 +16,13 @@ export class QueryProductDto extends PaginationQueryDto {
   @IsOptional()
   @IsMongoId()
   category?: string;
+
+  @IsOptional()
+  @IsMongoId()
+  subCategory?: string;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  needsPriceReview?: boolean;
 }

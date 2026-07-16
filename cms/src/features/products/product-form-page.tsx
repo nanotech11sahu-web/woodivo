@@ -18,6 +18,7 @@ import { toast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/http-error';
 import { useProduct, useCreateProduct, useUpdateProduct } from './products-api';
 import { useCategoryOptions } from '@/features/categories/categories-api';
+import { useSubCategoryOptions } from '@/features/subcategories/subcategories-api';
 import { SpecificationsEditor } from './specifications-editor';
 import { RelatedProductsPicker } from './related-products-picker';
 import { RelatedBlogsPicker } from './related-blogs-picker';
@@ -46,20 +47,33 @@ export function ProductFormPage() {
     handleSubmit,
     reset,
     control,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: PRODUCT_FORM_DEFAULTS,
   });
 
+  const selectedCategoryId = watch('category');
+  const { data: subCategoryOptions, isLoading: isLoadingSubCategories } =
+    useSubCategoryOptions(selectedCategoryId || undefined);
+
+  const categoryField = register('category');
+
   useEffect(() => {
     if (!product) return;
     reset({
       category: product.category?._id ?? '',
+      subCategory: product.subCategory?._id ?? '',
       name: product.name,
       slug: product.slug,
       description: product.description ?? '',
       specifications: product.specifications ?? [],
+      price: product.price,
+      discountPrice: product.discountPrice ?? '',
+      sku: product.sku ?? '',
+      stockStatus: product.stockStatus ?? 'made_to_order',
       displayOrder: product.displayOrder,
       status: product.status,
       isFeatured: product.isFeatured,
@@ -73,11 +87,16 @@ export function ProductFormPage() {
   async function onSubmit(values: ProductFormValues) {
     const payload = {
       category: values.category,
+      subCategory: values.subCategory || null,
       name: values.name,
       slug: values.slug || undefined,
       description: values.description || undefined,
       images,
       specifications: values.specifications,
+      price: values.price,
+      discountPrice: values.discountPrice === '' ? null : values.discountPrice,
+      sku: values.sku || undefined,
+      stockStatus: values.stockStatus,
       displayOrder: values.displayOrder,
       status: values.status,
       isFeatured: values.isFeatured,
@@ -129,7 +148,16 @@ export function ProductFormPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="category">Category</Label>
-                <Select id="category" className="mt-1.5" disabled={isLoadingCategories} {...register('category')}>
+                <Select
+                  id="category"
+                  className="mt-1.5"
+                  disabled={isLoadingCategories}
+                  {...categoryField}
+                  onChange={(event) => {
+                    categoryField.onChange(event);
+                    setValue('subCategory', '');
+                  }}
+                >
                   <option value="">Select a category</option>
                   {categoryOptions?.items.map((option) => (
                     <option key={option._id} value={option._id}>
@@ -140,10 +168,32 @@ export function ProductFormPage() {
                 {errors.category && <p className="mt-1 text-xs text-rust">{errors.category.message}</p>}
               </div>
               <div>
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" className="mt-1.5" {...register('name')} />
-                {errors.name && <p className="mt-1 text-xs text-rust">{errors.name.message}</p>}
+                <Label htmlFor="subCategory">Subcategory</Label>
+                <Select
+                  id="subCategory"
+                  className="mt-1.5"
+                  disabled={!selectedCategoryId || isLoadingSubCategories}
+                  {...register('subCategory')}
+                >
+                  <option value="">
+                    {selectedCategoryId ? 'None' : 'Select a category first'}
+                  </option>
+                  {subCategoryOptions?.items.map((option) => (
+                    <option key={option._id} value={option._id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </Select>
+                {errors.subCategory && (
+                  <p className="mt-1 text-xs text-rust">{errors.subCategory.message}</p>
+                )}
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" className="mt-1.5" {...register('name')} />
+              {errors.name && <p className="mt-1 text-xs text-rust">{errors.name.message}</p>}
             </div>
 
             <div>
@@ -158,6 +208,51 @@ export function ProductFormPage() {
             </div>
 
             <MultiImageUploader label="Images" value={images} onChange={setImages} folder="products" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Pricing &amp; inventory</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="price">Price (₹)</Label>
+                <Input id="price" type="number" min={0} step="0.01" className="mt-1.5" {...register('price')} />
+                {errors.price && <p className="mt-1 text-xs text-rust">{errors.price.message}</p>}
+              </div>
+              <div>
+                <Label htmlFor="discountPrice">Discount price (₹)</Label>
+                <Input
+                  id="discountPrice"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder="Optional"
+                  className="mt-1.5"
+                  {...register('discountPrice')}
+                />
+                {errors.discountPrice && (
+                  <p className="mt-1 text-xs text-rust">{errors.discountPrice.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="sku">SKU</Label>
+                <Input id="sku" placeholder="Optional" className="mt-1.5" {...register('sku')} />
+              </div>
+              <div>
+                <Label htmlFor="stockStatus">Stock status</Label>
+                <Select id="stockStatus" className="mt-1.5" {...register('stockStatus')}>
+                  <option value="made_to_order">Made to order</option>
+                  <option value="in_stock">In stock</option>
+                  <option value="out_of_stock">Out of stock</option>
+                </Select>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

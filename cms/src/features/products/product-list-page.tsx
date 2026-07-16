@@ -13,6 +13,7 @@ import { toast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/http-error';
 import { useProducts, useDeleteProduct } from './products-api';
 import { useCategoryOptions } from '@/features/categories/categories-api';
+import { useSubCategoryOptions } from '@/features/subcategories/subcategories-api';
 import type { Product, ProductStatus } from '@/types/product';
 
 const PAGE_LIMIT = 20;
@@ -22,6 +23,8 @@ export function ProductListPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<ProductStatus | ''>('');
   const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [needsPriceReviewOnly, setNeedsPriceReviewOnly] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
 
   const { data, isLoading, isError } = useProducts({
@@ -30,8 +33,11 @@ export function ProductListPage() {
     search: search || undefined,
     status: status || undefined,
     category: category || undefined,
+    subCategory: subCategory || undefined,
+    needsPriceReview: needsPriceReviewOnly || undefined,
   });
   const { data: categoryOptions } = useCategoryOptions();
+  const { data: subCategoryOptions } = useSubCategoryOptions(category || undefined);
   const deleteProduct = useDeleteProduct();
 
   function handleSearchChange(value: string) {
@@ -46,6 +52,12 @@ export function ProductListPage() {
 
   function handleCategoryChange(value: string) {
     setCategory(value);
+    setSubCategory('');
+    setPage(1);
+  }
+
+  function handleSubCategoryChange(value: string) {
+    setSubCategory(value);
     setPage(1);
   }
 
@@ -89,7 +101,31 @@ export function ProductListPage() {
     {
       key: 'category',
       header: 'Category',
-      render: (row) => <span className="text-sm text-ink-muted">{row.category?.name ?? '\u2014'}</span>,
+      render: (row) => (
+        <div className="text-sm text-ink-muted">
+          <p>{row.category?.name ?? '\u2014'}</p>
+          {row.subCategory && <p className="text-xs">{row.subCategory.name}</p>}
+        </div>
+      ),
+    },
+    {
+      key: 'price',
+      header: 'Price',
+      render: (row) => (
+        <div className="text-sm">
+          {row.discountPrice ? (
+            <>
+              <span className="font-medium text-espresso">₹{row.discountPrice.toLocaleString('en-IN')}</span>{' '}
+              <span className="text-xs text-ink-muted line-through">₹{row.price.toLocaleString('en-IN')}</span>
+            </>
+          ) : (
+            <span className="font-medium text-espresso">₹{row.price.toLocaleString('en-IN')}</span>
+          )}
+          {row.needsPriceReview ? (
+            <p className="mt-0.5 text-xs font-medium text-rust">Needs review</p>
+          ) : null}
+        </div>
+      ),
     },
     {
       key: 'status',
@@ -162,6 +198,19 @@ export function ProductListPage() {
           ))}
         </Select>
         <Select
+          value={subCategory}
+          onChange={(event) => handleSubCategoryChange(event.target.value)}
+          disabled={!category}
+          className="max-w-48"
+        >
+          <option value="">All subcategories</option>
+          {subCategoryOptions?.items.map((option) => (
+            <option key={option._id} value={option._id}>
+              {option.name}
+            </option>
+          ))}
+        </Select>
+        <Select
           value={status}
           onChange={(event) => handleStatusChange(event.target.value)}
           className="max-w-40"
@@ -170,6 +219,17 @@ export function ProductListPage() {
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </Select>
+        <label className="flex items-center gap-2 rounded-md border border-border-warm px-3 text-sm text-ink-muted">
+          <input
+            type="checkbox"
+            checked={needsPriceReviewOnly}
+            onChange={(event) => {
+              setNeedsPriceReviewOnly(event.target.checked);
+              setPage(1);
+            }}
+          />
+          Needs price review
+        </label>
       </div>
 
       <DataTable
