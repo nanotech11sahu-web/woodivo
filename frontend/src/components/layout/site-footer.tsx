@@ -83,6 +83,7 @@ export function SiteFooter() {
               <li><Link to="/blogs" className="hover:text-brass-light">Blogs</Link></li>
               <li><Link to="/about" className="hover:text-brass-light">About Us</Link></li>
               <li><Link to="/gallery" className="hover:text-brass-light">Gallery</Link></li>
+              <li><Link to="/customize" className="hover:text-brass-light">Customize</Link></li>
               <li><Link to="/contact" className="hover:text-brass-light">Contact</Link></li>
             </ul>
           </div>

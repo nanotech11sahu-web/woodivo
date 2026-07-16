@@ -23,14 +23,28 @@ export interface ProductCategoryRef {
   status: 'active' | 'inactive';
 }
 
+// Same shape/reasoning as ProductCategoryRef, for the optional
+// `subCategory` populate (SUBCATEGORY_POPULATE_FIELDS in
+// products.service.ts).
+export interface ProductSubCategoryRef {
+  _id: string;
+  name: string;
+  slug: string;
+  thumbnail?: MediaAsset;
+  status: 'active' | 'inactive';
+}
+
 // What findBySlugPublic's relatedProducts populate actually returns
-// (select: 'name slug images', filtered to active products only via
-// match) -- not an array of ids. Mirrors the CMS's RelatedProductRef.
+// (select: 'name slug images price discountPrice', filtered to active
+// products only via match) -- not an array of ids. Mirrors the CMS's
+// RelatedProductRef.
 export interface RelatedProductRef {
   _id: string;
   name: string;
   slug: string;
   images?: MediaAsset[];
+  price?: number;
+  discountPrice?: number;
 }
 
 // What findBySlugPublic's relatedBlogs populate actually returns
@@ -55,14 +69,21 @@ export interface ProductFaqItem {
   answer: string;
 }
 
+export type ProductStockStatus = 'in_stock' | 'out_of_stock' | 'made_to_order';
+
 export interface Product {
   _id: string;
   category: ProductCategoryRef | string;
+  subCategory?: ProductSubCategoryRef | string;
   name: string;
   slug: string;
   images: MediaAsset[];
   description?: string;
   specifications: SpecificationItem[];
+  price: number;
+  discountPrice?: number;
+  sku?: string;
+  stockStatus: ProductStockStatus;
   isFeatured: boolean;
   relatedProducts: RelatedProductRef[];
   relatedBlogs: RelatedBlogRef[];
@@ -72,10 +93,24 @@ export interface Product {
   updatedAt: string;
 }
 
+export type ProductPublicSort =
+  | 'featured'
+  | 'latest'
+  | 'popular'
+  | 'most-purchased'
+  | 'price-asc'
+  | 'price-desc'
+  | 'name-asc'
+  | 'name-desc';
+
 export interface QueryPublicProductParams {
   page?: number;
   limit?: number;
   search?: string;
   category?: string;
+  subCategory?: string;
   featured?: boolean;
+  sort?: ProductPublicSort;
+  minPrice?: number;
+  maxPrice?: number;
 }

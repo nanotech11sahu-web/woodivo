@@ -15,6 +15,7 @@ export enum SeoPageType {
   PRODUCT = 'product',
   BLOG = 'blog',
   CATEGORY = 'category',
+  SUBCATEGORY = 'subcategory',
   CUSTOM = 'custom',
 }
 
@@ -25,6 +26,7 @@ export const ENTITY_PAGE_TYPES = [
   SeoPageType.PRODUCT,
   SeoPageType.BLOG,
   SeoPageType.CATEGORY,
+  SeoPageType.SUBCATEGORY,
 ] as const;
 
 @Schema({ timestamps: true })

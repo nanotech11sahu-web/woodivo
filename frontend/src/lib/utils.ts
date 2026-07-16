@@ -11,6 +11,21 @@ export function toWhatsAppDigits(phone: string): string {
 }
 
 /**
+ * INR price formatting for product cards/detail pages — `en-IN` matches
+ * `formatDate` above and every other hardcoded India-specific assumption
+ * in this codebase. No decimals: furniture prices here are always whole
+ * rupees, and showing ".00" on every card is just noise.
+ */
+export function formatPrice(value: number | undefined): string | undefined {
+  if (typeof value !== 'number' || Number.isNaN(value)) return undefined;
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+/**
  * First date-formatting helper this app has needed — `Blog` is the first
  * public-site entity with a date worth showing on the page itself (a
  * publish date on a listing card and a detail byline), as opposed to

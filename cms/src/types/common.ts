@@ -31,8 +31,10 @@ export interface SeoMeta {
 /** Mirrors backend MediaFolder — kept in sync by hand, same as DashboardStats (see PHASE8_NOTES.md). */
 export type MediaFolder =
   | 'categories'
+  | 'subcategories'
   | 'products'
   | 'gallery'
+  | 'customizations'
   | 'blogs'
   | 'banners'
   | 'testimonials'

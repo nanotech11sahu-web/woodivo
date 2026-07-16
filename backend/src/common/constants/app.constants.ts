@@ -15,8 +15,10 @@ export enum ContentStatus {
 
 export enum MediaFolder {
   CATEGORIES = 'categories',
+  SUBCATEGORIES = 'subcategories',
   PRODUCTS = 'products',
   GALLERY = 'gallery',
+  CUSTOMIZATIONS = 'customizations',
   BLOGS = 'blogs',
   BANNERS = 'banners',
   TESTIMONIALS = 'testimonials',

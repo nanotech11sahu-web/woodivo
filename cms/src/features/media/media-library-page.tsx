@@ -15,6 +15,7 @@ import type { MediaFolder } from '@/types/common';
 
 const FOLDER_OPTIONS: MediaFolder[] = [
   'categories',
+  'subcategories',
   'products',
   'gallery',
   'blogs',

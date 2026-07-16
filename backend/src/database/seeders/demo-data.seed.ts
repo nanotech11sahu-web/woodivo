@@ -68,6 +68,10 @@ import {
   GalleryItemStatus,
 } from '@modules/gallery/schemas/gallery-item.schema';
 import {
+  Customization,
+  CustomizationStatus,
+} from '@modules/customizations/schemas/customization.schema';
+import {
   Testimonial,
   TestimonialStatus,
 } from '@modules/testimonials/schemas/testimonial.schema';
@@ -298,22 +302,30 @@ async function seedProducts(
 
   const docs = defs.map((d, i) => {
     const keywords = categoryKeywords[d.category] ?? 'wood furniture';
+    // Simple deterministic spread across a plausible furniture price
+    // range (₹8,999–₹1,04,999) so demo data has varied prices to sort
+    // and filter by — every 4th item also gets a ~15% discount so the
+    // storefront's "before/after" price UI has something to show.
+    const price = 8999 + (i % 12) * 8000;
+    const hasDiscount = i % 4 === 0;
     return {
-    category: byName(d.category),
-    name: d.name,
-    slug: slugify(d.name),
-    description: d.desc,
-    images: [
-      img(keywords, 900, 900, d.name),
-      img(keywords, 900, 900, `${d.name} — alternate angle`),
-    ],
-    specifications: [
-      { key: 'Material', value: 'Solid wood, hand-finished' },
-      { key: 'Warranty', value: '2 years against manufacturing defects' },
-    ],
-    isFeatured: i % 5 === 0 || i % 5 === 2,
-    displayOrder: i,
-    status: ProductStatus.ACTIVE,
+      category: byName(d.category),
+      name: d.name,
+      slug: slugify(d.name),
+      description: d.desc,
+      images: [
+        img(keywords, 900, 900, d.name),
+        img(keywords, 900, 900, `${d.name} — alternate angle`),
+      ],
+      specifications: [
+        { key: 'Material', value: 'Solid wood, hand-finished' },
+        { key: 'Warranty', value: '2 years against manufacturing defects' },
+      ],
+      price,
+      ...(hasDiscount ? { discountPrice: Math.round(price * 0.85) } : {}),
+      isFeatured: i % 5 === 0 || i % 5 === 2,
+      displayOrder: i,
+      status: ProductStatus.ACTIVE,
     };
   });
 
@@ -479,6 +491,115 @@ async function seedGallery(model: Model<GalleryItem>) {
 
   const created = await model.create(docs);
   logger.log(`Seeded ${created.length} gallery items.`);
+}
+
+async function seedCustomizations(
+  model: Model<Customization>,
+  categories: { _id: Types.ObjectId; name: string }[],
+) {
+  if (await model.countDocuments()) {
+    logger.log('Customizations already exist — skipping.');
+    return;
+  }
+
+  const byName = (name: string) => categories.find((c) => c.name === name)?._id;
+
+  const defs = [
+    {
+      title: 'Extended Teak Dining Table for a Joint Family',
+      category: 'Dining Tables',
+      description:
+        'A customer asked for our Heritage Teak Dining Table stretched from six seats to ten, with a pull-out leaf for festival gatherings. Same teak, same hand-rubbed finish — just built to their family\u2019s table, not a catalog size.',
+      tags: ['teak', 'dining', 'made-to-size'],
+      shots: 3,
+    },
+    {
+      title: 'Walnut-Stained Coffee Table with Hidden Storage',
+      category: 'Coffee Tables',
+      description:
+        'The client loved our Storage Coffee Table\u2019s lift-top but wanted a darker walnut stain to match an existing sofa set. We matched the tone from a fabric swatch they sent over.',
+      tags: ['walnut-stain', 'storage', 'living-room'],
+      shots: 2,
+    },
+    {
+      title: 'Floor-to-Ceiling Wardrobe in Mango Wood',
+      category: 'Wardrobes',
+      description:
+        'Our standard sliding wardrobe reworked in mango wood to fit a non-standard 9-foot ceiling, with an added shoe rack section at the base per the customer\u2019s request.',
+      tags: ['mango-wood', 'wardrobe', 'made-to-size'],
+      shots: 3,
+    },
+    {
+      title: 'Corner Bookshelf with Ladder Access',
+      category: 'Bookshelves',
+      description:
+        'A reading-room commission: our modular bookshelf reshaped to wrap a corner, with a small sliding ladder built in for the top two shelves.',
+      tags: ['sheesham', 'bookshelf', 'reading-room'],
+      shots: 2,
+    },
+    {
+      title: 'Weatherproofed Teak Bench for a Terrace Garden',
+      category: 'Outdoor Furniture',
+      description:
+        'The customer wanted our outdoor bench in a longer three-seater length with a marine-grade finish to handle direct monsoon exposure on an open terrace.',
+      tags: ['teak', 'outdoor', 'weatherproof'],
+      shots: 2,
+    },
+    {
+      title: 'Built-In TV Unit with Concealed Wiring',
+      category: 'Custom Cabinetry',
+      description:
+        'A wall-to-wall cabinetry piece designed around the customer\u2019s existing TV size and room dimensions, with routed channels to hide every cable.',
+      tags: ['sheesham', 'cabinetry', 'tv-unit'],
+      shots: 3,
+    },
+    {
+      title: 'Carved Armrest Chairs to Match an Heirloom Table',
+      category: 'Wooden Chairs',
+      description:
+        'Six dining chairs hand-carved to echo the leg detailing of a customer\u2019s existing heirloom table, so the new set would sit naturally alongside the old.',
+      tags: ['sheesham', 'hand-carved', 'dining'],
+      shots: 2,
+    },
+    {
+      title: 'Compact Study Table for a Studio Apartment',
+      category: 'Custom Cabinetry',
+      description:
+        'A slim 30-inch-deep study table with a fold-down extension leaf, designed to fit a studio apartment corner without crowding the room.',
+      tags: ['mango-wood', 'apartment', 'study-table'],
+      shots: 2,
+    },
+  ];
+
+  const keywordsFor: Record<string, string> = {
+    'Dining Tables': 'dining table,wood furniture',
+    'Coffee Tables': 'coffee table,living room',
+    Wardrobes: 'wardrobe,bedroom furniture',
+    Bookshelves: 'bookshelf,reading room',
+    'Outdoor Furniture': 'outdoor bench,garden furniture',
+    'Custom Cabinetry': 'custom cabinetry,tv unit',
+    'Wooden Chairs': 'wooden chair,dining room',
+  };
+
+  const docs = defs.map((d, i) => ({
+    title: d.title,
+    description: d.description,
+    images: Array.from({ length: d.shots }, (_, shotIndex) =>
+      img(
+        keywordsFor[d.category] ?? 'custom furniture',
+        1000,
+        800,
+        `${d.title} — photo ${shotIndex + 1}`,
+      ),
+    ),
+    category: byName(d.category),
+    tags: d.tags,
+    displayOrder: i,
+    status: CustomizationStatus.ACTIVE,
+  }));
+
+  const created = await model.create(docs);
+  logger.log(`Seeded ${created.length} customization showcase items.`);
 }
 
 async function seedTestimonials(model: Model<Testimonial>) {
@@ -719,12 +840,7 @@ async function seedAboutPage(model: Model<AboutPage>) {
     key: ABOUT_PAGE_SINGLETON_KEY,
     heroTitle: 'Three Generations of Woodworking Craft',
     heroSubtitle: 'From a single workshop to furniture in homes across India.',
-    heroImage: img(
-      'carpentry workshop,wood',
-      1920,
-      800,
-      'Woodivo workshop',
-    ),
+    heroImage: img('carpentry workshop,wood', 1920, 800, 'Woodivo workshop'),
     storyTitle: 'How Woodivo Started',
     storyContent:
       'Woodivo began as a single carpentry workshop, three generations ago, building furniture for a handful of families in one neighborhood.\n\nThe tools have changed — we now work alongside CNC precision cutting for the parts that benefit from it — but the standard has not: every joint that matters is still cut and fitted by hand, and every piece is inspected by someone who would be comfortable putting their name on it.\n\nToday we build for homes across India, but the workshop still operates the way it did the first year: one piece at a time, built to be handed down.',
@@ -918,6 +1034,9 @@ async function bootstrap() {
     const galleryModel = app.get<Model<GalleryItem>>(
       getModelToken(GalleryItem.name),
     );
+    const customizationModel = app.get<Model<Customization>>(
+      getModelToken(Customization.name),
+    );
     const testimonialModel = app.get<Model<Testimonial>>(
       getModelToken(Testimonial.name),
     );
@@ -932,6 +1051,7 @@ async function bootstrap() {
     await seedProducts(productModel, categories);
     await seedBlogs(blogCategoryModel, blogModel);
     await seedGallery(galleryModel);
+    await seedCustomizations(customizationModel, categories);
     await seedTestimonials(testimonialModel);
     await seedBanners(bannerModel);
     await seedFaqs(faqModel);

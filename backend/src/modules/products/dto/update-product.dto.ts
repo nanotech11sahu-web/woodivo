@@ -6,22 +6,32 @@ import {
   IsEnum,
   IsInt,
   IsMongoId,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { MediaAssetDto } from '@common/dto/media-asset.dto';
 import { SpecificationItemDto } from '@common/dto/specification-item.dto';
-import { ProductStatus } from '../schemas/product.schema';
+import { ProductStatus, ProductStockStatus } from '../schemas/product.schema';
 import { ProductFaqItemDto } from './product-faq-item.dto';
 
 export class UpdateProductDto {
   @IsOptional()
   @IsMongoId()
   category?: string;
+
+  // `null` explicitly clears the product's subcategory (e.g. after
+  // switching to a category the current subcategory doesn't belong to);
+  // omitting the field entirely leaves it untouched.
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsMongoId()
+  subCategory?: string | null;
 
   @IsOptional()
   @IsString()
@@ -51,6 +61,31 @@ export class UpdateProductDto {
   @ValidateNested({ each: true })
   @Type(() => SpecificationItemDto)
   specifications?: SpecificationItemDto[];
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  price?: number;
+
+  // `null` explicitly clears a previously-set discount; omitting the
+  // field leaves it untouched. Cross-checked against the resolved
+  // `price` in ProductsService, same reasoning as CreateProductDto.
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  discountPrice?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  sku?: string;
+
+  @IsOptional()
+  @IsEnum(ProductStockStatus)
+  stockStatus?: ProductStockStatus;
 
   @IsOptional()
   @IsBoolean()

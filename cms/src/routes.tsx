@@ -20,6 +20,8 @@ import { lazyImport } from '@/lib/lazy-import';
 const DashboardPage = lazyImport(() => import('@/features/dashboard/dashboard-page'), 'DashboardPage');
 const CategoryListPage = lazyImport(() => import('@/features/categories/category-list-page'), 'CategoryListPage');
 const CategoryFormPage = lazyImport(() => import('@/features/categories/category-form-page'), 'CategoryFormPage');
+const SubCategoryListPage = lazyImport(() => import('@/features/subcategories/subcategory-list-page'), 'SubCategoryListPage');
+const SubCategoryFormPage = lazyImport(() => import('@/features/subcategories/subcategory-form-page'), 'SubCategoryFormPage');
 const ProductListPage = lazyImport(() => import('@/features/products/product-list-page'), 'ProductListPage');
 const ProductFormPage = lazyImport(() => import('@/features/products/product-form-page'), 'ProductFormPage');
 const BlogListPage = lazyImport(() => import('@/features/blogs/blog-list-page'), 'BlogListPage');
@@ -31,6 +33,8 @@ const FaqListPage = lazyImport(() => import('@/features/faqs/faq-list-page'), 'F
 const FaqFormPage = lazyImport(() => import('@/features/faqs/faq-form-page'), 'FaqFormPage');
 const GalleryListPage = lazyImport(() => import('@/features/gallery/gallery-list-page'), 'GalleryListPage');
 const GalleryFormPage = lazyImport(() => import('@/features/gallery/gallery-form-page'), 'GalleryFormPage');
+const CustomizationListPage = lazyImport(() => import('@/features/customizations/customization-list-page'), 'CustomizationListPage');
+const CustomizationFormPage = lazyImport(() => import('@/features/customizations/customization-form-page'), 'CustomizationFormPage');
 const BannerListPage = lazyImport(() => import('@/features/banners/banner-list-page'), 'BannerListPage');
 const BannerFormPage = lazyImport(() => import('@/features/banners/banner-form-page'), 'BannerFormPage');
 const EnquiryListPage = lazyImport(() => import('@/features/enquiries/enquiry-list-page'), 'EnquiryListPage');
@@ -55,6 +59,9 @@ export const router = createBrowserRouter([
           { path: '/categories', element: <CategoryListPage /> },
           { path: '/categories/new', element: <CategoryFormPage /> },
           { path: '/categories/:id/edit', element: <CategoryFormPage /> },
+          { path: '/subcategories', element: <SubCategoryListPage /> },
+          { path: '/subcategories/new', element: <SubCategoryFormPage /> },
+          { path: '/subcategories/:id/edit', element: <SubCategoryFormPage /> },
           { path: '/products', element: <ProductListPage /> },
           { path: '/products/new', element: <ProductFormPage /> },
           { path: '/products/:id/edit', element: <ProductFormPage /> },
@@ -65,6 +72,9 @@ export const router = createBrowserRouter([
           { path: '/gallery', element: <GalleryListPage /> },
           { path: '/gallery/new', element: <GalleryFormPage /> },
           { path: '/gallery/:id/edit', element: <GalleryFormPage /> },
+          { path: '/customizations', element: <CustomizationListPage /> },
+          { path: '/customizations/new', element: <CustomizationFormPage /> },
+          { path: '/customizations/:id/edit', element: <CustomizationFormPage /> },
           {
             path: '/testimonials',
             element: <TestimonialListPage />,

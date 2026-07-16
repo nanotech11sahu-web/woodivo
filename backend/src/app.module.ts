@@ -19,10 +19,12 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { UsersModule } from '@modules/users/users.module';
 import { CategoriesModule } from '@modules/categories/categories.module';
+import { SubCategoriesModule } from '@modules/subcategories/subcategories.module';
 import { ProductsModule } from '@modules/products/products.module';
 import { EnquiriesModule } from '@modules/enquiries/enquiries.module';
 import { BlogsModule } from '@modules/blogs/blogs.module';
 import { GalleryModule } from '@modules/gallery/gallery.module';
+import { CustomizationsModule } from '@modules/customizations/customizations.module';
 import { TestimonialsModule } from '@modules/testimonials/testimonials.module';
 import { FaqsModule } from '@modules/faqs/faqs.module';
 import { BannersModule } from '@modules/banners/banners.module';
@@ -67,10 +69,12 @@ import { ToolsModule } from '@modules/tools/tools.module';
     // Feature modules
     HealthModule,
     CategoriesModule,
+    SubCategoriesModule,
     ProductsModule,
     EnquiriesModule,
     BlogsModule,
     GalleryModule,
+    CustomizationsModule,
     TestimonialsModule,
     FaqsModule,
     BannersModule,

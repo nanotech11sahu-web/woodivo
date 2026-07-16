@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   FolderTree,
+  Layers,
   Package,
   Inbox,
   Newspaper,
@@ -9,6 +10,7 @@ import {
   MessageSquareQuote,
   HelpCircle,
   GalleryHorizontal,
+  Hammer,
   Settings,
   Users,
   BookUser,
@@ -38,6 +40,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: 'Catalog',
     items: [
       { to: '/categories', label: 'Categories', icon: FolderTree },
+      { to: '/subcategories', label: 'Subcategories', icon: Layers },
       { to: '/products', label: 'Products', icon: Package },
     ],
   },
@@ -46,6 +49,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: '/blogs', label: 'Blogs', icon: Newspaper },
       { to: '/gallery', label: 'Gallery', icon: Image },
+      { to: '/customizations', label: 'Customizations', icon: Hammer },
       { to: '/testimonials', label: 'Testimonials', icon: MessageSquareQuote },
       { to: '/faqs', label: 'FAQs', icon: HelpCircle },
       { to: '/banners', label: 'Banners', icon: GalleryHorizontal },
