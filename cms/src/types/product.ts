@@ -53,7 +53,7 @@ export interface ProductFaqItem {
 export interface Product {
   _id: string;
   category: CategoryRef;
-  subCategory?: SubCategoryRef;
+  subCategories?: SubCategoryRef[];
   name: string;
   slug: string;
   images: MediaAsset[];
@@ -91,7 +91,7 @@ export interface ProductListParams {
 
 export interface ProductPayload {
   category: string;
-  subCategory?: string | null;
+  subCategories?: string[];
   name: string;
   slug?: string;
   images?: MediaAsset[];

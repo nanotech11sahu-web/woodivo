@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const productFormSchema = z
   .object({
     category: z.string().min(1, 'Category is required'),
-    subCategory: z.string().optional().or(z.literal('')),
+    subCategories: z.array(z.string()).default([]),
     name: z.string().trim().min(1, 'Name is required').max(150),
     slug: z
       .string()
@@ -38,7 +38,7 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 export const PRODUCT_FORM_DEFAULTS: ProductFormValues = {
   category: '',
-  subCategory: '',
+  subCategories: [],
   name: '',
   slug: '',
   description: '',

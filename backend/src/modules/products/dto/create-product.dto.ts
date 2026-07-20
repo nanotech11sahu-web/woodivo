@@ -24,8 +24,9 @@ export class CreateProductDto {
   category!: string;
 
   @IsOptional()
-  @IsMongoId()
-  subCategory?: string;
+  @IsArray()
+  @IsMongoId({ each: true })
+  subCategories?: string[];
 
   @IsString()
   @MaxLength(150)

@@ -65,7 +65,7 @@ export function ProductFormPage() {
     if (!product) return;
     reset({
       category: product.category?._id ?? '',
-      subCategory: product.subCategory?._id ?? '',
+      subCategories: product.subCategories?.map((s) => s._id) ?? [],
       name: product.name,
       slug: product.slug,
       description: product.description ?? '',
@@ -87,7 +87,7 @@ export function ProductFormPage() {
   async function onSubmit(values: ProductFormValues) {
     const payload = {
       category: values.category,
-      subCategory: values.subCategory || null,
+      subCategories: values.subCategories,
       name: values.name,
       slug: values.slug || undefined,
       description: values.description || undefined,
@@ -155,7 +155,7 @@ export function ProductFormPage() {
                   {...categoryField}
                   onChange={(event) => {
                     categoryField.onChange(event);
-                    setValue('subCategory', '');
+                    setValue('subCategories', []);
                   }}
                 >
                   <option value="">Select a category</option>
@@ -168,24 +168,47 @@ export function ProductFormPage() {
                 {errors.category && <p className="mt-1 text-xs text-rust">{errors.category.message}</p>}
               </div>
               <div>
-                <Label htmlFor="subCategory">Subcategory</Label>
-                <Select
-                  id="subCategory"
-                  className="mt-1.5"
-                  disabled={!selectedCategoryId || isLoadingSubCategories}
-                  {...register('subCategory')}
-                >
-                  <option value="">
-                    {selectedCategoryId ? 'None' : 'Select a category first'}
-                  </option>
-                  {subCategoryOptions?.items.map((option) => (
-                    <option key={option._id} value={option._id}>
-                      {option.name}
-                    </option>
-                  ))}
-                </Select>
-                {errors.subCategory && (
-                  <p className="mt-1 text-xs text-rust">{errors.subCategory.message}</p>
+                <Label>Subcategories</Label>
+                <Controller
+                  control={control}
+                  name="subCategories"
+                  render={({ field }) => (
+                    <div className="mt-1.5 max-h-40 overflow-y-auto rounded-md border border-ink-muted/20 p-2">
+                      {!selectedCategoryId ? (
+                        <p className="text-xs text-ink-muted">Select a category first</p>
+                      ) : isLoadingSubCategories ? (
+                        <p className="text-xs text-ink-muted">Loading…</p>
+                      ) : !subCategoryOptions?.items.length ? (
+                        <p className="text-xs text-ink-muted">No subcategories under this category</p>
+                      ) : (
+                        subCategoryOptions.items.map((option) => {
+                          const checked = field.value.includes(option._id);
+                          return (
+                            <label
+                              key={option._id}
+                              className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-black/5"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => {
+                                  field.onChange(
+                                    checked
+                                      ? field.value.filter((v) => v !== option._id)
+                                      : [...field.value, option._id],
+                                  );
+                                }}
+                              />
+                              {option.name}
+                            </label>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
+                />
+                {errors.subCategories && (
+                  <p className="mt-1 text-xs text-rust">{errors.subCategories.message}</p>
                 )}
               </div>
             </div>
