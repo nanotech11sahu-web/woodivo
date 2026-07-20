@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, Grid3x3 } from 'lucide-react';
+import { ArrowLeft, Grid3x3 } from 'lucide-react';
 import { useCategory } from '@/features/categories/categories-api';
 import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useProducts } from '@/features/products/products-api';
@@ -15,7 +15,7 @@ import { ErrorNote } from '@/components/shared/error-note';
 import { EntityNotFound } from '@/components/shared/entity-not-found';
 import { ProductCard } from '@/components/shared/product-card';
 import { SubCategoryCard } from '@/components/shared/subcategory-card';
-import { SearchInput } from '@/components/shared/search-input';
+import { ProductFilterBar } from '@/components/shared/product-filter-bar';
 import { Pagination } from '@/components/shared/pagination';
 import type { ProductPublicSort } from '@/types/product';
 
@@ -39,7 +39,6 @@ export function CategoryListingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { openEnquiryDialog } = useEnquiryDialog();
   const navigate = useNavigate();
-  const [sortOpen, setSortOpen] = useState(false);
 
   const page = Math.max(1, Number(searchParams.get('page')) || 1);
   const subCategorySlug = searchParams.get('subcategory') || undefined;
@@ -192,7 +191,6 @@ export function CategoryListingPage() {
       else next.set('sort', nextSort);
       return next;
     });
-    setSortOpen(false);
   }
 
   const activeSubCategoryName = subCategories.data?.find((s) => s.slug === subCategorySlug)?.name;
@@ -239,36 +237,6 @@ export function CategoryListingPage() {
               </div>
             </div>
 
-            {!showSubCategoryPicker ? (
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setSortOpen((v) => !v)}
-                  className="flex h-9 items-center gap-1.5 rounded-[var(--radius-card)] border border-border-warm px-3 text-sm font-medium text-charcoal hover:border-brass"
-                >
-                  <span className="hidden text-charcoal-soft sm:inline">Sort by</span>
-                  {SORT_LABELS[sort]}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </button>
-                {sortOpen ? (
-                  <div className="absolute right-0 top-full z-10 mt-2 w-48 rounded-[var(--radius-card)] border border-border-warm bg-ivory p-1.5 shadow-lg shadow-charcoal/10">
-                    {SORT_OPTIONS.map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => setSort(option)}
-                        className={cn(
-                          'block w-full rounded px-3 py-2 text-left text-sm hover:bg-ivory-deep',
-                          sort === option ? 'text-brass' : 'text-charcoal',
-                        )}
-                      >
-                        {SORT_LABELS[option]}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
           </div>
 
           {cat.description ? (
@@ -278,42 +246,19 @@ export function CategoryListingPage() {
           ) : null}
 
           {!showSubCategoryPicker ? (
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <SearchInput
-                value={searchDraft}
-                onChange={setSearchDraft}
-                placeholder={`Search in ${cat.name}…`}
-                aria-label="Search products"
-                className="max-w-sm"
-              />
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium uppercase tracking-wide text-charcoal-soft">
-                  Price (₹)
-                </span>
-                <input
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  value={minPriceDraft}
-                  onChange={(event) => setMinPriceDraft(event.target.value)}
-                  placeholder="Min"
-                  aria-label="Minimum price"
-                  className="h-9 w-24 rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep px-2.5 text-sm text-charcoal placeholder:text-charcoal-soft/60 focus:border-brass focus:outline-none"
-                />
-                <span className="text-charcoal-soft">–</span>
-                <input
-                  type="number"
-                  min={0}
-                  inputMode="numeric"
-                  value={maxPriceDraft}
-                  onChange={(event) => setMaxPriceDraft(event.target.value)}
-                  placeholder="Max"
-                  aria-label="Maximum price"
-                  className="h-9 w-24 rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep px-2.5 text-sm text-charcoal placeholder:text-charcoal-soft/60 focus:border-brass focus:outline-none"
-                />
-              </div>
-            </div>
+            <ProductFilterBar
+              search={searchDraft}
+              onSearchChange={setSearchDraft}
+              searchPlaceholder={`Search in ${cat.name}…`}
+              minPrice={minPriceDraft}
+              maxPrice={maxPriceDraft}
+              onMinPriceChange={setMinPriceDraft}
+              onMaxPriceChange={setMaxPriceDraft}
+              sort={sort}
+              onSortChange={setSort}
+              sortLabels={SORT_LABELS}
+              sortOptions={SORT_OPTIONS}
+            />
           ) : null}
 
           {!showSubCategoryPicker && hasSubCategories ? (

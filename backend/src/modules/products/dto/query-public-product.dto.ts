@@ -18,6 +18,8 @@ export class QueryPublicProductDto extends PaginationQueryDto {
   @IsString()
   category?: string; // category slug
 
+  // Filters to products that have this subcategory (by slug) among their
+  // (possibly several) assigned subcategories.
   @IsOptional()
   @IsString()
   subCategory?: string; // subcategory slug

@@ -90,8 +90,8 @@ export class ProductsService {
 
   async create(dto: CreateProductDto): Promise<ProductDocument> {
     const category = await this.getCategoryOrThrow(dto.category);
-    if (dto.subCategory) {
-      await this.getSubCategoryOrThrow(dto.subCategory, category._id);
+    if (dto.subCategories?.length) {
+      await this.ensureSubCategoriesExist(dto.subCategories, category._id);
     }
     const slug = slugify(dto.slug || dto.name);
     await this.ensureSlugAvailable(slug);
@@ -132,7 +132,7 @@ export class ProductsService {
       filter.needsPriceReview = needsPriceReview;
     }
     if (category) filter.category = new Types.ObjectId(category);
-    if (subCategory) filter.subCategory = new Types.ObjectId(subCategory);
+    if (subCategory) filter.subCategories = new Types.ObjectId(subCategory);
     if (search) filter.$text = { $search: search };
 
     const skip = (page - 1) * limit;
@@ -144,7 +144,7 @@ export class ProductsService {
       this.productModel
         .find(filter)
         .populate('category', CATEGORY_POPULATE_FIELDS)
-        .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
+        .populate('subCategories', SUBCATEGORY_POPULATE_FIELDS)
         .sort(sort)
         .skip(skip)
         .limit(limit)
@@ -205,7 +205,7 @@ export class ProductsService {
         // Unknown subcategory slug -> empty result set, not an error.
         return { items: [], meta: buildPaginationMeta(0, page, limit) };
       }
-      filter.subCategory = subCategoryDoc._id;
+      filter.subCategories = subCategoryDoc._id;
     }
 
     const skip = (page - 1) * limit;
@@ -215,7 +215,7 @@ export class ProductsService {
       this.productModel
         .find(filter)
         .populate('category', CATEGORY_POPULATE_FIELDS)
-        .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
+        .populate('subCategories', SUBCATEGORY_POPULATE_FIELDS)
         .sort(sortSpec)
         .skip(skip)
         .limit(limit)
@@ -255,7 +255,7 @@ export class ProductsService {
     const product = await this.productModel
       .findById(id)
       .populate('category', CATEGORY_POPULATE_FIELDS)
-      .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
+      .populate('subCategories', SUBCATEGORY_POPULATE_FIELDS)
       .populate('relatedProducts', 'name slug images price status')
       .populate('relatedBlogs', 'title slug featuredImage status')
       .exec();
@@ -279,7 +279,7 @@ export class ProductsService {
     const product = await this.productModel
       .findOne({ slug: slugify(slug), status: ProductStatus.ACTIVE })
       .populate('category', CATEGORY_POPULATE_FIELDS)
-      .populate('subCategory', SUBCATEGORY_POPULATE_FIELDS)
+      .populate('subCategories', SUBCATEGORY_POPULATE_FIELDS)
       .populate({
         path: 'relatedProducts',
         match: { status: ProductStatus.ACTIVE },
@@ -359,12 +359,14 @@ export class ProductsService {
       product.category = category._id;
     }
 
-    if (dto.subCategory === null) {
-      // Explicit clear.
-      product.subCategory = undefined;
-    } else if (dto.subCategory) {
-      await this.getSubCategoryOrThrow(dto.subCategory, product.category);
-      product.subCategory = new Types.ObjectId(dto.subCategory);
+    if (dto.subCategories) {
+      // Empty array explicitly clears; a non-empty array is validated
+      // against whatever category the product ends up in (just-updated
+      // above, or its existing one).
+      if (dto.subCategories.length) {
+        await this.ensureSubCategoriesExist(dto.subCategories, product.category);
+      }
+      product.subCategories = dto.subCategories.map((id) => new Types.ObjectId(id));
     }
 
     if (dto.slug || dto.name) {
@@ -393,7 +395,7 @@ export class ProductsService {
     Object.assign(product, {
       ...dto,
       category: product.category,
-      subCategory: product.subCategory,
+      subCategories: product.subCategories,
       slug: product.slug,
       discountPrice: resolvedDiscountPrice,
     });
@@ -408,7 +410,7 @@ export class ProductsService {
     // Same reasoning as needsPriceReview above — the flag only exists
     // because the migration script couldn't confidently auto-assign one;
     // an explicit choice here resolves it.
-    if (dto.subCategory) {
+    if (dto.subCategories?.length) {
       product.needsSubCategoryReview = false;
     }
 
@@ -463,24 +465,24 @@ export class ProductsService {
     return category;
   }
 
-  private async getSubCategoryOrThrow(
-    subCategoryId: string,
+  private async ensureSubCategoriesExist(
+    subCategoryIds: string[],
     categoryId: Types.ObjectId,
-  ): Promise<SubCategoryDocument> {
-    const subCategory = await this.subCategoryModel
-      .findById(subCategoryId)
+  ): Promise<void> {
+    const subCategories = await this.subCategoryModel
+      .find({ _id: { $in: subCategoryIds } })
       .exec();
-    if (!subCategory) {
+    if (subCategories.length !== new Set(subCategoryIds).size) {
+      throw new BadRequestException('One or more subcategories do not exist');
+    }
+    const belongsToOtherCategory = subCategories.some(
+      (sc) => !sc.category.equals(categoryId),
+    );
+    if (belongsToOtherCategory) {
       throw new BadRequestException(
-        `Subcategory "${subCategoryId}" does not exist`,
+        'One or more subcategories do not belong to the selected category',
       );
     }
-    if (!subCategory.category.equals(categoryId)) {
-      throw new BadRequestException(
-        'Subcategory does not belong to the selected category',
-      );
-    }
-    return subCategory;
   }
 
   private async ensureRelatedProductsExist(
