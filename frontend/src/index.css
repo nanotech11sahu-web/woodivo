@@ -1,31 +1,41 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Color — clean marketplace palette (white surfaces, near-black text,
-     blue accent for links/CTAs, warm-orange for footer service icons),
-     matching the storefront reference. Token names kept as-is (brass/teak/
-     ivory) so every component that already reads them repaints for free —
-     only the values changed, not what they mean. */
-  --color-ivory: #ffffff;
-  --color-ivory-deep: #f5f6f8;
-  --color-charcoal: #17181c;
-  --color-charcoal-soft: #6b7280;
-  --color-teak: #14161a;
-  --color-teak-deep: #0b0c0e;
-  --color-brass: #2563eb;
-  --color-brass-light: #4f8cf7;
-  --color-brass-pale: #eaf1ff;
-  --color-vermilion: #f2760f;
-  --color-vermilion-pale: #fdece0;
-  --color-border-warm: #e6e8ec;
+  /* Color — warm, premium light palette for a handcrafted wood/temple
+     furniture brand: ivory/cream surfaces, warm near-black text, a genuine
+     antique-brass accent (not blue) for primary actions/links, and a
+     terracotta/vermilion secondary accent for highlights. Token names are
+     unchanged from the previous "clean marketplace" iteration so every
+     component that already reads them repaints for free — only the values
+     changed, not what they mean. Light theme only, no dark variant. */
+  --color-ivory: #fffdfa;
+  --color-ivory-deep: #f6f1e7;
+  --color-charcoal: #241f1a;
+  --color-charcoal-soft: #6f665c;
+  --color-teak: #2b2118;
+  --color-teak-deep: #1a130d;
+  --color-brass: #a3702f;
+  --color-brass-light: #c9944f;
+  --color-brass-pale: #f6ead6;
+  --color-vermilion: #b0431e;
+  --color-vermilion-pale: #f6e2d6;
+  --color-border-warm: #e8e0d2;
+  --color-rust: #b0431e;
 
   /* Type — one clean sans family throughout, no serif; weight carries the
      hierarchy instead. */
   --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Sora', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-card: 0.625rem;
+  --radius-card: 0.75rem;
   --radius-pill: 999px;
+
+  /* Elevation — a soft, warm-tinted shadow scale (replaces bare
+     charcoal-opacity shadows) so cards/dropdowns/dialogs read as premium
+     "lifted" surfaces rather than flat marketplace boxes. */
+  --shadow-card: 0 1px 2px rgba(36, 31, 26, 0.04), 0 8px 24px -12px rgba(36, 31, 26, 0.18);
+  --shadow-card-hover: 0 4px 10px rgba(36, 31, 26, 0.06), 0 20px 40px -16px rgba(36, 31, 26, 0.22);
+  --shadow-pop: 0 12px 32px -8px rgba(36, 31, 26, 0.28);
 }
 
 @layer utilities {
