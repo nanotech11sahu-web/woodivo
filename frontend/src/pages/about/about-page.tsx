@@ -129,14 +129,14 @@ export function AboutPage() {
             <section className="bg-ivory-deep px-4 py-16 sm:px-6 lg:px-8">
               <div className="mx-auto grid max-w-5xl gap-8 sm:grid-cols-2">
                 {about.missionText ? (
-                  <div className="rounded-[var(--radius-card)] border border-border-warm bg-card p-8">
+                  <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-8">
                     <Target className="h-7 w-7 text-brass" strokeWidth={1.5} />
                     <h3 className="mt-4 text-2xl text-teak">Our Mission</h3>
                     <p className="mt-3 leading-relaxed text-charcoal-soft">{about.missionText}</p>
                   </div>
                 ) : null}
                 {about.visionText ? (
-                  <div className="rounded-[var(--radius-card)] border border-border-warm bg-card p-8">
+                  <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-8">
                     <Eye className="h-7 w-7 text-brass" strokeWidth={1.5} />
                     <h3 className="mt-4 text-2xl text-teak">Our Vision</h3>
                     <p className="mt-3 leading-relaxed text-charcoal-soft">{about.visionText}</p>
@@ -199,7 +199,7 @@ export function AboutPage() {
                 <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                   {about.teamMembers.map((member, index) => (
                     <div key={index} className="text-center">
-                      <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border border-border-warm bg-card">
+                      <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border border-border-warm bg-ivory">
                         {member.photo?.url ? (
                           <img
                             src={member.photo.url}
