@@ -195,17 +195,21 @@ export class ProductsService {
     }
 
     if (subCategory) {
-      const subCategoryDoc = await this.subCategoryModel
-        .findOne({
-          slug: slugify(subCategory),
+      const slugs = subCategory
+        .split(',')
+        .map((s) => slugify(s.trim()))
+        .filter(Boolean);
+      const subCategoryDocs = await this.subCategoryModel
+        .find({
+          slug: { $in: slugs },
           status: SubCategoryStatus.ACTIVE,
         })
         .exec();
-      if (!subCategoryDoc) {
-        // Unknown subcategory slug -> empty result set, not an error.
+      if (subCategoryDocs.length === 0) {
+        // No matching subcategory slug -> empty result set, not an error.
         return { items: [], meta: buildPaginationMeta(0, page, limit) };
       }
-      filter.subCategories = subCategoryDoc._id;
+      filter.subCategories = { $in: subCategoryDocs.map((sc) => sc._id) };
     }
 
     const skip = (page - 1) * limit;

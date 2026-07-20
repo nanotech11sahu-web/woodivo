@@ -102,7 +102,7 @@ export function SiteHeader() {
             </button>
             {categoriesOpen && categories && categories.length > 0 ? (
               <div className="absolute right-0 top-full w-64 pt-3">
-                <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-2 shadow-lg shadow-charcoal/10">
+                <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-2 shadow-pop">
                   {categories.map((category) => (
                     <Link
                       key={category._id}
