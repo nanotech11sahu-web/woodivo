@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Grid3x3 } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { useCategory } from '@/features/categories/categories-api';
 import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useProducts } from '@/features/products/products-api';
@@ -8,14 +8,14 @@ import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { isNotFoundError } from '@/lib/http-error';
-import { truncate, cn } from '@/lib/utils';
+import { truncate } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 import { EntityNotFound } from '@/components/shared/entity-not-found';
 import { ProductCard } from '@/components/shared/product-card';
-import { SubCategoryCard } from '@/components/shared/subcategory-card';
 import { ProductFilterBar } from '@/components/shared/product-filter-bar';
+import { CategoryFilterSidebar } from '@/components/shared/category-filter-sidebar';
 import { Pagination } from '@/components/shared/pagination';
 import type { ProductPublicSort } from '@/types/product';
 
@@ -39,10 +39,10 @@ export function CategoryListingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { openEnquiryDialog } = useEnquiryDialog();
   const navigate = useNavigate();
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const page = Math.max(1, Number(searchParams.get('page')) || 1);
-  const subCategorySlug = searchParams.get('subcategory') || undefined;
-  const viewAll = searchParams.get('all') === '1';
+  const subCategorySlugs = (searchParams.get('subcategory') ?? '').split(',').filter(Boolean);
   const sort = (searchParams.get('sort') as ProductPublicSort | null) || 'featured';
   const minPriceParam = searchParams.get('minPrice');
   const maxPriceParam = searchParams.get('maxPrice');
@@ -91,11 +91,10 @@ export function CategoryListingPage() {
   const category = useCategory(slug);
   const subCategories = useSubCategories(slug);
   const hasSubCategories = Boolean(subCategories.data && subCategories.data.length > 0);
-  const showSubCategoryPicker = hasSubCategories && !subCategorySlug && !viewAll;
 
   const products = useProducts({
     category: slug,
-    subCategory: subCategorySlug,
+    subCategory: subCategorySlugs.length ? subCategorySlugs.join(',') : undefined,
     page,
     limit: PAGE_SIZE,
     search: debouncedSearch || undefined,
@@ -146,41 +145,30 @@ export function CategoryListingPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function goToSubCategory(nextSlug: string | undefined) {
+  function toggleSubCategory(nextSlug: string) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete('page');
-      if (nextSlug) {
-        next.set('subcategory', nextSlug);
-        next.delete('all');
-      } else {
-        next.delete('subcategory');
-      }
+      const current = new Set(subCategorySlugs);
+      if (current.has(nextSlug)) current.delete(nextSlug);
+      else current.add(nextSlug);
+      if (current.size) next.set('subcategory', [...current].join(','));
+      else next.delete('subcategory');
       return next;
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function goToAllProducts() {
+  function clearAllFilters() {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete('page');
       next.delete('subcategory');
-      next.set('all', '1');
+      next.delete('minPrice');
+      next.delete('maxPrice');
       return next;
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function backToSubCategories() {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete('subcategory');
-      next.delete('all');
-      next.delete('page');
-      return next;
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setMinPriceDraft('');
+    setMaxPriceDraft('');
   }
 
   function setSort(nextSort: ProductPublicSort) {
@@ -193,7 +181,12 @@ export function CategoryListingPage() {
     });
   }
 
-  const activeSubCategoryName = subCategories.data?.find((s) => s.slug === subCategorySlug)?.name;
+  const activeFilterCount =
+    subCategorySlugs.length + (minPriceDraft ? 1 : 0) + (maxPriceDraft ? 1 : 0);
+
+  const activeSubCategoryNames = subCategorySlugs
+    .map((s) => subCategories.data?.find((sc) => sc.slug === s)?.name)
+    .filter((name): name is string => Boolean(name));
 
   return (
     <div>
@@ -203,171 +196,150 @@ export function CategoryListingPage() {
             <Breadcrumbs
               items={[
                 { label: 'Home', to: '/' },
-                ...(!subCategorySlug && !viewAll
-                  ? [{ label: cat.name }]
-                  : [{ label: cat.name, to: `/categories/${cat.slug}` }]),
-                ...(activeSubCategoryName ? [{ label: activeSubCategoryName }] : []),
+                { label: cat.name },
               ]}
             />
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                aria-label="Go back"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal hover:bg-ivory-deep sm:hidden"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <div>
-                <h1 className="text-xl sm:text-2xl">
-                  {activeSubCategoryName ?? cat.name}
-                </h1>
-                {!showSubCategoryPicker && products.data ? (
-                  <p className="text-xs text-charcoal-soft sm:text-sm">
-                    {products.data.meta.total} {products.data.meta.total === 1 ? 'item' : 'items'}
-                  </p>
-                ) : null}
-                {showSubCategoryPicker && subCategories.data ? (
-                  <p className="text-xs text-charcoal-soft sm:text-sm">
-                    {subCategories.data.length} {subCategories.data.length === 1 ? 'collection' : 'collections'}
-                  </p>
-                ) : null}
-              </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              aria-label="Go back"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-charcoal hover:bg-ivory-deep sm:hidden"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div>
+              <h1 className="text-xl sm:text-2xl">{cat.name}</h1>
+              {products.data ? (
+                <p className="text-xs text-charcoal-soft sm:text-sm">
+                  {products.data.meta.total} {products.data.meta.total === 1 ? 'item' : 'items'}
+                  {activeSubCategoryNames.length ? ` in ${activeSubCategoryNames.join(', ')}` : ''}
+                </p>
+              ) : null}
             </div>
-
           </div>
 
           {cat.description ? (
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-charcoal-soft">
-              {cat.description}
-            </p>
-          ) : null}
-
-          {!showSubCategoryPicker ? (
-            <ProductFilterBar
-              search={searchDraft}
-              onSearchChange={setSearchDraft}
-              searchPlaceholder={`Search in ${cat.name}…`}
-              minPrice={minPriceDraft}
-              maxPrice={maxPriceDraft}
-              onMinPriceChange={setMinPriceDraft}
-              onMaxPriceChange={setMaxPriceDraft}
-              sort={sort}
-              onSortChange={setSort}
-              sortLabels={SORT_LABELS}
-              sortOptions={SORT_OPTIONS}
-            />
-          ) : null}
-
-          {!showSubCategoryPicker && hasSubCategories ? (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={backToSubCategories}
-                className="flex items-center gap-1 rounded-[var(--radius-pill)] border border-border-warm px-3.5 py-1.5 text-sm font-medium text-charcoal-soft hover:border-brass hover:text-brass"
-              >
-                <Grid3x3 className="h-3.5 w-3.5" />
-                Collections
-              </button>
-              <button
-                type="button"
-                onClick={goToAllProducts}
-                className={cn(
-                  'rounded-[var(--radius-pill)] border px-3.5 py-1.5 text-sm font-medium',
-                  viewAll
-                    ? 'border-brass bg-brass-pale text-brass'
-                    : 'border-border-warm text-charcoal-soft hover:border-brass',
-                )}
-              >
-                All
-              </button>
-              {subCategories.data?.map((subCat) => (
-                <button
-                  key={subCat._id}
-                  type="button"
-                  onClick={() => goToSubCategory(subCat.slug)}
-                  className={cn(
-                    'rounded-[var(--radius-pill)] border px-3.5 py-1.5 text-sm font-medium',
-                    subCategorySlug === subCat.slug
-                      ? 'border-brass bg-brass-pale text-brass'
-                      : 'border-border-warm text-charcoal-soft hover:border-brass',
-                  )}
-                >
-                  {subCat.name}
-                </button>
-              ))}
-            </div>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-charcoal-soft">{cat.description}</p>
           ) : null}
         </div>
       </div>
 
-      {showSubCategoryPicker ? (
-        <section className="px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            {subCategories.isLoading ? <SectionSpinner /> : null}
-            {subCategories.isError ? <ErrorNote label="Collections" /> : null}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="lg:grid lg:grid-cols-[240px_1fr] lg:items-start lg:gap-8">
+          {hasSubCategories ? (
+            <aside className="hidden lg:sticky lg:top-20 lg:block lg:rounded-[var(--radius-card)] lg:border lg:border-border-warm lg:bg-ivory lg:p-5 lg:shadow-card">
+              <CategoryFilterSidebar
+                subCategories={subCategories.data ?? []}
+                selectedSlugs={subCategorySlugs}
+                onToggleSubCategory={toggleSubCategory}
+                minPrice={minPriceDraft}
+                maxPrice={maxPriceDraft}
+                onMinPriceChange={setMinPriceDraft}
+                onMaxPriceChange={setMaxPriceDraft}
+                onClearAll={clearAllFilters}
+              />
+            </aside>
+          ) : null}
 
-            {subCategories.data && subCategories.data.length > 0 ? (
-              <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-                {subCategories.data.map((subCat) => (
-                  <SubCategoryCard key={subCat._id} subCategory={subCat} onSelect={goToSubCategory} />
-                ))}
-              </div>
-            ) : null}
+          <div>
+            <ProductFilterBar
+              search={searchDraft}
+              onSearchChange={setSearchDraft}
+              searchPlaceholder={`Search in ${cat.name}…`}
+              sort={sort}
+              onSortChange={setSort}
+              sortLabels={SORT_LABELS}
+              sortOptions={SORT_OPTIONS}
+              onOpenMobileFilters={hasSubCategories ? () => setMobileFiltersOpen(true) : undefined}
+              mobileFilterCount={activeFilterCount}
+            />
 
-            <div className="mt-8 text-center">
+            <section className="mt-6">
+              {products.isLoading ? <SectionSpinner /> : null}
+              {products.isError ? <ErrorNote label="Products" /> : null}
+
+              {!products.isLoading && !products.isError && products.data?.items.length === 0 ? (
+                <div className="py-16 text-center">
+                  <p className="text-charcoal-soft">
+                    {debouncedSearch
+                      ? `No products match "${debouncedSearch}" — try a different search or price range.`
+                      : `No products are listed under ${activeSubCategoryNames.join(', ') || cat.name} yet — check back soon, or ask us directly.`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openEnquiryDialog('category', cat.slug)}
+                    className="mt-4 inline-flex h-10 items-center rounded-[var(--radius-pill)] border border-brass px-5 text-sm font-semibold text-brass hover:bg-brass-pale"
+                  >
+                    Enquire About {cat.name}
+                  </button>
+                </div>
+              ) : null}
+
+              {products.data && products.data.items.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
+                    {products.data.items.map((product) => (
+                      <ProductCard key={product._id} product={product} />
+                    ))}
+                  </div>
+                  <Pagination
+                    page={products.data.meta.page}
+                    totalPages={products.data.meta.totalPages}
+                    onPageChange={goToPage}
+                  />
+                </>
+              ) : null}
+            </section>
+          </div>
+        </div>
+      </div>
+
+      {mobileFiltersOpen ? (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <button
+            type="button"
+            aria-label="Close filters"
+            className="absolute inset-0 bg-charcoal/40"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 flex w-[85%] max-w-sm flex-col bg-ivory shadow-pop">
+            <div className="flex items-center justify-between border-b border-border-warm px-4 py-3">
+              <p className="text-sm font-semibold text-charcoal">Filters</p>
               <button
                 type="button"
-                onClick={goToAllProducts}
-                className="inline-flex h-10 items-center rounded-[var(--radius-pill)] border border-brass px-5 text-sm font-semibold text-brass hover:bg-brass-pale"
+                onClick={() => setMobileFiltersOpen(false)}
+                aria-label="Close filters"
+                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-ivory-deep"
               >
-                Browse All Products in {cat.name}
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <CategoryFilterSidebar
+                subCategories={subCategories.data ?? []}
+                selectedSlugs={subCategorySlugs}
+                onToggleSubCategory={toggleSubCategory}
+                minPrice={minPriceDraft}
+                maxPrice={maxPriceDraft}
+                onMinPriceChange={setMinPriceDraft}
+                onMaxPriceChange={setMaxPriceDraft}
+                onClearAll={clearAllFilters}
+              />
+            </div>
+            <div className="border-t border-border-warm p-4">
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(false)}
+                className="flex h-11 w-full items-center justify-center rounded-[var(--radius-pill)] bg-brass text-sm font-semibold text-ivory hover:bg-brass-light"
+              >
+                Show {products.data?.meta.total ?? 0} results
               </button>
             </div>
           </div>
-        </section>
-      ) : (
-        <section className="px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            {products.isLoading ? <SectionSpinner /> : null}
-            {products.isError ? <ErrorNote label="Products" /> : null}
-
-            {!products.isLoading && !products.isError && products.data?.items.length === 0 ? (
-              <div className="py-16 text-center">
-                <p className="text-charcoal-soft">
-                  {debouncedSearch
-                    ? `No products match "${debouncedSearch}" — try a different search or price range.`
-                    : `No products are listed under ${activeSubCategoryName ?? cat.name} yet — check back soon, or ask us directly.`}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => openEnquiryDialog('category', cat.slug)}
-                  className="mt-4 inline-flex h-10 items-center rounded-[var(--radius-pill)] border border-brass px-5 text-sm font-semibold text-brass hover:bg-brass-pale"
-                >
-                  Enquire About {cat.name}
-                </button>
-              </div>
-            ) : null}
-
-            {products.data && products.data.items.length > 0 ? (
-              <>
-                <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-                  {products.data.items.map((product) => (
-                    <ProductCard key={product._id} product={product} />
-                  ))}
-                </div>
-                <Pagination
-                  page={products.data.meta.page}
-                  totalPages={products.data.meta.totalPages}
-                  onPageChange={goToPage}
-                />
-              </>
-            ) : null}
-          </div>
-        </section>
-      )}
+        </div>
+      ) : null}
     </div>
   );
 }

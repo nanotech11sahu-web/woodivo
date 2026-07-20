@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ImageOff } from 'lucide-react';
 import type { MediaAsset } from '@/types/common';
 import type { ProductCategoryRef } from '@/types/product';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
@@ -50,7 +50,7 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
     product.discountPrice < product.price;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory transition-shadow hover:shadow-lg hover:shadow-charcoal/10">
+    <div className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover">
       <Link
         to={`/products/${product.slug}`}
         className="relative block aspect-square overflow-hidden bg-ivory-deep"
@@ -63,7 +63,11 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
             decoding="async"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-        ) : null}
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-charcoal-soft/40">
+            <ImageOff className="h-8 w-8" />
+          </div>
+        )}
         {hasDiscount ? (
           <span className="absolute left-2.5 top-2.5 rounded-[var(--radius-pill)] bg-rust px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ivory">
             {Math.round(((product.price! - product.discountPrice!) / product.price!) * 100)}% Off
