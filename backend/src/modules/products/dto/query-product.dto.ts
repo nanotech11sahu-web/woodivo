@@ -17,6 +17,8 @@ export class QueryProductDto extends PaginationQueryDto {
   @IsMongoId()
   category?: string;
 
+  // Filters to products that have this subcategory among their (possibly
+  // several) assigned subcategories.
   @IsOptional()
   @IsMongoId()
   subCategory?: string;

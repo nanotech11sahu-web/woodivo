@@ -23,9 +23,8 @@ export interface ProductCategoryRef {
   status: 'active' | 'inactive';
 }
 
-// Same shape/reasoning as ProductCategoryRef, for the optional
-// `subCategory` populate (SUBCATEGORY_POPULATE_FIELDS in
-// products.service.ts).
+// Same shape/reasoning as ProductCategoryRef, for the `subCategories`
+// populate (SUBCATEGORY_POPULATE_FIELDS in products.service.ts).
 export interface ProductSubCategoryRef {
   _id: string;
   name: string;
@@ -74,7 +73,7 @@ export type ProductStockStatus = 'in_stock' | 'out_of_stock' | 'made_to_order';
 export interface Product {
   _id: string;
   category: ProductCategoryRef | string;
-  subCategory?: ProductSubCategoryRef | string;
+  subCategories?: (ProductSubCategoryRef | string)[];
   name: string;
   slug: string;
   images: MediaAsset[];

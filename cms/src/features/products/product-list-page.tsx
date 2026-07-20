@@ -104,7 +104,9 @@ export function ProductListPage() {
       render: (row) => (
         <div className="text-sm text-ink-muted">
           <p>{row.category?.name ?? '\u2014'}</p>
-          {row.subCategory && <p className="text-xs">{row.subCategory.name}</p>}
+          {row.subCategories && row.subCategories.length > 0 && (
+            <p className="text-xs">{row.subCategories.map((s) => s.name).join(', ')}</p>
+          )}
         </div>
       ),
     },

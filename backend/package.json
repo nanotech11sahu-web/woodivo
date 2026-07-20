@@ -17,6 +17,7 @@
     "migrate:seo": "ts-node -r tsconfig-paths/register src/database/seeders/migrate-seo.seed.ts",
     "migrate:product-pricing": "ts-node -r tsconfig-paths/register src/database/seeders/migrate-product-pricing.seed.ts",
     "migrate:subcategory": "ts-node -r tsconfig-paths/register src/database/seeders/migrate-subcategory.seed.ts",
+    "migrate:subcategory-to-array": "ts-node -r tsconfig-paths/register src/database/seeders/migrate-subcategory-to-array.seed.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

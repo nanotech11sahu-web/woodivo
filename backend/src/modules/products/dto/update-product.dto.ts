@@ -25,13 +25,13 @@ export class UpdateProductDto {
   @IsMongoId()
   category?: string;
 
-  // `null` explicitly clears the product's subcategory (e.g. after
-  // switching to a category the current subcategory doesn't belong to);
-  // omitting the field entirely leaves it untouched.
+  // An empty array explicitly clears every subcategory (e.g. after
+  // switching to a category the current ones don't belong to); omitting
+  // the field entirely leaves it untouched.
   @IsOptional()
-  @ValidateIf((_, value) => value !== null)
-  @IsMongoId()
-  subCategory?: string | null;
+  @IsArray()
+  @IsMongoId({ each: true })
+  subCategories?: string[];
 
   @IsOptional()
   @IsString()

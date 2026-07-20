@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ImageOff } from 'lucide-react';
 import type { SubCategory } from '@/types/subcategory';
 
 /**
@@ -34,7 +34,11 @@ export function SubCategoryCard({
             decoding="async"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-        ) : null}
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-charcoal-soft/40">
+            <ImageOff className="h-8 w-8" />
+          </div>
+        )}
       </div>
       <div className="flex flex-1 items-center justify-between gap-2 p-4">
         <div>
