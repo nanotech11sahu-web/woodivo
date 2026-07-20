@@ -51,15 +51,16 @@ export class Product {
   })
   category!: Types.ObjectId;
 
-  // Optional — a product can belong to a category without a subcategory,
-  // but when set it must belong to the same category (enforced in
-  // ProductsService, not here, since Mongoose can't cross-check refs).
+  // A product can belong to zero, one, or several subcategories within its
+  // category (enforced in ProductsService, not here, since Mongoose can't
+  // cross-check refs). Empty array means "no subcategory assigned" — same
+  // meaning the old singular `subCategory` had when unset.
   @Prop({
-    type: Types.ObjectId,
-    ref: SubCategory.name,
+    type: [{ type: Types.ObjectId, ref: SubCategory.name }],
+    default: [],
     index: true,
   })
-  subCategory?: Types.ObjectId;
+  subCategories!: Types.ObjectId[];
 
   @Prop({ required: true, trim: true, maxlength: 150 })
   name!: string;
@@ -122,12 +123,12 @@ export class Product {
   needsPriceReview!: boolean;
 
   // Set by the one-off `migrate-subcategory` script for any product it
-  // couldn't confidently auto-assign a subCategory to (name matched zero
-  // or multiple subcategories under its category). subCategory itself
+  // couldn't confidently auto-assign a subcategory to (name matched zero
+  // or multiple subcategories under its category). subCategories itself
   // stays legitimately optional otherwise — this only flags the ones the
   // migration skipped so the CMS can find and resolve them by hand.
-  // Cleared automatically the next time someone explicitly saves a
-  // subCategory for this product (see ProductsService.update()).
+  // Cleared automatically the next time someone explicitly saves
+  // subCategories for this product (see ProductsService.update()).
   @Prop({ default: false, index: true })
   needsSubCategoryReview!: boolean;
 
@@ -177,7 +178,7 @@ export const ProductSchema = SchemaFactory.createForClass(Product);
 
 ProductSchema.index({ name: 'text', description: 'text' });
 ProductSchema.index({ category: 1, status: 1 });
-ProductSchema.index({ subCategory: 1, status: 1 });
+ProductSchema.index({ subCategories: 1, status: 1 });
 ProductSchema.index({ status: 1, effectivePrice: 1 });
 ProductSchema.index({ status: 1, viewCount: -1 });
 ProductSchema.index({ status: 1, purchaseCount: -1 });

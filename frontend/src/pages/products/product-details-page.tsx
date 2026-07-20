@@ -143,7 +143,10 @@ export function ProductDetailsPage() {
   if (!product) return null;
 
   const category = typeof product.category === 'object' ? product.category : undefined;
-  const subCategory = typeof product.subCategory === 'object' ? product.subCategory : undefined;
+  // A product can carry several subcategories now — the breadcrumb only
+  // has room for one, so it shows whichever was assigned first.
+  const firstSubCategory = product.subCategories?.[0];
+  const subCategory = typeof firstSubCategory === 'object' ? firstSubCategory : undefined;
   const relatedProducts = product.relatedProducts;
   const relatedBlogs = product.relatedBlogs;
   const faqs = product.faqs;
