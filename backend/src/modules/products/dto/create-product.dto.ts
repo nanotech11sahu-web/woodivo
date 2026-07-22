@@ -18,6 +18,7 @@ import { MediaAssetDto } from '@common/dto/media-asset.dto';
 import { SpecificationItemDto } from '@common/dto/specification-item.dto';
 import { ProductStatus, ProductStockStatus } from '../schemas/product.schema';
 import { ProductFaqItemDto } from './product-faq-item.dto';
+import { ProductVariantDto } from './product-variant.dto';
 
 export class CreateProductDto {
   @IsMongoId()
@@ -78,6 +79,12 @@ export class CreateProductDto {
   @IsOptional()
   @IsEnum(ProductStockStatus)
   stockStatus?: ProductStockStatus;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductVariantDto)
+  variants?: ProductVariantDto[];
 
   @IsOptional()
   @IsBoolean()

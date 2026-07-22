@@ -41,6 +41,51 @@ export class ProductFaqItem {
 
 export const ProductFaqItemSchema = SchemaFactory.createForClass(ProductFaqItem);
 
+// ─── Product variant (embedded, per-product) ──────────────────────────────
+// Some products are sold in multiple size/finish options at different
+// prices (e.g. a name plate in 9"×3" / 12"×4" / 15"×5", each its own SKU
+// and price) — the top-level `price`/`discountPrice`/`sku` on `Product`
+// can't represent that; they only ever held a single value. `variants`
+// is additive and optional (default `[]`) specifically so it never
+// affects a product that doesn't need it: the top-level fields keep
+// meaning exactly what they always have (used as the "from" price shown
+// on listing cards — see ProductCard — and as the fallback when a product
+// has no variants at all), while `variants` layers optional per-option
+// pricing on top for the products that actually need it.
+@Schema({ _id: false })
+export class ProductVariant {
+  // Human-readable option label, e.g. "9 inch × 3 inch" or "12 inch × 4
+  // inch / Ivory Background with a Dark Blue Frame" — free text rather
+  // than structured option1/option2 fields since the source catalogs
+  // this is backfilled from (Shopify-based storefronts) don't expose a
+  // consistent option schema across products either.
+  @Prop({ required: true, trim: true, maxlength: 200 })
+  label!: string;
+
+  @Prop({ required: true, min: 0 })
+  price!: number;
+
+  @Prop({ min: 0 })
+  discountPrice?: number;
+
+  @Prop({ trim: true, uppercase: true, maxlength: 40 })
+  sku?: string;
+
+  @Prop({
+    type: String,
+    enum: ProductStockStatus,
+    default: ProductStockStatus.MADE_TO_ORDER,
+  })
+  stockStatus!: ProductStockStatus;
+
+  // Optional per-variant image (e.g. a different frame color) — falls
+  // back to the product's own `images` when not set.
+  @Prop({ type: MediaAssetSchema })
+  image?: MediaAsset;
+}
+
+export const ProductVariantSchema = SchemaFactory.createForClass(ProductVariant);
+
 @Schema({ timestamps: true })
 export class Product {
   @Prop({
@@ -112,6 +157,14 @@ export class Product {
     default: ProductStockStatus.MADE_TO_ORDER,
   })
   stockStatus!: ProductStockStatus;
+
+  // Optional size/finish options, each with its own price — see
+  // `ProductVariant` above. Empty array (the default) means "no variants,
+  // use the top-level price/discountPrice/sku/stockStatus as-is," so this
+  // is a strict addition: every product that predates this field behaves
+  // identically to before.
+  @Prop({ type: [ProductVariantSchema], default: [] })
+  variants!: ProductVariant[];
 
   // Set by the one-off `migrate-product-pricing` script for any product
   // that predates `price` becoming required — it got a placeholder price
