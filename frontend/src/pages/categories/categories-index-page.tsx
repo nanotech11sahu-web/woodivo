@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCategories } from '@/features/categories/categories-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
@@ -6,6 +7,7 @@ import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 
 export function CategoriesIndexPage() {
+  const { t } = useTranslation();
   const { data: categories, isLoading, isError } = useCategories();
 
   useSeoMeta({
@@ -16,8 +18,8 @@ export function CategoriesIndexPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Categories' }]} />
-      <h1 className="mt-4 text-2xl sm:text-3xl">All Categories</h1>
+      <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.categories') }]} />
+      <h1 className="mt-4 text-2xl sm:text-3xl">{t('footer.explore_all_categories')}</h1>
 
       {isLoading ? <SectionSpinner /> : null}
       {isError ? <ErrorNote label="Categories" /> : null}

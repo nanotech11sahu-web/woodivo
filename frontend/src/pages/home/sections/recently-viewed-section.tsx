@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ProductCard, type ProductCardItem } from '@/components/shared/product-card';
 import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
 import { getRecentlyViewed } from '@/lib/recently-viewed';
@@ -12,6 +13,7 @@ import { getRecentlyViewed } from '@/lib/recently-viewed';
  * fresh mount wouldn't otherwise happen.
  */
 export function RecentlyViewedSection() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<ProductCardItem[]>([]);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function RecentlyViewedSection() {
   return (
     <section className="bg-ivory px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <h2 className="text-xl sm:text-2xl">Recently Viewed</h2>
+        <h2 className="text-xl sm:text-2xl">{t('home.recently_viewed')}</h2>
         <CardSlider className="mt-6">
           {items.map((product) => (
             <div key={product._id} className={sliderItemWidths.product}>

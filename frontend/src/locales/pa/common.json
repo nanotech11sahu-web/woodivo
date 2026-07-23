@@ -1,0 +1,127 @@
+{
+  "nav": {
+    "home": "ਹੋਮ",
+    "blogs": "ਬਲੌਗ",
+    "gallery": "ਗੈਲਰੀ",
+    "customize": "ਕਸਟਮਾਈਜ਼ ਕਰੋ",
+    "about": "ਸਾਡੇ ਬਾਰੇ",
+    "contact": "ਸੰਪਰਕ ਕਰੋ",
+    "categories": "ਸ਼੍ਰੇਣੀਆਂ",
+    "enquire": "ਪੁੱਛਗਿੱਛ ਕਰੋ",
+    "search_placeholder": "ਉਤਪਾਦ ਖੋਜੋ...",
+    "search_aria": "ਉਤਪਾਦ ਖੋਜੋ",
+    "view_all": "ਸਭ ਦੇਖੋ"
+  },
+  "footer": {
+    "delivery_title": "ਪੂਰੇ ਭਾਰਤ ਵਿੱਚ ਡਿਲੀਵਰੀ",
+    "delivery_text": "ਧਿਆਨ ਨਾਲ ਪੈਕ ਕਰਕੇ ਪੂਰੇ ਦੇਸ਼ ਵਿੱਚ ਭੇਜਿਆ ਜਾਂਦਾ ਹੈ",
+    "assurance_title": "ਹੱਥ ਨਾਲ ਬਣੀ ਗਰੰਟੀ",
+    "assurance_text": "ਠੋਸ ਲੱਕੜ, ਆਰਡਰ ਅਨੁਸਾਰ ਬਣਾਈ ਅਤੇ ਤਿਆਰ ਕੀਤੀ ਗਈ",
+    "support_title": "ਗਾਹਕ ਸਹਾਇਤਾ",
+    "support_text": "ਕਾਲ ਜਾਂ ਵਟਸਐਪ 'ਤੇ ਸਾਡੇ ਨਾਲ ਗੱਲ ਕਰੋ",
+    "about_text_fallback": "ਹੱਥ ਨਾਲ ਬਣੇ ਲੱਕੜ ਦੇ ਮੰਦਿਰ, ਦਰਵਾਜ਼ੇ ਅਤੇ ਕਸਟਮ ਫਰਨੀਚਰ — ਤੁਹਾਡੀ ਪਸੰਦ ਦੀ ਲੱਕੜ ਵਿੱਚ, ਹੱਥ ਨਾਲ ਆਰਡਰ ਅਨੁਸਾਰ ਬਣਾਏ ਗਏ।",
+    "categories_heading": "ਸ਼੍ਰੇਣੀਆਂ",
+    "explore_heading": "ਖੋਜ ਕਰੋ",
+    "explore_all_categories": "ਸਾਰੀਆਂ ਸ਼੍ਰੇਣੀਆਂ",
+    "explore_blogs": "ਬਲੌਗ",
+    "explore_about": "ਸਾਡੇ ਬਾਰੇ",
+    "explore_gallery": "ਗੈਲਰੀ",
+    "explore_customize": "ਕਸਟਮਾਈਜ਼ ਕਰੋ",
+    "explore_contact": "ਸੰਪਰਕ ਕਰੋ",
+    "explore_sitemap": "ਸਾਈਟਮੈਪ",
+    "get_in_touch_heading": "ਸੰਪਰਕ ਵਿੱਚ ਰਹੋ",
+    "copyright": "© {{year}} {{siteName}}. ਸਾਰੇ ਹੱਕ ਰਾਖਵੇਂ ਹਨ।"
+  },
+  "mobile_tab": {
+    "home": "ਹੋਮ",
+    "categories": "ਸ਼੍ਰੇਣੀਆਂ",
+    "enquire": "ਪੁੱਛਗਿੱਛ",
+    "contact": "ਸੰਪਰਕ"
+  },
+  "home": {
+    "shop_by_category": "ਸ਼੍ਰੇਣੀ ਅਨੁਸਾਰ ਖਰੀਦੋ",
+    "featured_products": "ਵਿਸ਼ੇਸ਼ ਉਤਪਾਦ",
+    "recently_viewed": "ਹਾਲ ਹੀ ਵਿੱਚ ਦੇਖੇ ਗਏ",
+    "why_woodivo_eyebrow": "ਕਿਉਂ ਵੁੱਡਿਵੋ",
+    "why_woodivo_title": "ਫਰਨੀਚਰ ਜੋ ਵਿਰਾਸਤ ਵਿੱਚ ਦਿੱਤਾ ਜਾ ਸਕੇ",
+    "client_stories_eyebrow": "ਗਾਹਕਾਂ ਦੀਆਂ ਕਹਾਣੀਆਂ",
+    "client_stories_title": "ਸਾਡੇ ਗਾਹਕ ਕੀ ਕਹਿੰਦੇ ਹਨ",
+    "workshop_eyebrow": "ਵਰਕਸ਼ਾਪ ਤੋਂ",
+    "workshop_title": "ਲੱਕੜ, ਸ਼ਿਲਪਕਾਰੀ ਅਤੇ ਦੇਖਭਾਲ ਬਾਰੇ ਨੋਟਸ",
+    "workshop_desc": "ਲੱਕੜ ਚੁਣਨ, ਲੱਕੜ ਦੇ ਮੰਦਿਰ ਦੀ ਸਾਂਭ-ਸੰਭਾਲ ਕਰਨ ਅਤੇ ਆਰਡਰ ਅਨੁਸਾਰ ਬਣੇ ਉਤਪਾਦ ਤੋਂ ਕੀ ਉਮੀਦ ਰੱਖਣੀ ਹੈ, ਇਸ ਬਾਰੇ ਗਾਈਡ।",
+    "questions_eyebrow": "ਸਵਾਲ",
+    "questions_title": "ਅਕਸਰ ਪੁੱਛੇ ਜਾਣ ਵਾਲੇ ਸਵਾਲ",
+    "handcrafted_tag": "ਹੱਥ ਨਾਲ ਬਣਿਆ, ਆਰਡਰ ਅਨੁਸਾਰ ਤਿਆਰ",
+    "hero_fallback_title": "ਲੱਕੜ, ਤੁਹਾਡੇ ਨਾਲੋਂ ਵੀ ਲੰਬੇ ਸਮੇਂ ਤੱਕ ਰਹਿਣ ਵਾਲੀ ਚੀਜ਼ ਵਿੱਚ ਢਾਲੀ ਗਈ।",
+    "hero_fallback_text": "ਮੰਦਿਰ, ਦਰਵਾਜ਼ੇ ਅਤੇ ਫਰਨੀਚਰ ਹੱਥ ਨਾਲ ਉੱਕਰੇ ਗਏ, ਤੁਹਾਡੀ ਪਸੰਦ ਦੀ ਲੱਕੜ ਵਿੱਚ ਆਰਡਰ ਅਨੁਸਾਰ ਬਣਾਏ ਗਏ।",
+    "get_a_quote": "ਕੋਟ ਪ੍ਰਾਪਤ ਕਰੋ",
+    "shop_now": "ਹੁਣੇ ਖਰੀਦੋ",
+    "stat_pieces": "ਹੱਥ ਨਾਲ ਬਣੀਆਂ ਵਸਤੂਆਂ",
+    "stat_cities": "ਡਿਲੀਵਰੀ ਵਾਲੇ ਸ਼ਹਿਰ",
+    "stat_solid_wood": "ਠੋਸ ਲੱਕੜ, ਕੋਈ ਵਿਨੀਅਰ ਨਹੀਂ",
+    "stat_custom": "ਹਰ ਵਸਤੂ ਆਰਡਰ ਅਨੁਸਾਰ ਬਣਾਈ ਗਈ"
+  },
+  "cta": {
+    "title": "ਕੁਝ ਮਨ ਵਿੱਚ ਹੈ?",
+    "text": "ਸਾਨੂੰ ਦੱਸੋ ਤੁਸੀਂ ਕੀ ਬਣਾ ਰਹੇ ਹੋ — ਮੰਦਿਰ ਦਾ ਕੋਨਾ, ਸਾਹਮਣੇ ਵਾਲਾ ਦਰਵਾਜ਼ਾ, ਪੂਰੀ ਰਸੋਈ — ਅਤੇ ਅਸੀਂ ਕੋਟ ਨਾਲ ਵਾਪਸ ਸੰਪਰਕ ਕਰਾਂਗੇ।",
+    "button": "ਹੁਣੇ ਪੁੱਛਗਿੱਛ ਕਰੋ"
+  },
+  "contact": {
+    "hero_title": "ਸੰਪਰਕ ਕਰੋ",
+    "hero_subtitle": "ਮੰਦਿਰ, ਦਰਵਾਜ਼ੇ ਜਾਂ ਕਸਟਮ ਵਸਤੂ ਬਾਰੇ ਸਵਾਲ — ਸਿੱਧੇ ਸਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰੋ, ਜਾਂ ਹੇਠਾਂ ਪੁੱਛਗਿੱਛ ਭੇਜੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਨੂੰ ਕਾਲ ਕਰਾਂਗੇ।",
+    "whatsapp_chat": "ਵਟਸਐਪ 'ਤੇ ਚੈਟ ਕਰੋ",
+    "no_contact_details": "ਸੰਪਰਕ ਵੇਰਵੇ ਅਜੇ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤੇ ਗਏ ਹਨ — ਪੁੱਛਗਿੱਛ ਭੇਜੋ ਅਤੇ ਅਸੀਂ ਸਿੱਧੇ ਤੁਹਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰਾਂਗੇ।",
+    "send_enquiry_title": "ਪੁੱਛਗਿੱਛ ਭੇਜੋ",
+    "send_enquiry_text": "ਸਾਨੂੰ ਦੱਸੋ ਤੁਸੀਂ ਕੀ ਲੱਭ ਰਹੇ ਹੋ, ਅਤੇ ਸਾਡੀ ਕਾਰੀਗਰ ਟੀਮ ਵਿੱਚੋਂ ਕੋਈ ਤੁਹਾਨੂੰ ਵਾਪਸ ਕਾਲ ਕਰੇਗਾ।"
+  },
+  "enquiry_form": {
+    "enquiring_about": "ਇਸ ਬਾਰੇ ਪੁੱਛਗਿੱਛ",
+    "full_name": "ਪੂਰਾ ਨਾਮ *",
+    "mobile_number": "ਮੋਬਾਈਲ ਨੰਬਰ *",
+    "state": "ਰਾਜ",
+    "city": "ਸ਼ਹਿਰ",
+    "select_state": "ਰਾਜ ਚੁਣੋ",
+    "select_city": "ਸ਼ਹਿਰ ਚੁਣੋ",
+    "select_state_first": "ਪਹਿਲਾਂ ਇੱਕ ਰਾਜ ਚੁਣੋ",
+    "interested_in": "ਦਿਲਚਸਪੀ ਹੈ",
+    "any_category": "ਕੋਈ ਵੀ ਸ਼੍ਰੇਣੀ",
+    "message_optional": "ਸੁਨੇਹਾ (ਵਿਕਲਪਿਕ)",
+    "error_generic": "ਇਸਨੂੰ ਭੇਜਣ ਵਿੱਚ ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ — ਕਿਰਪਾ ਕਰਕੇ ਥੋੜ੍ਹੀ ਦੇਰ ਬਾਅਦ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+    "sending": "ਭੇਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…",
+    "enquire_now": "ਹੁਣੇ ਪੁੱਛਗਿੱਛ ਕਰੋ",
+    "thank_you_title": "ਧੰਨਵਾਦ, ਸਾਨੂੰ ਇਹ ਮਿਲ ਗਿਆ ਹੈ।",
+    "thank_you_text": "ਸਾਡੀ ਕਾਰੀਗਰ ਟੀਮ ਵਿੱਚੋਂ ਕੋਈ ਜਲਦੀ ਹੀ ਤੁਹਾਡੀ ਲੋੜ ਬਾਰੇ ਚਰਚਾ ਕਰਨ ਲਈ ਵਾਪਸ ਕਾਲ ਕਰੇਗਾ।"
+  },
+  "misc": {
+    "coming_soon_text": "ਇਹ ਪੰਨਾ ਅਜੇ ਵੀ ਤਿਆਰ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ। ਜਲਦੀ ਹੀ ਦੁਬਾਰਾ ਦੇਖੋ, ਜਾਂ ਇਸ ਦੌਰਾਨ ਸਿੱਧੇ ਸਾਡੀ ਟੀਮ ਨਾਲ ਸੰਪਰਕ ਕਰੋ।",
+    "back_to_home": "ਹੋਮ 'ਤੇ ਵਾਪਸ ਜਾਓ",
+    "not_found_title": "ਇਹ ਪੰਨਾ ਅਜੇ ਤੱਕ ਨਹੀਂ ਬਣਾਇਆ ਗਿਆ।",
+    "not_found_text": "ਜਿਸ ਪੰਨੇ ਦੀ ਤੁਸੀਂ ਭਾਲ ਕਰ ਰਹੇ ਹੋ ਉਹ ਮੌਜੂਦ ਨਹੀਂ ਹੈ, ਜਾਂ ਬਦਲਿਆ ਜਾ ਸਕਦਾ ਹੈ।",
+    "sitemap_title": "ਸਾਈਟਮੈਪ",
+    "sitemap_desc": "ਵੁੱਡਿਵੋ 'ਤੇ ਹਰ ਪੰਨਾ, ਸ਼੍ਰੇਣੀ ਅਤੇ ਸੰਗ੍ਰਹਿ, ਇੱਕੋ ਥਾਂ 'ਤੇ।",
+    "pages_heading": "ਪੰਨੇ",
+    "categories_heading": "ਸ਼੍ਰੇਣੀਆਂ",
+    "articles_heading": "ਲੇਖ"
+  },
+  "about": {
+    "our_story_eyebrow": "ਸਾਡੀ ਕਹਾਣੀ",
+    "rooted_in_craft": "ਸ਼ਿਲਪਕਾਰੀ ਵਿੱਚ ਜੜ੍ਹਾਂ ਵਾਲਾ",
+    "our_mission": "ਸਾਡਾ ਮਿਸ਼ਨ",
+    "our_vision": "ਸਾਡਾ ਦ੍ਰਿਸ਼ਟੀਕੋਣ",
+    "what_we_stand_for": "ਅਸੀਂ ਕਿਸ ਲਈ ਖੜ੍ਹੇ ਹਾਂ",
+    "our_values": "ਸਾਡੀਆਂ ਕਦਰਾਂ-ਕੀਮਤਾਂ",
+    "our_journey": "ਸਾਡਾ ਸਫ਼ਰ",
+    "milestones": "ਮੀਲ ਪੱਥਰ",
+    "meet_the_team": "ਟੀਮ ਨੂੰ ਮਿਲੋ",
+    "people_behind_craft": "ਸ਼ਿਲਪਕਾਰੀ ਪਿੱਛੇ ਲੋਕ"
+  },
+  "related": {
+    "related_products": "ਸੰਬੰਧਿਤ ਉਤਪਾਦ",
+    "you_may_also_like": "ਤੁਹਾਨੂੰ ਇਹ ਵੀ ਪਸੰਦ ਆ ਸਕਦਾ ਹੈ",
+    "more_from_category": "ਇਸ ਸ਼੍ਰੇਣੀ ਤੋਂ ਹੋਰ",
+    "related_blogs": "ਸੰਬੰਧਿਤ ਬਲੌਗ ਪੋਸਟਾਂ"
+  },
+  "language_switcher": {
+    "label": "ਭਾਸ਼ਾ"
+  }
+}

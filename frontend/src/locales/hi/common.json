@@ -1,0 +1,127 @@
+{
+  "nav": {
+    "home": "होम",
+    "blogs": "ब्लॉग",
+    "gallery": "गैलरी",
+    "customize": "कस्टमाइज़ करें",
+    "about": "हमारे बारे में",
+    "contact": "संपर्क करें",
+    "categories": "श्रेणियाँ",
+    "enquire": "पूछताछ करें",
+    "search_placeholder": "उत्पाद खोजें...",
+    "search_aria": "उत्पाद खोजें",
+    "view_all": "सभी देखें"
+  },
+  "footer": {
+    "delivery_title": "पूरे भारत में डिलीवरी",
+    "delivery_text": "सावधानी से पैक करके देशभर में भेजा जाता है",
+    "assurance_title": "हस्तनिर्मित गारंटी",
+    "assurance_text": "ठोस लकड़ी, ऑर्डर के अनुसार बनाई और तैयार की गई",
+    "support_title": "ग्राहक सहायता",
+    "support_text": "कॉल या व्हाट्सएप पर हमसे बात करें",
+    "about_text_fallback": "हस्तनिर्मित लकड़ी के मंदिर, दरवाज़े और कस्टम फर्नीचर — आपकी पसंद की लकड़ी में, हाथ से ऑर्डर पर बनाए गए।",
+    "categories_heading": "श्रेणियाँ",
+    "explore_heading": "एक्सप्लोर करें",
+    "explore_all_categories": "सभी श्रेणियाँ",
+    "explore_blogs": "ब्लॉग",
+    "explore_about": "हमारे बारे में",
+    "explore_gallery": "गैलरी",
+    "explore_customize": "कस्टमाइज़ करें",
+    "explore_contact": "संपर्क करें",
+    "explore_sitemap": "साइटमैप",
+    "get_in_touch_heading": "संपर्क में रहें",
+    "copyright": "© {{year}} {{siteName}}. सर्वाधिकार सुरक्षित।"
+  },
+  "mobile_tab": {
+    "home": "होम",
+    "categories": "श्रेणियाँ",
+    "enquire": "पूछताछ",
+    "contact": "संपर्क"
+  },
+  "home": {
+    "shop_by_category": "श्रेणी के अनुसार खरीदें",
+    "featured_products": "विशेष उत्पाद",
+    "recently_viewed": "हाल ही में देखे गए",
+    "why_woodivo_eyebrow": "क्यों वुडिवो",
+    "why_woodivo_title": "ऐसा फर्नीचर जो विरासत में दिया जाए",
+    "client_stories_eyebrow": "ग्राहकों की कहानियाँ",
+    "client_stories_title": "हमारे ग्राहक क्या कहते हैं",
+    "workshop_eyebrow": "कार्यशाला से",
+    "workshop_title": "लकड़ी, शिल्प और देखभाल पर नोट्स",
+    "workshop_desc": "लकड़ी चुनने, लकड़ी के मंदिर की देखभाल करने और ऑर्डर पर बने उत्पाद से क्या उम्मीद करें, इस पर गाइड।",
+    "questions_eyebrow": "प्रश्न",
+    "questions_title": "अक्सर पूछे जाने वाले प्रश्न",
+    "handcrafted_tag": "हस्तनिर्मित, ऑर्डर पर बनाया गया",
+    "hero_fallback_title": "लकड़ी, जो आपसे भी लंबे समय तक टिके ऐसी चीज़ में ढली।",
+    "hero_fallback_text": "मंदिर, दरवाज़े और फर्नीचर हाथ से तराशे गए, आपकी पसंद की लकड़ी में ऑर्डर पर बनाए गए।",
+    "get_a_quote": "कोटेशन प्राप्त करें",
+    "shop_now": "अभी खरीदें",
+    "stat_pieces": "हस्तनिर्मित उत्पाद",
+    "stat_cities": "जिन शहरों में डिलीवरी होती है",
+    "stat_solid_wood": "ठोस लकड़ी, कोई लेमिनेट नहीं",
+    "stat_custom": "हर उत्पाद ऑर्डर पर बनाया गया"
+  },
+  "cta": {
+    "title": "कुछ खास सोच रहे हैं?",
+    "text": "हमें बताएं आप क्या बनवाना चाहते हैं — मंदिर का कोना, मुख्य दरवाज़ा, या पूरी रसोई — और हम आपको कोटेशन के साथ संपर्क करेंगे।",
+    "button": "अभी पूछताछ करें"
+  },
+  "contact": {
+    "hero_title": "संपर्क करें",
+    "hero_subtitle": "मंदिर, दरवाज़े या कस्टम उत्पाद के बारे में प्रश्न हैं — सीधे हमसे संपर्क करें, या नीचे पूछताछ भेजें और हम आपको कॉल करेंगे।",
+    "whatsapp_chat": "व्हाट्सएप पर चैट करें",
+    "no_contact_details": "संपर्क विवरण अभी तक जोड़ा नहीं गया है — पूछताछ भेजें और हम सीधे आपसे संपर्क करेंगे।",
+    "send_enquiry_title": "पूछताछ भेजें",
+    "send_enquiry_text": "हमें बताएं आप क्या ढूंढ रहे हैं, और हमारी टीम आपको वापस कॉल करेगी।"
+  },
+  "enquiry_form": {
+    "enquiring_about": "इसके बारे में पूछताछ",
+    "full_name": "पूरा नाम *",
+    "mobile_number": "मोबाइल नंबर *",
+    "state": "राज्य",
+    "city": "शहर",
+    "select_state": "राज्य चुनें",
+    "select_city": "शहर चुनें",
+    "select_state_first": "पहले राज्य चुनें",
+    "interested_in": "रुचि किसमें है",
+    "any_category": "कोई भी श्रेणी",
+    "message_optional": "संदेश (वैकल्पिक)",
+    "error_generic": "भेजने में कुछ गड़बड़ी हुई — कृपया थोड़ी देर बाद फिर से प्रयास करें।",
+    "sending": "भेजा जा रहा है…",
+    "enquire_now": "अभी पूछताछ करें",
+    "thank_you_title": "धन्यवाद, हमें आपका संदेश मिल गया है।",
+    "thank_you_text": "हमारी टीम जल्द ही आपकी आवश्यकता पर चर्चा करने के लिए आपको वापस कॉल करेगी।"
+  },
+  "misc": {
+    "coming_soon_text": "यह पेज अभी तैयार किया जा रहा है। जल्द ही फिर देखें, या इस बीच सीधे हमारी टीम से संपर्क करें।",
+    "back_to_home": "होम पर वापस जाएं",
+    "not_found_title": "यह पेज अभी तक नहीं बनाया गया है।",
+    "not_found_text": "जिस पेज को आप खोज रहे हैं वह मौजूद नहीं है, या स्थानांतरित हो गया हो सकता है।",
+    "sitemap_title": "साइटमैप",
+    "sitemap_desc": "वुडिवो पर हर पेज, श्रेणी और संग्रह, एक ही जगह पर।",
+    "pages_heading": "पेज",
+    "categories_heading": "श्रेणियाँ",
+    "articles_heading": "लेख"
+  },
+  "about": {
+    "our_story_eyebrow": "हमारी कहानी",
+    "rooted_in_craft": "शिल्प में निहित",
+    "our_mission": "हमारा मिशन",
+    "our_vision": "हमारा विज़न",
+    "what_we_stand_for": "हम किसके लिए खड़े हैं",
+    "our_values": "हमारे मूल्य",
+    "our_journey": "हमारी यात्रा",
+    "milestones": "मील के पत्थर",
+    "meet_the_team": "टीम से मिलें",
+    "people_behind_craft": "शिल्प के पीछे के लोग"
+  },
+  "related": {
+    "related_products": "संबंधित उत्पाद",
+    "you_may_also_like": "आपको यह भी पसंद आ सकता है",
+    "more_from_category": "इस श्रेणी से और अधिक",
+    "related_blogs": "संबंधित ब्लॉग पोस्ट"
+  },
+  "language_switcher": {
+    "label": "भाषा"
+  }
+}

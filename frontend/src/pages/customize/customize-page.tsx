@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProduct } from '@/features/products/products-api';
 import { useCustomizations } from '@/features/customizations/customizations-api';
 import { CustomizeRequestForm } from '@/features/enquiry/customize-request-form';
@@ -23,6 +24,7 @@ const PAGE_SIZE = 12;
  * portfolio would be.
  */
 export function CustomizePage() {
+  const { t } = useTranslation();
   useSeoMeta({
     title: 'Customize',
     description:
@@ -48,7 +50,7 @@ export function CustomizePage() {
       <section className="bg-teak-deep px-4 py-16 text-center text-ivory sm:px-6">
         <div className="mx-auto max-w-3xl">
           <div className="mb-6 flex justify-center">
-            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Customize' }]} />
+            <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.customize') }]} />
           </div>
           <h1 className="text-4xl sm:text-5xl">Customize a Piece</h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ivory-deep/85">
