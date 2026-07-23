@@ -40,6 +40,14 @@ export interface TranslationConfig {
   contactEmail: string;
 }
 
+// Woodivo Social Publisher - separate deployed service that turns a product
+// or blog post into a Facebook/Instagram post. See SocialModule.
+export interface SocialConfig {
+  apiUrl: string;
+  apiKey: string;
+  requestTimeoutMs: number;
+}
+
 export default () => ({
   app: {
     nodeEnv: process.env.NODE_ENV ?? 'development',
@@ -90,4 +98,13 @@ export default () => ({
   translation: {
     contactEmail: process.env.TRANSLATION_CONTACT_EMAIL ?? '',
   } satisfies TranslationConfig,
+
+  social: {
+    apiUrl: (process.env.SOCIAL_PUBLISHER_API_URL ?? '').replace(/\/+$/, ''),
+    apiKey: process.env.SOCIAL_PUBLISHER_API_KEY ?? '',
+    requestTimeoutMs: parseInt(
+      process.env.SOCIAL_PUBLISHER_TIMEOUT_MS ?? '60000',
+      10,
+    ),
+  } satisfies SocialConfig,
 });
