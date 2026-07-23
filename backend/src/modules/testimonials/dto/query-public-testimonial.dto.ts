@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from '@common/dto/pagination-query.dto';
 
 export class QueryPublicTestimonialDto extends PaginationQueryDto {
@@ -7,4 +7,8 @@ export class QueryPublicTestimonialDto extends PaginationQueryDto {
   @Type(() => Boolean)
   @IsBoolean()
   featuredOnly?: boolean;
+
+  @IsOptional()
+  @IsString()
+  lang?: string;
 }
