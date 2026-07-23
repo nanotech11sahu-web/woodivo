@@ -51,4 +51,16 @@ export class QueryPublicProductDto extends PaginationQueryDto {
   @IsNumber()
   @Min(0)
   maxPrice?: number;
+
+  // Comma-separated list of stock statuses (Amazon-style multi-select,
+  // same convention as `subCategory`) — e.g. "in_stock,made_to_order".
+  @IsOptional()
+  @IsString()
+  stockStatus?: string;
+
+  // True to show only products with an active discountPrice.
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  onSale?: boolean;
 }

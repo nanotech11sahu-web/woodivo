@@ -22,9 +22,14 @@
   --color-border-warm: #e8e0d2;
   --color-rust: #b0431e;
 
-  /* Type — one clean sans family throughout, no serif; weight carries the
-     hierarchy instead. */
-  --font-display: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  /* Type — a display/body pairing instead of one family carrying every
+     size. Fraunces (a soft-contrast, high-optical-size serif) reads as
+     carved/handmade at headline sizes — the same quality the jali-divider
+     motif is going for — while Sora stays on every UI surface (nav, buttons,
+     labels, body copy) so nothing about the interaction layer gets slower
+     to read. Never swap Sora out of small/UI text for Fraunces — it's a
+     display face, not built for 13px labels. */
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
   --font-body: 'Sora', ui-sans-serif, system-ui, sans-serif;
 
   --radius-card: 0.75rem;
@@ -72,8 +77,13 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-weight: 500;
   }
 
   ::selection {
@@ -96,6 +106,15 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* One tasteful accent for a single word inside an otherwise-roman display
+   heading — e.g. "Built to <em class="font-accent">last</em>". Deliberately
+   not applied broadly: italics on an entire heading reads as decoration,
+   on one word it reads as emphasis. */
+.font-accent {
+  font-style: italic;
+  font-weight: 500;
 }
 
 /* Signature motif: a hairline jali (lattice) rule used between sections,

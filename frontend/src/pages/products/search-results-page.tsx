@@ -1,5 +1,6 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useProducts } from '@/features/products/products-api';
+import { useCategories } from '@/features/categories/categories-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
@@ -15,6 +16,7 @@ export function SearchResultsPage() {
   const page = Math.max(1, Number(searchParams.get('page')) || 1);
 
   const products = useProducts({ search: query || undefined, page, limit: PAGE_SIZE });
+  const { data: categories } = useCategories();
 
   useSeoMeta({
     title: query ? `Search results for "${query}"` : 'Search',
@@ -60,10 +62,25 @@ export function SearchResultsPage() {
         {query && products.isError ? <ErrorNote label="Search results" /> : null}
 
         {query && products.data && products.data.items.length === 0 ? (
-          <p className="py-16 text-center text-charcoal-soft">
-            No products matched &ldquo;{query}&rdquo;. Try a different search, or browse
-            categories instead.
-          </p>
+          <div className="py-16 text-center">
+            <p className="text-charcoal-soft">
+              No products matched &ldquo;{query}&rdquo;. Try a different search, or browse
+              a category instead.
+            </p>
+            {categories && categories.length > 0 ? (
+              <div className="mt-6 flex flex-wrap justify-center gap-2.5">
+                {categories.slice(0, 8).map((category) => (
+                  <Link
+                    key={category._id}
+                    to={`/categories/${category.slug}`}
+                    className="rounded-[var(--radius-pill)] border border-brass px-4 py-2 text-sm font-medium text-brass hover:bg-brass-pale"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
         ) : null}
 
         {query && products.data && products.data.items.length > 0 ? (

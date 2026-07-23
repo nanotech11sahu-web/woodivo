@@ -121,7 +121,10 @@ export function EnquiryDetailPage() {
             <DetailRow label="City" value={enquiry.city || '\u2014'} />
             <DetailRow label="Interested in" value={enquiry.interestedCategory?.name ?? '\u2014'} />
             {enquiry.interestedProduct ? (
-              <DetailRow label="Product to customize" value={enquiry.interestedProduct.name} />
+              <DetailRow
+                label={enquiry.source === 'custom_order' ? 'Product to customize' : 'Product'}
+                value={enquiry.interestedProduct.name}
+              />
             ) : null}
             <DetailRow label="Source" value={SOURCE_LABELS[enquiry.source]} />
             <div>

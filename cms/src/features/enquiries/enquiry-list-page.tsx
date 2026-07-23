@@ -91,9 +91,17 @@ export function EnquiryListPage() {
     {
       key: 'category',
       header: 'Interested in',
-      render: (row) => (
-        <span className="text-sm text-ink-muted">{row.interestedCategory?.name ?? '\u2014'}</span>
-      ),
+      render: (row) =>
+        row.interestedProduct ? (
+          <div>
+            <p className="text-sm text-espresso">{row.interestedProduct.name}</p>
+            {row.interestedCategory ? (
+              <p className="text-xs text-ink-muted">{row.interestedCategory.name}</p>
+            ) : null}
+          </div>
+        ) : (
+          <span className="text-sm text-ink-muted">{row.interestedCategory?.name ?? '\u2014'}</span>
+        ),
     },
     {
       key: 'source',

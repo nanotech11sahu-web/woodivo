@@ -3,7 +3,9 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSanitize from 'rehype-sanitize';
 import { useBlog } from '@/features/blogs/blogs-api';
+import { useProducts } from '@/features/products/products-api';
 import { useSettings } from '@/features/settings/settings-api';
+import { ProductCard } from '@/components/shared/product-card';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useJsonLd } from '@/lib/use-json-ld';
 import { isNotFoundError } from '@/lib/http-error';
@@ -129,6 +131,17 @@ export function BlogDetailsPage() {
   useBlogPostingJsonLd(blog, settings, toAbsoluteUrl(canonicalPath ?? window.location.pathname));
   useFaqJsonLd(blog?.faqs);
 
+  // Blogs and products have no direct schema relationship (unlike
+  // Product.relatedBlogs, which is CMS-curated the other way) — reusing
+  // the tag words as a product search is a zero-schema-change way to
+  // surface genuinely relevant products under a post instead of leaving
+  // every blog post a dead end.
+  const relatedProductsQuery = useProducts(
+    { search: blog?.tags?.slice(0, 3).join(' '), limit: 4 },
+    { enabled: Boolean(blog?.tags?.length) },
+  );
+  const relatedProducts = relatedProductsQuery.data?.items ?? [];
+
   if (isLoading) {
     return <SectionSpinner />;
   }
@@ -219,6 +232,17 @@ export function BlogDetailsPage() {
               {tag}
             </span>
           ))}
+        </div>
+      ) : null}
+
+      {relatedProducts.length > 0 ? (
+        <div className="mt-10">
+          <h2 className="text-2xl text-teak">Shop related products</h2>
+          <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-4">
+            {relatedProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
         </div>
       ) : null}
 

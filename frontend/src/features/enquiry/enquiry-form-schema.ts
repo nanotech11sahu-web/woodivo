@@ -13,6 +13,7 @@ export const enquiryFormSchema = z.object({
   state: z.string().trim().max(80).optional().or(z.literal('')),
   city: z.string().trim().max(80).optional().or(z.literal('')),
   interestedCategory: z.string().optional(),
+  interestedProduct: z.string().optional(),
   message: z.string().trim().max(1000).optional().or(z.literal('')),
 });
 

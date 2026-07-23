@@ -1,11 +1,14 @@
 import { HeroSection } from './sections/hero-section';
+import { StatsBarSection } from './sections/stats-bar-section';
 import { FeaturedCategoriesSection } from './sections/featured-categories-section';
 import { FeaturedProductsSection } from './sections/featured-products-section';
 import { WhyWoodivoSection } from './sections/why-woodivo-section';
 import { TestimonialsSection } from './sections/testimonials-section';
+import { RecentlyViewedSection } from './sections/recently-viewed-section';
 import { BlogsSection } from './sections/blogs-section';
 import { FaqsSection } from './sections/faqs-section';
 import { CtaSection } from '@/components/shared/cta-section';
+import { JaliDivider } from '@/components/shared/jali-divider';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useSettings } from '@/features/settings/settings-api';
 
@@ -37,9 +40,14 @@ export function HomePage() {
   return (
     <>
       <HeroSection />
+      <StatsBarSection />
       <FeaturedCategoriesSection />
       <FeaturedProductsSection />
+      <RecentlyViewedSection />
       <BlogsSection />
+      <div className="mx-auto w-40 bg-ivory py-10">
+        <JaliDivider />
+      </div>
       <WhyWoodivoSection />
       <TestimonialsSection />
       <FaqsSection />

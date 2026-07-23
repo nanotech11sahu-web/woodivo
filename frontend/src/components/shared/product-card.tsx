@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, ImageOff } from 'lucide-react';
+import { ImageOff } from 'lucide-react';
 import type { MediaAsset } from '@/types/common';
 import type { ProductCategoryRef } from '@/types/product';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, cn } from '@/lib/utils';
 
 /**
  * Deliberately narrower than the full `Product` type. The two places this
@@ -27,22 +27,19 @@ export interface ProductCardItem {
 }
 
 /**
- * Was inline JSX inside FeaturedProductsSection through Phase 18 — pulled
- * out here because Phase 19 needs the exact same card in three more places
- * (category listing grid, product-detail "related products") and forking
- * near-identical copies would drift the moment one gets a design tweak the
- * others don't.
- *
- * Visual language matches the reference storefront's product tile: white
- * card, square image, name, price row, action row. Every product now
- * carries a `price` (and optionally a lower `discountPrice`, shown
- * struck-through next to it) — pieces remain made-to-order/quote-
- * adjustable in practice, so the CTA stays "Enquire Now" rather than an
- * "Add to cart" the site has no checkout to back up.
+ * Photo-forward listing tile — the border/shadow/button-heavy version this
+ * replaced put as much visual weight on chrome as on the product itself.
+ * Here the image carries the card: no border, a hairline-thin shadow that
+ * only appears on hover, and — when a product has a second photo — a
+ * crossfade + slight zoom into it on hover (the "lifestyle" shot most
+ * listings only show on the detail page). "Enquire" is a text link, not a
+ * button, so it doesn't visually compete with the photo on every single
+ * tile in a grid of twelve.
  */
 export function ProductCard({ product }: { product: ProductCardItem }) {
   const { openEnquiryDialog } = useEnquiryDialog();
-  const categorySlug = typeof product.category === 'object' ? product.category.slug : undefined;
+  const category = typeof product.category === 'object' ? product.category : undefined;
+  const secondImage = product.images?.[1];
 
   const hasDiscount =
     typeof product.discountPrice === 'number' &&
@@ -50,10 +47,10 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
     product.discountPrice < product.price;
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-hover">
+    <div className="group flex flex-col">
       <Link
         to={`/products/${product.slug}`}
-        className="relative block aspect-square overflow-hidden bg-ivory-deep"
+        className="relative block aspect-square overflow-hidden rounded-[var(--radius-card)] bg-ivory-deep transition-shadow duration-300 group-hover:shadow-card-hover"
       >
         {product.images?.[0]?.url ? (
           <img
@@ -61,29 +58,46 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
             alt={product.images[0].alt || product.name}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className={cn(
+              'absolute inset-0 h-full w-full object-cover transition-[transform,opacity] duration-500 ease-out group-hover:scale-[1.04]',
+              secondImage?.url && 'group-hover:opacity-0',
+            )}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-charcoal-soft/40">
             <ImageOff className="h-8 w-8" />
           </div>
         )}
+        {secondImage?.url ? (
+          <img
+            src={secondImage.url}
+            alt={secondImage.alt || product.name}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:scale-[1.04] group-hover:opacity-100"
+          />
+        ) : null}
         {hasDiscount ? (
-          <span className="absolute left-2.5 top-2.5 rounded-[var(--radius-pill)] bg-rust px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ivory">
+          <span className="absolute left-2.5 top-2.5 rounded-[var(--radius-pill)] bg-vermilion px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ivory">
             {Math.round(((product.price! - product.discountPrice!) / product.price!) * 100)}% Off
           </span>
         ) : null}
       </Link>
-      <div className="flex flex-1 flex-col gap-2.5 p-3.5">
+      <div className="mt-3 flex flex-1 flex-col gap-1">
+        {category ? (
+          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-brass/80">
+            {category.name}
+          </span>
+        ) : null}
         <Link
           to={`/products/${product.slug}`}
-          className="text-sm font-medium leading-snug text-charcoal hover:text-brass"
+          className="font-display text-[15px] leading-snug text-charcoal hover:text-brass"
         >
           {product.name}
         </Link>
         {typeof product.price === 'number' ? (
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-charcoal">
+          <div className="mt-0.5 flex items-baseline gap-2">
+            <span className="text-base font-semibold text-charcoal">
               {formatPrice(hasDiscount ? product.discountPrice : product.price)}
             </span>
             {hasDiscount ? (
@@ -95,11 +109,16 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
         ) : null}
         <button
           type="button"
-          onClick={() => openEnquiryDialog('product', categorySlug)}
-          className="mt-auto inline-flex h-9 w-fit items-center gap-1.5 rounded-[var(--radius-pill)] bg-brass px-4 text-xs font-semibold uppercase tracking-wide text-ivory shadow-sm transition-all hover:bg-brass-light hover:shadow-md active:scale-95"
+          onClick={() =>
+            openEnquiryDialog('product', {
+              categorySlug: category?.slug,
+              productSlug: product.slug,
+              productName: product.name,
+            })
+          }
+          className="mt-1.5 w-fit text-xs font-semibold uppercase tracking-wide text-brass underline-offset-4 hover:underline"
         >
-          Enquire Now
-          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+          Enquire now
         </button>
       </div>
     </div>

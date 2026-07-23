@@ -57,7 +57,7 @@ export function HeroSection() {
   return (
     <section className="border-b border-border-warm bg-ivory">
       <div
-        className="group/slider relative h-64 w-full overflow-hidden bg-teak-deep sm:h-80 lg:h-[26rem]"
+        className="group/slider relative h-[26rem] w-full overflow-hidden bg-teak-deep sm:h-[30rem] lg:h-[34rem]"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onFocus={() => setIsPaused(true)}
@@ -76,25 +76,36 @@ export function HeroSection() {
                 )}
               >
                 {banner.desktopImage.url ? (
-                  <img
-                    src={banner.desktopImage.url}
-                    alt={banner.desktopImage.alt || banner.title}
-                    loading={slideIndex === 0 ? 'eager' : 'lazy'}
-                    decoding="async"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
+                  <picture>
+                    {banner.mobileImage?.url ? (
+                      <source media="(max-width: 639px)" srcSet={banner.mobileImage.url} />
+                    ) : null}
+                    <img
+                      src={banner.desktopImage.url}
+                      alt={banner.desktopImage.alt || banner.title}
+                      loading={slideIndex === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  </picture>
                 ) : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/15 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
-                  <p className="max-w-xl text-2xl font-bold text-ivory sm:text-3xl lg:text-4xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
+                  <p className="font-body text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">
+                    Handcrafted, made to order
+                  </p>
+                  <p
+                    className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-[-0.015em] text-ivory sm:text-4xl lg:text-5xl"
+                    {...(slideIndex === index ? { role: 'heading', 'aria-level': 1 } : {})}
+                  >
                     {banner.title}
                   </p>
                   {banner.subtitle ? (
-                    <p className="mt-2 max-w-md text-sm text-ivory-deep/85 sm:text-base">
+                    <p className="mt-4 max-w-md font-body text-sm leading-relaxed text-ivory-deep/85 sm:text-base">
                       {banner.subtitle}
                     </p>
                   ) : null}
-                  <span className="mt-4 inline-flex items-center rounded-[var(--radius-pill)] bg-ivory px-5 py-2 text-xs font-semibold uppercase tracking-wide text-charcoal sm:text-sm">
+                  <span className="mt-6 inline-flex items-center rounded-[var(--radius-pill)] bg-brass px-6 py-3 font-body text-xs font-semibold uppercase tracking-wide text-ivory shadow-pop transition-colors hover:bg-brass-light sm:text-sm">
                     {banner.ctaLabel ?? 'Shop Now'}
                   </span>
                 </div>
@@ -104,16 +115,19 @@ export function HeroSection() {
               <button
                 type="button"
                 onClick={() => openEnquiryDialog('homepage')}
-                className="absolute inset-0 block bg-[radial-gradient(circle_at_20%_20%,_rgba(37,99,235,0.16),_transparent_45%),radial-gradient(circle_at_80%_70%,_rgba(37,99,235,0.12),_transparent_45%)] text-left"
+                className="absolute inset-0 block bg-[radial-gradient(circle_at_20%_20%,_rgba(201,148,79,0.22),_transparent_45%),radial-gradient(circle_at_80%_70%,_rgba(176,67,30,0.16),_transparent_45%)] bg-teak-deep text-left"
               >
-                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
-                  <p className="max-w-xl text-2xl font-bold text-ivory sm:text-3xl lg:text-4xl">
-                    Wood, shaped into something that outlasts you.
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
+                  <p className="font-body text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">
+                    Handcrafted, made to order
                   </p>
-                  <p className="mt-2 max-w-md text-sm text-ivory-deep/85 sm:text-base">
+                  <p className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-[-0.015em] text-ivory sm:text-4xl lg:text-5xl">
+                    Wood, shaped into something that <em className="font-accent">outlasts</em> you.
+                  </p>
+                  <p className="mt-4 max-w-md font-body text-sm leading-relaxed text-ivory-deep/85 sm:text-base">
                     Temples, doors and furniture carved by hand, made to order in the wood you choose.
                   </p>
-                  <span className="mt-4 inline-flex items-center rounded-[var(--radius-pill)] bg-ivory px-5 py-2 text-xs font-semibold uppercase tracking-wide text-charcoal sm:text-sm">
+                  <span className="mt-6 inline-flex items-center rounded-[var(--radius-pill)] bg-brass px-6 py-3 font-body text-xs font-semibold uppercase tracking-wide text-ivory shadow-pop transition-colors hover:bg-brass-light sm:text-sm">
                     Get a Quote
                   </span>
                 </div>

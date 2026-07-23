@@ -10,6 +10,7 @@ import {
   Product,
   ProductDocument,
   ProductStatus,
+  ProductStockStatus,
 } from './schemas/product.schema';
 import {
   Category,
@@ -33,6 +34,37 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryProductDto } from './dto/query-product.dto';
 import { QueryPublicProductDto, PublicProductSort } from './dto/query-public-product.dto';
+
+function tokenize(text: string): string[] {
+  return text.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+}
+
+function levenshtein(a: string, b: string): number {
+  const dp: number[][] = Array.from({ length: a.length + 1 }, (_, i) => {
+    const row = new Array<number>(b.length + 1).fill(0);
+    row[0] = i;
+    return row;
+  });
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+/** Shorter words tolerate less absolute edit distance — otherwise a 3-letter
+ * query word would fuzzy-match almost anything. */
+function maxDistanceForWordLength(length: number): number {
+  if (length <= 3) return 0;
+  if (length <= 4) return 1;
+  if (length <= 8) return 2;
+  return 3;
+}
 
 const CATEGORY_POPULATE_FIELDS = 'name slug thumbnail status';
 const SUBCATEGORY_POPULATE_FIELDS = 'name slug thumbnail status category';
@@ -133,12 +165,15 @@ export class ProductsService {
     }
     if (category) filter.category = new Types.ObjectId(category);
     if (subCategory) filter.subCategories = new Types.ObjectId(subCategory);
-    if (search) filter.$text = { $search: search };
 
     const skip = (page - 1) * limit;
     const sort: Record<string, 1 | -1> = {
       [sortBy]: sortOrder === 'asc' ? 1 : -1,
     };
+
+    if (search) {
+      return this.findByFuzzySearch(filter, search, page, limit);
+    }
 
     const [items, total] = await Promise.all([
       this.productModel
@@ -151,6 +186,111 @@ export class ProductsService {
         .exec(),
       this.productModel.countDocuments(filter),
     ]);
+
+    return { items, meta: buildPaginationMeta(total, page, limit) };
+  }
+
+  /**
+   * Mongo's `$text` index (`ProductSchema.index({ name: 'text', description:
+   * 'text' })`) does stemmed token matching only — "cloks" scores zero
+   * against "clock" since no token bridges a typo. The catalog is small
+   * enough (low thousands, not millions) to rank in process instead of
+   * standing up an external search service.
+   *
+   * This is a deliberately hand-rolled word-level matcher rather than a
+   * whole-string fuzzy library (Fuse.js was tried first and dropped): a
+   * short typo like "cloks" scores poorly against a long product name like
+   * "MELLOW - Solid Wood Clock" under whole-string edit-distance ratio
+   * scoring, since the ratio is computed against the *entire* name, not the
+   * one word that actually matters. Comparing query words against each
+   * candidate's own name/sku words individually is what makes "cloks" find
+   * "Clock" products without also loosely matching hundreds of unrelated
+   * ones on shared words like "wood"/"solid".
+   *
+   * Shared by both the public listing and the CMS admin listing so search
+   * behaves identically in both places.
+   */
+  private async findByFuzzySearch(
+    filter: QueryFilter<ProductDocument>,
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<ProductDocument>> {
+    const candidates = await this.productModel
+      .find(filter)
+      .select('_id name sku')
+      .lean()
+      .exec();
+
+    const queryWords = tokenize(search);
+    const requiredMatches = Math.max(1, Math.ceil(queryWords.length * 0.6));
+
+    const scored: { id: Types.ObjectId; score: number; matchedCount: number }[] = [];
+    for (const candidate of candidates) {
+      const candidateWords = tokenize(`${candidate.name} ${candidate.sku ?? ''}`);
+      let score = 0;
+      let matchedCount = 0;
+
+      for (const queryWord of queryWords) {
+        let bestAccepted = Infinity;
+        for (const candidateWord of candidateWords) {
+          if (candidateWord === queryWord) {
+            bestAccepted = 0;
+            break;
+          }
+          if (candidateWord.startsWith(queryWord) || queryWord.startsWith(candidateWord)) {
+            bestAccepted = Math.min(bestAccepted, 0.5);
+            continue;
+          }
+          // Capped by the SHORTER word's tolerance too, not just the query
+          // word's — otherwise a long query word gets an overly generous
+          // distance budget when compared against an unrelated short
+          // candidate word (e.g. "chiar" matching "car" at distance 2).
+          const allowed = Math.min(
+            maxDistanceForWordLength(queryWord.length),
+            maxDistanceForWordLength(candidateWord.length),
+          );
+          const distance = levenshtein(queryWord, candidateWord);
+          if (distance <= allowed && distance < bestAccepted) {
+            bestAccepted = distance;
+          }
+        }
+        if (bestAccepted !== Infinity) {
+          matchedCount += 1;
+          score += bestAccepted;
+        } else {
+          score += maxDistanceForWordLength(queryWord.length) + 3;
+        }
+      }
+
+      if (matchedCount >= requiredMatches) {
+        scored.push({ id: candidate._id, score, matchedCount });
+      }
+    }
+
+    scored.sort((a, b) => b.matchedCount - a.matchedCount || a.score - b.score);
+    const rankedIds = scored.map((entry) => entry.id);
+
+    const total = rankedIds.length;
+    const skip = (page - 1) * limit;
+    const pageIds = rankedIds.slice(skip, skip + limit);
+
+    if (pageIds.length === 0) {
+      return { items: [], meta: buildPaginationMeta(total, page, limit) };
+    }
+
+    const docs = await this.productModel
+      .find({ _id: { $in: pageIds } })
+      .populate('category', CATEGORY_POPULATE_FIELDS)
+      .populate('subCategories', SUBCATEGORY_POPULATE_FIELDS)
+      .exec();
+
+    const docsById = new Map(docs.map((doc) => [String(doc._id), doc]));
+    const items: ProductDocument[] = [];
+    for (const id of pageIds) {
+      const doc = docsById.get(String(id));
+      if (doc) items.push(doc);
+    }
 
     return { items, meta: buildPaginationMeta(total, page, limit) };
   }
@@ -168,19 +308,34 @@ export class ProductsService {
       sort,
       minPrice,
       maxPrice,
+      stockStatus,
+      onSale,
     } = query;
 
     const filter: QueryFilter<ProductDocument> = {
       status: ProductStatus.ACTIVE,
     };
     if (typeof featured === 'boolean') filter.isFeatured = featured;
-    if (search) filter.$text = { $search: search };
 
     if (typeof minPrice === 'number' || typeof maxPrice === 'number') {
       const priceFilter: Record<string, number> = {};
       if (typeof minPrice === 'number') priceFilter.$gte = minPrice;
       if (typeof maxPrice === 'number') priceFilter.$lte = maxPrice;
       filter.effectivePrice = priceFilter;
+    }
+
+    if (stockStatus) {
+      const statuses = stockStatus
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s): s is ProductStockStatus =>
+          Object.values(ProductStockStatus).includes(s as ProductStockStatus),
+        );
+      if (statuses.length > 0) filter.stockStatus = { $in: statuses };
+    }
+
+    if (onSale) {
+      filter.discountPrice = { $exists: true, $ne: null };
     }
 
     if (category) {
@@ -210,6 +365,10 @@ export class ProductsService {
         return { items: [], meta: buildPaginationMeta(0, page, limit) };
       }
       filter.subCategories = { $in: subCategoryDocs.map((sc) => sc._id) };
+    }
+
+    if (search) {
+      return this.findByFuzzySearch(filter, search, page, limit);
     }
 
     const skip = (page - 1) * limit;

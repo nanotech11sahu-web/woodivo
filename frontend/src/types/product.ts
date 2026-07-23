@@ -112,4 +112,6 @@ export interface QueryPublicProductParams {
   sort?: ProductPublicSort;
   minPrice?: number;
   maxPrice?: number;
+  stockStatus?: string;
+  onSale?: boolean;
 }

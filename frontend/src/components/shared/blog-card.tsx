@@ -18,11 +18,11 @@ export interface BlogCardItem {
 }
 
 /**
- * `BlogsSection` (home page) has had this exact card inline since Phase
- * 18. Pulled out here because `BlogListingPage` needs the identical card —
- * same move Phase 19 made for `ProductCard` and Phase 20 made for
- * `ProjectCard`. `BlogsSection` now imports this instead of its own copy,
- * with no visual change.
+ * Two distinct layouts, not one squeezed into both: on mobile this is a
+ * compact horizontal row (small thumbnail + title/date) so a list of posts
+ * scans quickly without a full-width photo per post eating the whole
+ * viewport height. From `sm` up it switches to the original stacked photo
+ * card, which has the room to earn a full-width image.
  */
 export function BlogCard({ blog }: { blog: BlogCardItem }) {
   const date = formatDate(blog.publishAt || blog.createdAt);
@@ -30,26 +30,32 @@ export function BlogCard({ blog }: { blog: BlogCardItem }) {
   return (
     <Link
       to={`/blogs/${blog.slug}`}
-      className="group overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep"
+      className="group flex gap-4 rounded-[var(--radius-card)] transition-shadow duration-300 sm:block sm:overflow-hidden sm:bg-ivory sm:shadow-card sm:hover:shadow-card-hover"
     >
-      <div className="aspect-[16/10] overflow-hidden bg-brass-pale">
+      <div className="aspect-square w-24 shrink-0 overflow-hidden rounded-[var(--radius-card)] bg-brass-pale sm:aspect-[16/10] sm:w-full sm:rounded-none">
         {blog.featuredImage?.url ? (
           <img
             src={blog.featuredImage.url}
             alt={blog.featuredImage.alt || blog.title}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 sm:group-hover:scale-105"
           />
         ) : null}
       </div>
-      <div className="p-5">
+      <div className="min-w-0 flex-1 py-0.5 sm:p-5">
         {date ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brass">{date}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brass sm:text-xs">
+            {date}
+          </p>
         ) : null}
-        <h3 className="mt-2 text-lg leading-snug text-teak">{blog.title}</h3>
+        <h3 className="mt-1.5 line-clamp-2 font-display text-base leading-snug text-teak sm:mt-2 sm:text-lg">
+          {blog.title}
+        </h3>
         {blog.excerpt ? (
-          <p className="mt-2 line-clamp-2 text-sm text-charcoal-soft">{blog.excerpt}</p>
+          <p className="mt-1.5 hidden text-sm text-charcoal-soft sm:mt-2 sm:line-clamp-2 sm:block">
+            {blog.excerpt}
+          </p>
         ) : null}
       </div>
     </Link>

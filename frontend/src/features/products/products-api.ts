@@ -3,7 +3,7 @@ import { apiClient } from '@/lib/api-client';
 import type { PaginatedResult } from '@/types/common';
 import type { Product, QueryPublicProductParams } from '@/types/product';
 
-export function useProducts(params: QueryPublicProductParams = {}) {
+export function useProducts(params: QueryPublicProductParams = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['public-products', params],
     queryFn: async () => {
@@ -12,6 +12,7 @@ export function useProducts(params: QueryPublicProductParams = {}) {
       });
       return data;
     },
+    enabled: options?.enabled,
   });
 }
 

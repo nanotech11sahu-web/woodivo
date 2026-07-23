@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useProduct } from '@/features/products/products-api';
+import { recordRecentlyViewed } from '@/lib/recently-viewed';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useJsonLd } from '@/lib/use-json-ld';
@@ -14,6 +16,8 @@ import { BlogCard } from '@/components/shared/blog-card';
 import { JaliDivider } from '@/components/shared/jali-divider';
 import { MediaGallery } from '@/components/shared/media-gallery';
 import { Button } from '@/components/ui/button';
+import { Accordion, AccordionItem } from '@/components/ui/accordion';
+import { parseProductDescription } from '@/lib/parse-product-description';
 import type { Product } from '@/types/product';
 
 function toAbsoluteUrl(pathOrUrl: string): string {
@@ -118,6 +122,19 @@ export function ProductDetailsPage() {
   useProductJsonLd(product, toAbsoluteUrl(canonicalPath ?? window.location.pathname));
   useProductFaqJsonLd(product?.faqs);
 
+  useEffect(() => {
+    if (!product) return;
+    recordRecentlyViewed({
+      _id: product._id,
+      name: product.name,
+      slug: product.slug,
+      images: product.images,
+      category: product.category,
+      price: product.price,
+      discountPrice: product.discountPrice,
+    });
+  }, [product]);
+
   if (isLoading) {
     return <SectionSpinner />;
   }
@@ -152,6 +169,17 @@ export function ProductDetailsPage() {
   const faqs = product.faqs;
   const hasDiscount = typeof product.discountPrice === 'number' && product.discountPrice < product.price;
 
+  const descriptionSections = product.description ? parseProductDescription(product.description) : [];
+  const overview = descriptionSections.find((section) => section.title === 'Overview');
+  const detailSections = descriptionSections.filter((section) => section.title !== 'Overview');
+
+  const openProductEnquiry = () =>
+    openEnquiryDialog('product', {
+      categorySlug: category?.slug,
+      productSlug: product.slug,
+      productName: product.name,
+    });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <Breadcrumbs
@@ -159,7 +187,7 @@ export function ProductDetailsPage() {
           { label: 'Home', to: '/' },
           ...(category ? [{ label: category.name, to: `/categories/${category.slug}` }] : []),
           ...(subCategory
-            ? [{ label: subCategory.name, to: `/categories/${category?.slug}?subcategory=${subCategory.slug}` }]
+            ? [{ label: subCategory.name, to: `/categories/${category?.slug}/${subCategory.slug}` }]
             : []),
           { label: product.name },
         ]}
@@ -195,38 +223,44 @@ export function ProductDetailsPage() {
             ) : null}
           </div>
 
-          {product.description ? (
-            <p className="mt-5 leading-relaxed text-charcoal-soft">{product.description}</p>
+          {overview ? (
+            <p className="mt-5 leading-relaxed text-charcoal-soft">{overview.content}</p>
           ) : null}
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => openEnquiryDialog('product', category?.slug)}
-            >
+          <div className="mt-8 hidden flex-col gap-3 sm:flex sm:flex-row">
+            <Button variant="primary" size="lg" onClick={openProductEnquiry}>
               Enquire Now
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => openEnquiryDialog('product', category?.slug)}
-            >
+            <Button variant="outline" size="lg" onClick={openProductEnquiry}>
               Get Quote
             </Button>
           </div>
 
-          {product.specifications.length > 0 ? (
+          {product.specifications.length > 0 || detailSections.length > 0 ? (
             <div className="mt-10">
-              <h2 className="text-xl text-teak">Specifications</h2>
-              <dl className="mt-4 divide-y divide-border-warm border-t border-border-warm">
-                {product.specifications.map((spec) => (
-                  <div key={spec.key} className="flex justify-between gap-6 py-3 text-sm">
-                    <dt className="text-charcoal-soft">{spec.key}</dt>
-                    <dd className="text-right font-medium text-charcoal">{spec.value}</dd>
-                  </div>
+              <Accordion defaultOpenIndex={0}>
+                {product.specifications.length > 0 ? (
+                  <AccordionItem index={0} title="Specifications">
+                    <dl className="divide-y divide-border-warm">
+                      {product.specifications.map((spec) => (
+                        <div key={spec.key} className="flex justify-between gap-6 py-2.5 text-sm">
+                          <dt className="text-charcoal-soft">{spec.key}</dt>
+                          <dd className="text-right font-medium text-charcoal">{spec.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </AccordionItem>
+                ) : null}
+                {detailSections.map((section, index) => (
+                  <AccordionItem
+                    key={section.title}
+                    index={(product.specifications.length > 0 ? 1 : 0) + index}
+                    title={section.title}
+                  >
+                    <p>{section.content}</p>
+                  </AccordionItem>
                 ))}
-              </dl>
+              </Accordion>
             </div>
           ) : null}
         </div>
@@ -294,6 +328,19 @@ export function ProductDetailsPage() {
           </div>
         </section>
       ) : null}
+
+      {/* Sticky mobile action bar — sits just above the site-wide bottom
+          tab bar (which is h-16) rather than replacing it, since the tab
+          bar's own "Enquire" action has no product context to carry. */}
+      <div className="fixed inset-x-0 bottom-16 z-20 flex gap-3 border-t border-border-warm bg-ivory/95 px-4 py-3 backdrop-blur sm:hidden">
+        <Button variant="outline" size="md" className="flex-1" onClick={openProductEnquiry}>
+          Get Quote
+        </Button>
+        <Button variant="primary" size="md" className="flex-1" onClick={openProductEnquiry}>
+          Enquire Now
+        </Button>
+      </div>
+      <div className="h-20 sm:hidden" aria-hidden="true" />
     </div>
   );
 }
