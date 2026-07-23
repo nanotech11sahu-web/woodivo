@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCategories } from '@/features/categories/categories-api';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -12,6 +13,7 @@ import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
  * navigation rather than a curated highlight reel.
  */
 export function FeaturedCategoriesSection() {
+  const { t } = useTranslation();
   const { data: categories, isLoading, isError } = useCategories();
 
   if (!isLoading && !isError && (!categories || categories.length === 0)) {
@@ -22,9 +24,9 @@ export function FeaturedCategoriesSection() {
     <section className="bg-ivory px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xl sm:text-2xl">Shop by Category</h2>
+          <h2 className="text-xl sm:text-2xl">{t('home.shop_by_category')}</h2>
           <Link to="/categories" className="text-sm font-medium text-brass hover:text-brass-light">
-            View all
+            {t('nav.view_all')}
           </Link>
         </div>
 

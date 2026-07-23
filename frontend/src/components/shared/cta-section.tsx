@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { Button } from '@/components/ui/button';
 import { JaliDivider } from '@/components/shared/jali-divider';
@@ -20,22 +21,26 @@ interface CtaSectionProps {
  * falls through to the original defaults below.
  */
 export function CtaSection({
-  title = 'Have something in mind?',
-  text = "Tell us what you're building — a temple corner, a front door, a full kitchen — and we'll get back with a quote.",
+  title,
+  text,
   source = 'homepage',
-  buttonLabel = 'Enquire Now',
+  buttonLabel,
 }: CtaSectionProps) {
+  const { t } = useTranslation();
   const { openEnquiryDialog } = useEnquiryDialog();
+  const resolvedTitle = title ?? t('cta.title');
+  const resolvedText = text ?? t('cta.text');
+  const resolvedButtonLabel = buttonLabel ?? t('cta.button');
 
   return (
     <section className="relative overflow-hidden bg-teak-deep px-4 py-16 text-center text-ivory sm:px-6 lg:px-8">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,_rgba(176,129,63,0.25),_transparent_55%)]" />
       <div className="relative mx-auto max-w-2xl">
-        <h2 className="text-4xl leading-tight sm:text-5xl">{title}</h2>
-        <p className="mx-auto mt-4 max-w-md text-ivory-deep/80">{text}</p>
+        <h2 className="text-4xl leading-tight sm:text-5xl">{resolvedTitle}</h2>
+        <p className="mx-auto mt-4 max-w-md text-ivory-deep/80">{resolvedText}</p>
         <div className="mt-9">
           <Button size="lg" variant="brass" onClick={() => openEnquiryDialog(source)}>
-            {buttonLabel}
+            {resolvedButtonLabel}
           </Button>
         </div>
         <div className="mx-auto mt-14 w-56">

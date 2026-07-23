@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Home, LayoutGrid, MessageSquareText, Phone } from 'lucide-react';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { cn } from '@/lib/utils';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
  * the two actions a visitor on mobile actually needs one thumb-reach away.
  */
 export function MobileTabBar() {
+  const { t } = useTranslation();
   const { openEnquiryDialog } = useEnquiryDialog();
 
   return (
@@ -21,19 +23,19 @@ export function MobileTabBar() {
     >
       <NavLink to="/" end className={tabClass}>
         <Home className="h-5 w-5" />
-        <span>Home</span>
+        <span>{t('mobile_tab.home')}</span>
       </NavLink>
       <NavLink to="/categories" className={tabClass}>
         <LayoutGrid className="h-5 w-5" />
-        <span>Categories</span>
+        <span>{t('mobile_tab.categories')}</span>
       </NavLink>
       <button type="button" className={cn(tabClassBase, 'text-charcoal')} onClick={() => openEnquiryDialog('floating_cta')}>
         <MessageSquareText className="h-5 w-5" />
-        <span>Enquire</span>
+        <span>{t('mobile_tab.enquire')}</span>
       </button>
       <NavLink to="/contact" className={tabClass}>
         <Phone className="h-5 w-5" />
-        <span>Contact</span>
+        <span>{t('mobile_tab.contact')}</span>
       </NavLink>
     </nav>
   );

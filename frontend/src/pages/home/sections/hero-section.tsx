@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBanners } from '@/features/banners/banners-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
@@ -16,6 +17,7 @@ const AUTOPLAY_MS = 5000;
  * banners exist yet, so the page never opens on an empty strip.
  */
 export function HeroSection() {
+  const { t } = useTranslation();
   const { data: banners } = useBanners('hero');
   const { openEnquiryDialog } = useEnquiryDialog();
 
@@ -92,7 +94,7 @@ export function HeroSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/35 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
                   <p className="font-body text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">
-                    Handcrafted, made to order
+                    {t('home.handcrafted_tag')}
                   </p>
                   <p
                     className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-[-0.015em] text-ivory sm:text-4xl lg:text-5xl"
@@ -106,7 +108,7 @@ export function HeroSection() {
                     </p>
                   ) : null}
                   <span className="mt-6 inline-flex items-center rounded-[var(--radius-pill)] bg-brass px-6 py-3 font-body text-xs font-semibold uppercase tracking-wide text-ivory shadow-pop transition-colors hover:bg-brass-light sm:text-sm">
-                    {banner.ctaLabel ?? 'Shop Now'}
+                    {banner.ctaLabel ?? t('home.shop_now')}
                   </span>
                 </div>
               </Link>
@@ -119,16 +121,16 @@ export function HeroSection() {
               >
                 <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
                   <p className="font-body text-xs font-semibold uppercase tracking-[0.25em] text-brass-light">
-                    Handcrafted, made to order
+                    {t('home.handcrafted_tag')}
                   </p>
                   <p className="mt-3 max-w-2xl font-display text-3xl font-medium leading-[1.05] tracking-[-0.015em] text-ivory sm:text-4xl lg:text-5xl">
-                    Wood, shaped into something that <em className="font-accent">outlasts</em> you.
+                    {t('home.hero_fallback_title')}
                   </p>
                   <p className="mt-4 max-w-md font-body text-sm leading-relaxed text-ivory-deep/85 sm:text-base">
-                    Temples, doors and furniture carved by hand, made to order in the wood you choose.
+                    {t('home.hero_fallback_text')}
                   </p>
                   <span className="mt-6 inline-flex items-center rounded-[var(--radius-pill)] bg-brass px-6 py-3 font-body text-xs font-semibold uppercase tracking-wide text-ivory shadow-pop transition-colors hover:bg-brass-light sm:text-sm">
-                    Get a Quote
+                    {t('home.get_a_quote')}
                   </span>
                 </div>
               </button>

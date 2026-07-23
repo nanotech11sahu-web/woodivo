@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProducts } from '@/features/products/products-api';
 import { useCategories } from '@/features/categories/categories-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
@@ -11,6 +12,7 @@ import { Pagination } from '@/components/shared/pagination';
 const PAGE_SIZE = 12;
 
 export function SearchResultsPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q')?.trim() ?? '';
   const page = Math.max(1, Number(searchParams.get('page')) || 1);
@@ -35,7 +37,7 @@ export function SearchResultsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Search' }]} />
+      <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: 'Search' }]} />
       <h1 className="mt-4 text-2xl sm:text-3xl">
         {query ? (
           <>

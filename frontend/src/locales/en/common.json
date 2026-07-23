@@ -1,0 +1,127 @@
+{
+  "nav": {
+    "home": "Home",
+    "blogs": "Blogs",
+    "gallery": "Gallery",
+    "customize": "Customize",
+    "about": "About",
+    "contact": "Contact",
+    "categories": "Categories",
+    "enquire": "Enquire",
+    "search_placeholder": "Search for products...",
+    "search_aria": "Search for products",
+    "view_all": "View all"
+  },
+  "footer": {
+    "delivery_title": "Pan-India Delivery",
+    "delivery_text": "Carefully packed and shipped nationwide",
+    "assurance_title": "Handcrafted Assurance",
+    "assurance_text": "Solid wood, made and finished to order",
+    "support_title": "Customer Support",
+    "support_text": "Talk to us on call or WhatsApp",
+    "about_text_fallback": "Handcrafted wooden temples, doors and custom furniture — made to order by hand, in the wood you choose.",
+    "categories_heading": "Categories",
+    "explore_heading": "Explore",
+    "explore_all_categories": "All Categories",
+    "explore_blogs": "Blogs",
+    "explore_about": "About Us",
+    "explore_gallery": "Gallery",
+    "explore_customize": "Customize",
+    "explore_contact": "Contact",
+    "explore_sitemap": "Sitemap",
+    "get_in_touch_heading": "Get in touch",
+    "copyright": "© {{year}} {{siteName}}. All rights reserved."
+  },
+  "mobile_tab": {
+    "home": "Home",
+    "categories": "Categories",
+    "enquire": "Enquire",
+    "contact": "Contact"
+  },
+  "home": {
+    "shop_by_category": "Shop by Category",
+    "featured_products": "Featured Products",
+    "recently_viewed": "Recently Viewed",
+    "why_woodivo_eyebrow": "Why Woodivo",
+    "why_woodivo_title": "Furniture that's meant to be inherited",
+    "client_stories_eyebrow": "Client stories",
+    "client_stories_title": "What our clients say",
+    "workshop_eyebrow": "From the workshop",
+    "workshop_title": "Notes on wood, craft and care",
+    "workshop_desc": "Guides on choosing timber, maintaining a wooden temple, and what to expect from a made-to-order piece.",
+    "questions_eyebrow": "Questions",
+    "questions_title": "Frequently asked questions",
+    "handcrafted_tag": "Handcrafted, made to order",
+    "hero_fallback_title": "Wood, shaped into something that outlasts you.",
+    "hero_fallback_text": "Temples, doors and furniture carved by hand, made to order in the wood you choose.",
+    "get_a_quote": "Get a Quote",
+    "shop_now": "Shop Now",
+    "stat_pieces": "Pieces handcrafted",
+    "stat_cities": "Cities delivered to",
+    "stat_solid_wood": "Solid wood, no veneer",
+    "stat_custom": "Made to order, every piece"
+  },
+  "cta": {
+    "title": "Have something in mind?",
+    "text": "Tell us what you're building — a temple corner, a front door, a full kitchen — and we'll get back with a quote.",
+    "button": "Enquire Now"
+  },
+  "contact": {
+    "hero_title": "Get in Touch",
+    "hero_subtitle": "Questions about a temple, a door or a custom piece — reach us directly, or send an enquiry below and we'll call you back.",
+    "whatsapp_chat": "Chat on WhatsApp",
+    "no_contact_details": "Contact details haven't been added yet — send an enquiry and we'll get back to you directly.",
+    "send_enquiry_title": "Send an Enquiry",
+    "send_enquiry_text": "Tell us what you're looking for, and one of our craftsmen's team will call you back."
+  },
+  "enquiry_form": {
+    "enquiring_about": "Enquiring about",
+    "full_name": "Full name *",
+    "mobile_number": "Mobile number *",
+    "state": "State",
+    "city": "City",
+    "select_state": "Select state",
+    "select_city": "Select city",
+    "select_state_first": "Select a state first",
+    "interested_in": "Interested in",
+    "any_category": "Any category",
+    "message_optional": "Message (optional)",
+    "error_generic": "Something went wrong sending that — please try again in a moment.",
+    "sending": "Sending…",
+    "enquire_now": "Enquire Now",
+    "thank_you_title": "Thank you, we've got it.",
+    "thank_you_text": "One of our craftsmen's team will call you back shortly to discuss your requirement."
+  },
+  "misc": {
+    "coming_soon_text": "This page is still being crafted. Check back soon, or get in touch with our team directly in the meantime.",
+    "back_to_home": "Back to Home",
+    "not_found_title": "This page hasn't been carved yet.",
+    "not_found_text": "The page you're looking for doesn't exist, or may have moved.",
+    "sitemap_title": "Sitemap",
+    "sitemap_desc": "Every page, category and collection on Woodivo, in one place.",
+    "pages_heading": "Pages",
+    "categories_heading": "Categories",
+    "articles_heading": "Articles"
+  },
+  "about": {
+    "our_story_eyebrow": "Our Story",
+    "rooted_in_craft": "Rooted in craft",
+    "our_mission": "Our Mission",
+    "our_vision": "Our Vision",
+    "what_we_stand_for": "What We Stand For",
+    "our_values": "Our Values",
+    "our_journey": "Our Journey",
+    "milestones": "Milestones",
+    "meet_the_team": "Meet the Team",
+    "people_behind_craft": "The people behind the craft"
+  },
+  "related": {
+    "related_products": "Related Products",
+    "you_may_also_like": "You may also like",
+    "more_from_category": "More from this category",
+    "related_blogs": "Related Blog Posts"
+  },
+  "language_switcher": {
+    "label": "Language"
+  }
+}

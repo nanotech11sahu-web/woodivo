@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { useFaqs } from '@/features/faqs/faqs-api';
 import { SectionHeading } from '@/components/shared/section-heading';
@@ -7,6 +8,7 @@ import { ErrorNote } from '@/components/shared/error-note';
 import { cn } from '@/lib/utils';
 
 export function FaqsSection() {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useFaqs(undefined, 10);
   const faqs = data?.items;
   const [openId, setOpenId] = useState<string | null>(null);
@@ -18,7 +20,7 @@ export function FaqsSection() {
   return (
     <section className="bg-ivory-deep px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
-        <SectionHeading eyebrow="Questions" title="Frequently asked questions" />
+        <SectionHeading eyebrow={t('home.questions_eyebrow')} title={t('home.questions_title')} />
 
         {isLoading ? <SectionSpinner /> : null}
         {isError ? <div className="mt-10"><ErrorNote label="FAQs" /></div> : null}
