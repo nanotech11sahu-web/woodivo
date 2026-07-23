@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFeaturedProducts } from '@/features/products/products-api';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -6,6 +7,7 @@ import { ProductCard } from '@/components/shared/product-card';
 import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
 
 export function FeaturedProductsSection() {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useFeaturedProducts(8);
   const products = data?.items;
 
@@ -17,9 +19,9 @@ export function FeaturedProductsSection() {
     <section className="bg-ivory-deep px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xl sm:text-2xl">Featured Products</h2>
+          <h2 className="text-xl sm:text-2xl">{t('home.featured_products')}</h2>
           <Link to="/categories" className="text-sm font-medium text-brass hover:text-brass-light">
-            View all
+            {t('nav.view_all')}
           </Link>
         </div>
 

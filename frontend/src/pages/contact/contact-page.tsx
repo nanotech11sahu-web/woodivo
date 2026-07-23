@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/shared/whatsapp-icon';
 import { useSettings } from '@/features/settings/settings-api';
@@ -26,6 +27,7 @@ import { EnquiryForm } from '@/components/shared/enquiry-form';
  * dialog; this is the first page that actually does.
  */
 export function ContactPage() {
+  const { t } = useTranslation();
   useSeoMeta({
     title: 'Contact Us',
     description: 'Get in touch with WOODIVO for enquiries on handcrafted wooden temples, doors and custom furniture.',
@@ -50,12 +52,11 @@ export function ContactPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,_rgba(176,129,63,0.18),_transparent_45%)]" />
         <div className="relative mx-auto max-w-5xl px-4 py-14 text-center sm:px-6">
           <div className="mb-6 flex justify-center">
-            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Contact' }]} />
+            <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.contact') }]} />
           </div>
-          <h1 className="text-4xl sm:text-5xl">Get in Touch</h1>
+          <h1 className="text-4xl sm:text-5xl">{t('contact.hero_title')}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-ivory-deep/85">
-            Questions about a temple, a door or a custom piece — reach us directly, or send an
-            enquiry below and we'll call you back.
+            {t('contact.hero_subtitle')}
           </p>
         </div>
       </section>
@@ -87,7 +88,7 @@ export function ContactPage() {
                           rel="noopener noreferrer"
                           className="hover:text-brass"
                         >
-                          Chat on WhatsApp
+                          {t('contact.whatsapp_chat')}
                         </a>
                       </li>
                     ) : null}
@@ -108,8 +109,7 @@ export function ContactPage() {
                   </ul>
                 ) : (
                   <p className="text-sm text-charcoal-soft">
-                    Contact details haven't been added yet — send an enquiry and we'll get back
-                    to you directly.
+                    {t('contact.no_contact_details')}
                   </p>
                 )}
 
@@ -131,10 +131,9 @@ export function ContactPage() {
           </div>
 
           <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep p-6 sm:p-8 lg:col-span-3">
-            <h2 className="text-2xl text-teak">Send an Enquiry</h2>
+            <h2 className="text-2xl text-teak">{t('contact.send_enquiry_title')}</h2>
             <p className="mt-2 text-sm text-charcoal-soft">
-              Tell us what you're looking for, and one of our craftsmen's team will call you
-              back.
+              {t('contact.send_enquiry_text')}
             </p>
             <div className="mt-6">
               <EnquiryForm source="contact" />

@@ -1,32 +1,34 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MapPin, Mail, Phone, ShieldCheck, Truck, Headset } from 'lucide-react';
 import { useSettings } from '@/features/settings/settings-api';
 import { useCategories } from '@/features/categories/categories-api';
 import { SocialLinksRow } from '@/components/shared/social-links';
 
-const INFO_BAND = [
-  {
-    icon: Truck,
-    title: 'Pan-India Delivery',
-    text: 'Carefully packed and shipped nationwide',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Handcrafted Assurance',
-    text: 'Solid wood, made and finished to order',
-  },
-  {
-    icon: Headset,
-    title: 'Customer Support',
-    text: 'Talk to us on call or WhatsApp',
-  },
-];
-
 export function SiteFooter() {
+  const { t } = useTranslation();
   const { data: settings } = useSettings();
   const { data: categories } = useCategories();
   const siteName = settings?.siteName ?? 'WOODIVO';
   const year = new Date().getFullYear();
+
+  const INFO_BAND = [
+    {
+      icon: Truck,
+      title: t('footer.delivery_title'),
+      text: t('footer.delivery_text'),
+    },
+    {
+      icon: ShieldCheck,
+      title: t('footer.assurance_title'),
+      text: t('footer.assurance_text'),
+    },
+    {
+      icon: Headset,
+      title: t('footer.support_title'),
+      text: t('footer.support_text'),
+    },
+  ];
 
   return (
     <footer className="bg-teak-deep text-ivory-deep">
@@ -53,15 +55,14 @@ export function SiteFooter() {
             <img src="/brand/woodivo-mark.png" alt="" className="h-10 w-10 rounded-md" />
             <h3 className="mt-3 text-2xl font-semibold tracking-tight text-ivory">{siteName}</h3>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-ivory-deep/75">
-              {settings?.footer?.aboutText ??
-                'Handcrafted wooden temples, doors and custom furniture — made to order by hand, in the wood you choose.'}
+              {settings?.footer?.aboutText ?? t('footer.about_text_fallback')}
             </p>
             <SocialLinksRow links={settings?.socialLinks} className="mt-5" />
           </div>
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-light">
-              Categories
+              {t('footer.categories_heading')}
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm text-ivory-deep/80">
               {categories?.slice(0, 6).map((category) => (
@@ -76,22 +77,22 @@ export function SiteFooter() {
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-light">
-              Explore
+              {t('footer.explore_heading')}
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm text-ivory-deep/80">
-              <li><Link to="/categories" className="hover:text-brass-light">All Categories</Link></li>
-              <li><Link to="/blogs" className="hover:text-brass-light">Blogs</Link></li>
-              <li><Link to="/about" className="hover:text-brass-light">About Us</Link></li>
-              <li><Link to="/gallery" className="hover:text-brass-light">Gallery</Link></li>
-              <li><Link to="/customize" className="hover:text-brass-light">Customize</Link></li>
-              <li><Link to="/contact" className="hover:text-brass-light">Contact</Link></li>
-              <li><Link to="/sitemap" className="hover:text-brass-light">Sitemap</Link></li>
+              <li><Link to="/categories" className="hover:text-brass-light">{t('footer.explore_all_categories')}</Link></li>
+              <li><Link to="/blogs" className="hover:text-brass-light">{t('footer.explore_blogs')}</Link></li>
+              <li><Link to="/about" className="hover:text-brass-light">{t('footer.explore_about')}</Link></li>
+              <li><Link to="/gallery" className="hover:text-brass-light">{t('footer.explore_gallery')}</Link></li>
+              <li><Link to="/customize" className="hover:text-brass-light">{t('footer.explore_customize')}</Link></li>
+              <li><Link to="/contact" className="hover:text-brass-light">{t('footer.explore_contact')}</Link></li>
+              <li><Link to="/sitemap" className="hover:text-brass-light">{t('footer.explore_sitemap')}</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-brass-light">
-              Get in touch
+              {t('footer.get_in_touch_heading')}
             </h4>
             <ul className="mt-4 space-y-3 text-sm text-ivory-deep/80">
               {settings?.contact?.phone ? (
@@ -125,7 +126,7 @@ export function SiteFooter() {
 
         <div className="mt-12 border-t border-ivory-deep/15 pt-6 text-center text-xs text-ivory-deep/60">
           {settings?.footer?.copyrightText ??
-            `© ${year} ${siteName}. All rights reserved.`}
+            t('footer.copyright', { year, siteName })}
         </div>
       </div>
     </footer>

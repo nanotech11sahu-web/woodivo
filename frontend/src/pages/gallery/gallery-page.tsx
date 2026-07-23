@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PlayCircle } from 'lucide-react';
 import { useGalleryItems } from '@/features/gallery/gallery-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
@@ -36,6 +37,7 @@ const TYPE_FILTERS: { label: string; value: GalleryItemType | undefined }[] = [
  * admin gallery table already offers.
  */
 export function GalleryPage() {
+  const { t } = useTranslation();
   useSeoMeta({
     title: 'Gallery',
     description: 'Photos and videos of WOODIVO\u2019s handcrafted wooden temples, doors and furniture in workshop and finished settings.',
@@ -94,7 +96,7 @@ export function GalleryPage() {
       <section className="bg-teak-deep px-4 py-16 text-center text-ivory sm:px-6">
         <div className="mx-auto max-w-3xl">
           <div className="mb-6 flex justify-center">
-            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Gallery' }]} />
+            <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.gallery') }]} />
           </div>
           <h1 className="text-4xl sm:text-5xl">Gallery</h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ivory-deep/85">

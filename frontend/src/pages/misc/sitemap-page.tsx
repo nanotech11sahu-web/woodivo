@@ -1,20 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCategories } from '@/features/categories/categories-api';
 import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useBlogs } from '@/features/blogs/blogs-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
-
-const STATIC_LINKS = [
-  { label: 'Home', to: '/' },
-  { label: 'All Categories', to: '/categories' },
-  { label: 'Gallery', to: '/gallery' },
-  { label: 'Blogs', to: '/blogs' },
-  { label: 'Customize', to: '/customize' },
-  { label: 'About Us', to: '/about' },
-  { label: 'Contact', to: '/contact' },
-];
 
 /**
  * Human-readable sitemap — a crawlable, browsable index of every category,
@@ -25,9 +16,20 @@ const STATIC_LINKS = [
  * they're reachable through their category/subcategory instead.
  */
 export function SitemapPage() {
+  const { t } = useTranslation();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: subCategories } = useSubCategories();
   const { data: blogsResult } = useBlogs({ limit: 100 });
+
+  const STATIC_LINKS = [
+    { label: t('nav.home'), to: '/' },
+    { label: t('footer.explore_all_categories'), to: '/categories' },
+    { label: t('nav.gallery'), to: '/gallery' },
+    { label: t('nav.blogs'), to: '/blogs' },
+    { label: t('nav.customize'), to: '/customize' },
+    { label: t('footer.explore_about'), to: '/about' },
+    { label: t('nav.contact'), to: '/contact' },
+  ];
 
   useSeoMeta({
     title: 'Sitemap',
@@ -37,17 +39,17 @@ export function SitemapPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Sitemap' }]} />
-      <h1 className="mt-4 text-2xl sm:text-3xl">Sitemap</h1>
+      <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('misc.sitemap_title') }]} />
+      <h1 className="mt-4 text-2xl sm:text-3xl">{t('misc.sitemap_title')}</h1>
       <p className="mt-2 text-sm text-charcoal-soft">
-        Every page, category and collection on Woodivo, in one place.
+        {t('misc.sitemap_desc')}
       </p>
 
       {categoriesLoading ? <SectionSpinner /> : null}
 
       <div className="mt-10 grid grid-cols-1 gap-10 sm:grid-cols-2">
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Pages</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">{t('misc.pages_heading')}</h2>
           <ul className="mt-3 space-y-2">
             {STATIC_LINKS.map((link) => (
               <li key={link.to}>
@@ -60,7 +62,7 @@ export function SitemapPage() {
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Categories</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">{t('misc.categories_heading')}</h2>
           <ul className="mt-3 space-y-4">
             {categories?.map((category) => {
               const children = subCategories?.filter((sc) => sc.category.slug === category.slug) ?? [];
@@ -91,7 +93,7 @@ export function SitemapPage() {
 
         {blogsResult && blogsResult.items.length > 0 ? (
           <section className="sm:col-span-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">Articles</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">{t('misc.articles_heading')}</h2>
             <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
               {blogsResult.items.map((blog) => (
                 <li key={blog._id}>

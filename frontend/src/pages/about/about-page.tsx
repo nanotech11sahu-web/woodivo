@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Target, Eye, User } from 'lucide-react';
 import { useAboutPage } from '@/features/about/about-api';
 import { useBanners } from '@/features/banners/banners-api';
@@ -29,6 +30,7 @@ import { CtaSection } from '@/components/shared/cta-section';
  * already set for `cat.banner` (image swap only, text stays page-owned).
  */
 export function AboutPage() {
+  const { t } = useTranslation();
   const { data: about, isLoading, isError } = useAboutPage();
   const { data: banners } = useBanners('about');
   const banner = banners?.[0];
@@ -68,9 +70,9 @@ export function AboutPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,_rgba(176,129,63,0.18),_transparent_45%)]" />
         <div className="relative mx-auto max-w-4xl px-4 py-14 text-center sm:px-6">
           <div className="mb-6 flex justify-center">
-            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
+            <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.about') }]} />
           </div>
-          <h1 className="text-4xl sm:text-5xl">{about?.heroTitle || 'Our Story'}</h1>
+          <h1 className="text-4xl sm:text-5xl">{about?.heroTitle || t('about.our_story_eyebrow')}</h1>
           {about?.heroSubtitle ? (
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-ivory-deep/85">
               {about.heroSubtitle}
@@ -109,8 +111,8 @@ export function AboutPage() {
                 ) : null}
                 <div>
                   <SectionHeading
-                    eyebrow="Our Story"
-                    title={about.storyTitle || 'Rooted in craft'}
+                    eyebrow={t('about.our_story_eyebrow')}
+                    title={about.storyTitle || t('about.rooted_in_craft')}
                     align="left"
                   />
                   <div className="mt-6 space-y-4 leading-relaxed text-charcoal-soft">
@@ -131,14 +133,14 @@ export function AboutPage() {
                 {about.missionText ? (
                   <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-8">
                     <Target className="h-7 w-7 text-brass" strokeWidth={1.5} />
-                    <h3 className="mt-4 text-2xl text-teak">Our Mission</h3>
+                    <h3 className="mt-4 text-2xl text-teak">{t('about.our_mission')}</h3>
                     <p className="mt-3 leading-relaxed text-charcoal-soft">{about.missionText}</p>
                   </div>
                 ) : null}
                 {about.visionText ? (
                   <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-8">
                     <Eye className="h-7 w-7 text-brass" strokeWidth={1.5} />
-                    <h3 className="mt-4 text-2xl text-teak">Our Vision</h3>
+                    <h3 className="mt-4 text-2xl text-teak">{t('about.our_vision')}</h3>
                     <p className="mt-3 leading-relaxed text-charcoal-soft">{about.visionText}</p>
                   </div>
                 ) : null}
@@ -149,7 +151,7 @@ export function AboutPage() {
           {about.values.length > 0 && (
             <section className="bg-teak px-4 py-16 text-ivory sm:px-6 lg:px-8">
               <div className="mx-auto max-w-7xl">
-                <SectionHeading eyebrow="What We Stand For" title="Our Values" tone="dark" />
+                <SectionHeading eyebrow={t('about.what_we_stand_for')} title={t('about.our_values')} tone="dark" />
                 <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                   {about.values.map((value) => (
                     <div key={value.title} className="text-center">
@@ -167,7 +169,7 @@ export function AboutPage() {
           {about.milestones.length > 0 && (
             <section className="px-4 py-16 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-3xl">
-                <SectionHeading eyebrow="Our Journey" title="Milestones" />
+                <SectionHeading eyebrow={t('about.our_journey')} title={t('about.milestones')} />
                 <ol className="mt-14 space-y-10 border-l border-border-warm pl-8">
                   {about.milestones.map((milestone, index) => (
                     <li key={index} className="relative">
@@ -192,8 +194,8 @@ export function AboutPage() {
             <section className="bg-ivory-deep px-4 py-16 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-6xl">
                 <SectionHeading
-                  eyebrow="Meet the Team"
-                  title={about.teamTitle || 'The people behind the craft'}
+                  eyebrow={t('about.meet_the_team')}
+                  title={about.teamTitle || t('about.people_behind_craft')}
                   description={about.teamSubtitle}
                 />
                 <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">

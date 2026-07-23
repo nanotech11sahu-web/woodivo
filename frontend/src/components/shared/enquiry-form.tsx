@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useCategories } from '@/features/categories/categories-api';
 import { useCreateEnquiry } from '@/features/enquiry/enquiry-api';
@@ -29,6 +30,7 @@ export function EnquiryForm({
   presetProductName,
   onSubmitted,
 }: EnquiryFormProps) {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
   const createEnquiry = useCreateEnquiry();
 
@@ -79,10 +81,9 @@ export function EnquiryForm({
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <CheckCircle2 className="h-12 w-12 text-brass" strokeWidth={1.5} />
-        <h3 className="text-2xl text-teak">Thank you, we've got it.</h3>
+        <h3 className="text-2xl text-teak">{t('enquiry_form.thank_you_title')}</h3>
         <p className="max-w-xs text-sm text-charcoal-soft">
-          One of our craftsmen's team will call you back shortly to discuss your
-          requirement.
+          {t('enquiry_form.thank_you_text')}
         </p>
       </div>
     );
@@ -92,12 +93,12 @@ export function EnquiryForm({
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       {presetProductName ? (
         <div className="rounded-[var(--radius-card)] bg-brass-pale px-4 py-2.5 text-sm text-teak">
-          Enquiring about <span className="font-semibold">{presetProductName}</span>
+          {t('enquiry_form.enquiring_about')} <span className="font-semibold">{presetProductName}</span>
         </div>
       ) : null}
       <div>
         <label htmlFor="fullName" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-          Full name *
+          {t('enquiry_form.full_name')}
         </label>
         <Input id="fullName" invalid={Boolean(errors.fullName)} {...register('fullName')} />
         {errors.fullName ? (
@@ -107,7 +108,7 @@ export function EnquiryForm({
 
       <div>
         <label htmlFor="mobileNumber" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-          Mobile number *
+          {t('enquiry_form.mobile_number')}
         </label>
         <Input
           id="mobileNumber"
@@ -123,7 +124,7 @@ export function EnquiryForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="state" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-            State
+            {t('enquiry_form.state')}
           </label>
           <Select
             id="state"
@@ -131,7 +132,7 @@ export function EnquiryForm({
               onChange: () => setValue('city', ''),
             })}
           >
-            <option value="">Select state</option>
+            <option value="">{t('enquiry_form.select_state')}</option>
             {INDIAN_STATES.map((state) => (
               <option key={state} value={state}>
                 {state}
@@ -142,11 +143,11 @@ export function EnquiryForm({
 
         <div>
           <label htmlFor="city" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-            City
+            {t('enquiry_form.city')}
           </label>
           {cityOptions.length > 0 ? (
             <Select id="city" {...register('city')}>
-              <option value="">Select city</option>
+              <option value="">{t('enquiry_form.select_city')}</option>
               {cityOptions.map((city) => (
                 <option key={city} value={city}>
                   {city}
@@ -156,7 +157,7 @@ export function EnquiryForm({
           ) : (
             <Input
               id="city"
-              placeholder="Select a state first"
+              placeholder={t('enquiry_form.select_state_first')}
               disabled={!selectedState}
               {...register('city')}
             />
@@ -166,10 +167,10 @@ export function EnquiryForm({
 
       <div>
         <label htmlFor="interestedCategory" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-          Interested in
+          {t('enquiry_form.interested_in')}
         </label>
         <Select id="interestedCategory" {...register('interestedCategory')}>
-          <option value="">Any category</option>
+          <option value="">{t('enquiry_form.any_category')}</option>
           {categories?.map((category) => (
             <option key={category._id} value={category.slug}>
               {category.name}
@@ -180,14 +181,14 @@ export function EnquiryForm({
 
       <div>
         <label htmlFor="message" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-          Message (optional)
+          {t('enquiry_form.message_optional')}
         </label>
         <Textarea id="message" rows={3} {...register('message')} />
       </div>
 
       {createEnquiry.isError ? (
         <p className="text-sm text-vermilion">
-          Something went wrong sending that — please try again in a moment.
+          {t('enquiry_form.error_generic')}
         </p>
       ) : null}
 
@@ -195,7 +196,7 @@ export function EnquiryForm({
         {createEnquiry.isPending ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : null}
-        {createEnquiry.isPending ? 'Sending…' : 'Enquire Now'}
+        {createEnquiry.isPending ? t('enquiry_form.sending') : t('enquiry_form.enquire_now')}
       </Button>
     </form>
   );
