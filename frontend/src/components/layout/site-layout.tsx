@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { SiteHeader } from './site-header';
 import { SiteFooter } from './site-footer';
 import { WhatsAppFloatButton } from './whatsapp-float-button';
@@ -7,6 +8,27 @@ import { ScrollToTop } from './scroll-to-top';
 import { EnquiryDialog } from '@/components/shared/enquiry-dialog';
 import { useSettings } from '@/features/settings/settings-api';
 import { useJsonLd } from '@/lib/use-json-ld';
+import { initAnalytics, trackPageView } from '@/lib/analytics';
+
+/**
+ * Fires a GA4 pageview on every client-side route change — `SiteLayout`
+ * never unmounts between routes (only `<Outlet />`'s children do), so this
+ * is the one place that sees every navigation exactly once. `useSeoMeta`
+ * already updates `document.title` before this runs on the same render
+ * pass, so `document.title` here reflects the page just navigated to, not
+ * the previous one.
+ */
+function useAnalytics(): void {
+  const location = useLocation();
+
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search, document.title);
+  }, [location.pathname, location.search]);
+}
 
 /**
  * `Organization` is the one structured-data type Phase 27's brief named
@@ -54,6 +76,7 @@ function useOrganizationJsonLd(): void {
 
 export function SiteLayout() {
   useOrganizationJsonLd();
+  useAnalytics();
 
   return (
     <div className="flex min-h-screen flex-col">
