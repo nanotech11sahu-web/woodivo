@@ -56,7 +56,7 @@ export function WhyWoodivoSection() {
           tone="dark"
         />
 
-        <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid grid-cols-2 gap-8 lg:grid-cols-4">
           {points.map((point, index) => {
             const Icon = HOMEPAGE_ICON_MAP[point.icon];
             return (

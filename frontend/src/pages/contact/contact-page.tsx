@@ -1,4 +1,5 @@
-import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/shared/whatsapp-icon';
 import { useSettings } from '@/features/settings/settings-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { toWhatsAppDigits } from '@/lib/utils';
@@ -79,7 +80,7 @@ export function ContactPage() {
                     ) : null}
                     {contact?.whatsapp ? (
                       <li className="flex items-start gap-3">
-                        <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-brass" />
+                        <WhatsAppIcon className="mt-0.5 h-5 w-5 shrink-0 text-brass" />
                         <a
                           href={`https://wa.me/${toWhatsAppDigits(contact.whatsapp)}`}
                           target="_blank"

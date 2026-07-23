@@ -32,7 +32,7 @@ export function SiteFooter() {
     <footer className="bg-teak-deep text-ivory-deep">
       {/* Info band — reference-style service strip */}
       <div className="border-b border-ivory-deep/10">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-12 sm:grid-cols-3 sm:px-6 lg:px-8">
           {INFO_BAND.map((item) => (
             <div key={item.title} className="flex flex-col items-center gap-3 text-center">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-vermilion/15 text-vermilion">
