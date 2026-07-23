@@ -63,4 +63,10 @@ export class QueryPublicProductDto extends PaginationQueryDto {
   @Type(() => Boolean)
   @IsBoolean()
   onSale?: boolean;
+
+  // Target language for machine-translating `name`/`description` — see
+  // TranslationService. Omit or 'en' for no translation.
+  @IsOptional()
+  @IsString()
+  lang?: string;
 }

@@ -8,6 +8,7 @@ import {
 } from './schemas/blog.schema';
 import { Product, ProductSchema } from '@modules/products/schemas/product.schema';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
+import { TranslationModule } from '@modules/translation/translation.module';
 import { BlogsService } from './blogs.service';
 import { BlogCategoriesService } from './blog-categories.service';
 import { BlogsController } from './blogs.controller';
@@ -27,6 +28,7 @@ import { BlogCategoriesAdminController } from './blog-categories.admin.controlle
       { name: Product.name, schema: ProductSchema },
     ]),
     SeoEntriesModule,
+    TranslationModule,
   ],
   controllers: [
     BlogsController,
