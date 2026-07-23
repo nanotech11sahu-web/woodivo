@@ -10,4 +10,8 @@ export class QueryPublicBlogDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   tag?: string;
+
+  @IsOptional()
+  @IsString()
+  lang?: string;
 }

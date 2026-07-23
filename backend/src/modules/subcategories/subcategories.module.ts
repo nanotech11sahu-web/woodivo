@@ -7,6 +7,7 @@ import {
 } from '@modules/categories/schemas/category.schema';
 import { ProductsModule } from '@modules/products/products.module';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
+import { TranslationModule } from '@modules/translation/translation.module';
 import { SubCategoriesService } from './subcategories.service';
 import { SubCategoriesController } from './subcategories.controller';
 import { SubCategoriesAdminController } from './subcategories.admin.controller';
@@ -25,6 +26,7 @@ import { SubCategoriesAdminController } from './subcategories.admin.controller';
     // products still reference it.
     ProductsModule,
     SeoEntriesModule,
+    TranslationModule,
   ],
   controllers: [SubCategoriesController, SubCategoriesAdminController],
   providers: [SubCategoriesService],

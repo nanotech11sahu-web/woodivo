@@ -36,6 +36,10 @@ export interface ThrottleConfig {
   limit: number;
 }
 
+export interface TranslationConfig {
+  contactEmail: string;
+}
+
 export default () => ({
   app: {
     nodeEnv: process.env.NODE_ENV ?? 'development',
@@ -80,4 +84,10 @@ export default () => ({
     ttl: parseInt(process.env.THROTTLE_TTL ?? '60', 10),
     limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
   } satisfies ThrottleConfig,
+
+  // Passed as MyMemory's `de=` param — raises the free daily quota from
+  // ~5,000 to ~50,000 words. Optional; translation still works without it.
+  translation: {
+    contactEmail: process.env.TRANSLATION_CONTACT_EMAIL ?? '',
+  } satisfies TranslationConfig,
 });
