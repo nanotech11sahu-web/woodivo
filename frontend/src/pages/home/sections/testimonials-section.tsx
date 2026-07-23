@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Star } from 'lucide-react';
 import { useTestimonials } from '@/features/testimonials/testimonials-api';
 import { SectionHeading } from '@/components/shared/section-heading';
@@ -6,6 +7,7 @@ import { ErrorNote } from '@/components/shared/error-note';
 import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
 
 export function TestimonialsSection() {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useTestimonials(true, 7);
   const testimonials = data?.items;
 
@@ -16,7 +18,7 @@ export function TestimonialsSection() {
   return (
     <section className="bg-ivory-deep px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionHeading eyebrow="Client stories" title="What our clients say" />
+        <SectionHeading eyebrow={t('home.client_stories_eyebrow')} title={t('home.client_stories_title')} />
 
         {isLoading ? <SectionSpinner /> : null}
         {isError ? <div className="mt-10"><ErrorNote label="Testimonials" /></div> : null}

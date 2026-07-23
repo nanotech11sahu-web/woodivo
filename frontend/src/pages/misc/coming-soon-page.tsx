@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Hammer } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { JaliDivider } from '@/components/shared/jali-divider';
@@ -13,19 +14,19 @@ import { JaliDivider } from '@/components/shared/jali-divider';
  * `ComingSoon` from Phase 8 through Phase 16.
  */
 export function ComingSoonPage({ title }: { title: string }) {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-4 py-24 text-center">
       <Hammer className="h-10 w-10 text-brass" strokeWidth={1.5} />
       <h1 className="mt-6 text-4xl text-teak">{title}</h1>
       <p className="mt-3 text-charcoal-soft">
-        This page is still being crafted. Check back soon, or get in touch with our
-        team directly in the meantime.
+        {t('misc.coming_soon_text')}
       </p>
       <div className="my-8 w-40">
         <JaliDivider />
       </div>
       <Link to="/" className={buttonVariants({ variant: 'primary', size: 'lg' })}>
-        Back to Home
+        {t('misc.back_to_home')}
       </Link>
     </div>
   );

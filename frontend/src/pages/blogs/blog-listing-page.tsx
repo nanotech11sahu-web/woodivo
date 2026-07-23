@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBlogCategories, useBlogs } from '@/features/blogs/blogs-api';
 import { useBanners } from '@/features/banners/banners-api';
 import { SectionBannerSlider } from '@/components/shared/section-banner-slider';
@@ -44,6 +45,7 @@ const PAGE_SIZE = 9;
  * heading/description/category pills untouched.
  */
 export function BlogListingPage() {
+  const { t } = useTranslation();
   const { data: banners } = useBanners('blog');
   const banner = banners?.[0];
 
@@ -117,7 +119,7 @@ export function BlogListingPage() {
         )}
         <div className="relative mx-auto max-w-5xl px-4 py-14 text-center sm:px-6">
           <div className="mb-6 flex justify-center">
-            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Blogs' }]} />
+            <Breadcrumbs items={[{ label: t('nav.home'), to: '/' }, { label: t('nav.blogs') }]} />
           </div>
           <h1 className="text-4xl sm:text-5xl">
             {activeCategoryName ? activeCategoryName : 'Notes on wood, craft and care'}

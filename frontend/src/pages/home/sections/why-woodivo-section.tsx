@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/features/settings/settings-api';
 import { HOMEPAGE_ICON_MAP } from '@/lib/homepage-icons';
 import { SectionHeading } from '@/components/shared/section-heading';
@@ -7,7 +8,9 @@ import type { HomepageHighlight } from '@/types/settings';
 // > Homepage, or if the array is ever cleared back to empty. Same
 // "hardcoded default survives as the pre-Settings-visit fallback" pattern
 // `home-page.tsx`'s `seo` handling and `about-page.tsx`'s SEO card already
-// use, just for this section's content instead of meta tags.
+// use, just for this section's content instead of meta tags. English only —
+// this fallback content isn't translated since it's CMS-editable copy, not
+// static UI chrome.
 const DEFAULT_POINTS: HomepageHighlight[] = [
   {
     icon: 'tree-pine',
@@ -42,6 +45,7 @@ const DEFAULT_POINTS: HomepageHighlight[] = [
  * `HOMEPAGE_ICON_MAP` — never a raw imported/rendered string.
  */
 export function WhyWoodivoSection() {
+  const { t } = useTranslation();
   const { data: settings } = useSettings();
   const points = settings?.homepage?.whyWoodivoPoints?.length
     ? settings.homepage.whyWoodivoPoints
@@ -51,8 +55,8 @@ export function WhyWoodivoSection() {
     <section className="bg-teak px-4 py-16 text-ivory sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          eyebrow="Why Woodivo"
-          title="Furniture that's meant to be inherited"
+          eyebrow={t('home.why_woodivo_eyebrow')}
+          title={t('home.why_woodivo_title')}
           tone="dark"
         />
 

@@ -1,27 +1,30 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LayoutGrid, Menu, MessageSquareText, Phone, Search, X } from 'lucide-react';
 import { useCategories } from '@/features/categories/categories-api';
 import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useSettings } from '@/features/settings/settings-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { cn } from '@/lib/utils';
 
-const NAV_LINKS = [
-  { label: 'Home', to: '/' },
-  { label: 'Blogs', to: '/blogs' },
-  { label: 'Gallery', to: '/gallery' },
-  { label: 'Customize', to: '/customize' },
-  { label: 'About', to: '/about' },
-  { label: 'Contact', to: '/contact' },
-];
-
 export function SiteHeader() {
+  const { t } = useTranslation();
   const { data: settings } = useSettings();
   const { data: categories } = useCategories();
   const { data: subCategories } = useSubCategories();
   const { openEnquiryDialog } = useEnquiryDialog();
   const navigate = useNavigate();
+
+  const NAV_LINKS = [
+    { label: t('nav.home'), to: '/' },
+    { label: t('nav.blogs'), to: '/blogs' },
+    { label: t('nav.gallery'), to: '/gallery' },
+    { label: t('nav.customize'), to: '/customize' },
+    { label: t('nav.about'), to: '/about' },
+    { label: t('nav.contact'), to: '/contact' },
+  ];
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
@@ -72,14 +75,15 @@ export function SiteHeader() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => event.key === 'Enter' && submitSearch()}
-              placeholder="Search for products..."
-              aria-label="Search for products"
+              placeholder={t('nav.search_placeholder')}
+              aria-label={t('nav.search_aria')}
               className="h-11 w-full rounded-[var(--radius-pill)] border border-border-warm bg-ivory-deep pl-10 pr-4 text-sm text-charcoal placeholder:text-charcoal-soft focus:border-brass focus:outline-none"
             />
           </label>
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
+          <LanguageSwitcher className="hidden sm:block" />
           <button
             type="button"
             className="flex h-10 w-10 items-center justify-center text-charcoal md:hidden"
@@ -101,7 +105,7 @@ export function SiteHeader() {
               onClick={() => setCategoriesOpen((v) => !v)}
             >
               <LayoutGrid className="h-[18px] w-[18px]" />
-              <span className="hidden xl:inline">Categories</span>
+              <span className="hidden xl:inline">{t('nav.categories')}</span>
             </button>
             {categoriesOpen && categories && categories.length > 0 ? (
               <div className="absolute right-0 top-full pt-3">
@@ -137,7 +141,7 @@ export function SiteHeader() {
                             onClick={() => setCategoriesOpen(false)}
                             className="text-sm font-medium text-brass hover:underline"
                           >
-                            View all {activeCategory?.name}
+                            {t('nav.view_all')} {activeCategory?.name}
                           </Link>
                         );
                       }
@@ -168,7 +172,7 @@ export function SiteHeader() {
             onClick={() => openEnquiryDialog('floating_cta')}
           >
             <MessageSquareText className="h-[18px] w-[18px]" />
-            <span className="hidden xl:inline">Enquire</span>
+            <span className="hidden xl:inline">{t('nav.enquire')}</span>
           </button>
 
           <Link
@@ -176,7 +180,7 @@ export function SiteHeader() {
             className="hidden h-10 items-center gap-1.5 rounded-[var(--radius-card)] px-2.5 text-sm font-medium text-charcoal transition-colors hover:bg-ivory-deep lg:flex"
           >
             <Phone className="h-[18px] w-[18px]" />
-            <span className="hidden xl:inline">Contact</span>
+            <span className="hidden xl:inline">{t('nav.contact')}</span>
           </Link>
 
           <button
@@ -201,8 +205,8 @@ export function SiteHeader() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => event.key === 'Enter' && submitSearch()}
-              placeholder="Search for products..."
-              aria-label="Search for products"
+              placeholder={t('nav.search_placeholder')}
+              aria-label={t('nav.search_aria')}
               className="h-11 w-full rounded-[var(--radius-pill)] border border-border-warm bg-ivory-deep pl-10 pr-4 text-sm text-charcoal placeholder:text-charcoal-soft focus:border-brass focus:outline-none"
             />
           </label>
@@ -212,6 +216,9 @@ export function SiteHeader() {
       {/* Mobile nav drawer */}
       {mobileOpen ? (
         <nav className="border-t border-border-warm bg-ivory px-4 pb-6 pt-2 lg:hidden">
+          <div className="py-2">
+            <LanguageSwitcher />
+          </div>
           {NAV_LINKS.map((link) => (
             <NavLink
               key={link.to}
@@ -224,12 +231,12 @@ export function SiteHeader() {
             </NavLink>
           ))}
           <NavLink to="/contact" className={mobileNavLinkClass} onClick={() => setMobileOpen(false)}>
-            Contact
+            {t('nav.contact')}
           </NavLink>
           {categories && categories.length > 0 ? (
             <>
               <p className="mt-3 pt-3 text-xs font-semibold uppercase tracking-[0.2em] text-charcoal-soft">
-                Categories
+                {t('nav.categories')}
               </p>
               {categories.map((category) => (
                 <NavLink
