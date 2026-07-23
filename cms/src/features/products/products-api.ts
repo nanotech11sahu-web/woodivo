@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { apiClient } from '@/lib/api-client';
 import type { PaginatedResult } from '@/types/common';
 import type { Product, ProductListParams, ProductPayload } from '@/types/product';
+import type { PostToSocialOptions, PostToSocialResponse } from '@/types/social';
 
 const PRODUCTS_KEY = 'products';
 
@@ -27,6 +28,17 @@ async function updateProductRequest(id: string, payload: ProductPayload): Promis
 
 async function deleteProductRequest(id: string): Promise<void> {
   await apiClient.delete(`/admin/products/${id}`);
+}
+
+async function postProductsToSocialRequest(
+  ids: string[],
+  options?: PostToSocialOptions,
+): Promise<PostToSocialResponse> {
+  const { data } = await apiClient.post<PostToSocialResponse>('/admin/products/post-to-social', {
+    ids,
+    ...options,
+  });
+  return data;
 }
 
 export function useProducts(params: ProductListParams) {
@@ -66,5 +78,12 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: deleteProductRequest,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY] }),
+  });
+}
+
+export function usePostProductsToSocial() {
+  return useMutation({
+    mutationFn: ({ ids, options }: { ids: string[]; options?: PostToSocialOptions }) =>
+      postProductsToSocialRequest(ids, options),
   });
 }

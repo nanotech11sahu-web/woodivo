@@ -46,6 +46,7 @@ const SeoFormPage = lazyImport(() => import('@/features/seo/seo-form-page'), 'Se
 const UserListPage = lazyImport(() => import('@/features/users/user-list-page'), 'UserListPage');
 const MediaLibraryPage = lazyImport(() => import('@/features/media/media-library-page'), 'MediaLibraryPage');
 const ToolsPage = lazyImport(() => import('@/features/tools/tools-page'), 'ToolsPage');
+const SocialPostsPage = lazyImport(() => import('@/features/social/social-posts-page'), 'SocialPostsPage');
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([
           { path: '/banners', element: <BannerListPage /> },
           { path: '/banners/new', element: <BannerFormPage /> },
           { path: '/banners/:id/edit', element: <BannerFormPage /> },
+          { path: '/social', element: <SocialPostsPage /> },
           { path: '/enquiries', element: <EnquiryListPage /> },
           { path: '/enquiries/:id', element: <EnquiryDetailPage /> },
           { path: '/users', element: <UserListPage /> },

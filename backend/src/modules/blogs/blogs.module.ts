@@ -9,6 +9,7 @@ import {
 import { Product, ProductSchema } from '@modules/products/schemas/product.schema';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
 import { TranslationModule } from '@modules/translation/translation.module';
+import { SocialModule } from '@modules/social/social.module';
 import { BlogsService } from './blogs.service';
 import { BlogCategoriesService } from './blog-categories.service';
 import { BlogsController } from './blogs.controller';
@@ -29,6 +30,7 @@ import { BlogCategoriesAdminController } from './blog-categories.admin.controlle
     ]),
     SeoEntriesModule,
     TranslationModule,
+    SocialModule,
   ],
   controllers: [
     BlogsController,
