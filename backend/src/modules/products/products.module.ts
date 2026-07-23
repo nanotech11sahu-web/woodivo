@@ -11,6 +11,7 @@ import {
 } from '@modules/subcategories/schemas/subcategory.schema';
 import { Blog, BlogSchema } from '@modules/blogs/schemas/blog.schema';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
+import { TranslationModule } from '@modules/translation/translation.module';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { ProductsAdminController } from './products.admin.controller';
@@ -33,6 +34,7 @@ import { ProductsAdminController } from './products.admin.controller';
       { name: Blog.name, schema: BlogSchema },
     ]),
     SeoEntriesModule,
+    TranslationModule,
   ],
   controllers: [ProductsController, ProductsAdminController],
   providers: [ProductsService],
