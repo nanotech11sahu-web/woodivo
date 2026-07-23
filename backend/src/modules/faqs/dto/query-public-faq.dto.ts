@@ -5,4 +5,8 @@ export class QueryPublicFaqDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   group?: string;
+
+  @IsOptional()
+  @IsString()
+  lang?: string;
 }

@@ -7,6 +7,7 @@ import {
 } from '@modules/subcategories/schemas/subcategory.schema';
 import { ProductsModule } from '@modules/products/products.module';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
+import { TranslationModule } from '@modules/translation/translation.module';
 import { CategoriesService } from './categories.service';
 import { CategoriesController } from './categories.controller';
 import { CategoriesAdminController } from './categories.admin.controller';
@@ -23,6 +24,7 @@ import { CategoriesAdminController } from './categories.admin.controller';
     ]),
     ProductsModule,
     SeoEntriesModule,
+    TranslationModule,
   ],
   controllers: [CategoriesController, CategoriesAdminController],
   providers: [CategoriesService],

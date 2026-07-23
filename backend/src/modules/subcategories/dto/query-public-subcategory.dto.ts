@@ -6,4 +6,8 @@ export class QueryPublicSubCategoryDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @IsOptional()
+  @IsString()
+  lang?: string;
 }
