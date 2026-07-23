@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircle2, ImagePlus, Loader2, MessageCircle, Phone, X } from 'lucide-react';
+import { CheckCircle2, ImagePlus, Loader2, Phone, X } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/shared/whatsapp-icon';
 import { useCreateEnquiry, useUploadEnquiryImages } from './enquiry-api';
 import {
   customizeProductFormSchema,
@@ -263,7 +264,7 @@ export function CustomizeRequestForm({ productSlug, productName }: CustomizeRequ
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-medium text-ivory-deep/90 hover:text-ivory"
               >
-                <MessageCircle className="h-4 w-4" />
+                <WhatsAppIcon className="h-4 w-4" />
                 Chat on WhatsApp
               </a>
             ) : null}
