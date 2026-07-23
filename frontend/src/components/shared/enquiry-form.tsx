@@ -9,21 +9,26 @@ import {
 } from '@/features/enquiry/enquiry-form-schema';
 import type { EnquirySource } from '@/types/enquiry';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { INDIAN_STATES, getCitiesForState } from '@/lib/use-india-locations';
 
 interface EnquiryFormProps {
   source: EnquirySource;
   presetCategorySlug?: string;
+  presetProductSlug?: string;
+  presetProductName?: string;
   onSubmitted?: () => void;
 }
 
-const inputClass = cn(
-  'w-full rounded-[var(--radius-card)] border border-border-warm bg-ivory px-4 py-2.5 text-sm text-charcoal',
-  'placeholder:text-charcoal-soft/60 focus:border-brass',
-);
-
-export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: EnquiryFormProps) {
+export function EnquiryForm({
+  source,
+  presetCategorySlug,
+  presetProductSlug,
+  presetProductName,
+  onSubmitted,
+}: EnquiryFormProps) {
   const { data: categories } = useCategories();
   const createEnquiry = useCreateEnquiry();
 
@@ -42,6 +47,7 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
       state: '',
       city: '',
       interestedCategory: presetCategorySlug ?? '',
+      interestedProduct: presetProductSlug ?? '',
       message: '',
     },
   });
@@ -57,6 +63,7 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
         city: values.city || undefined,
         message: values.message || undefined,
         interestedCategory: values.interestedCategory || undefined,
+        interestedProduct: presetProductSlug || undefined,
         source,
       },
       {
@@ -83,11 +90,16 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+      {presetProductName ? (
+        <div className="rounded-[var(--radius-card)] bg-brass-pale px-4 py-2.5 text-sm text-teak">
+          Enquiring about <span className="font-semibold">{presetProductName}</span>
+        </div>
+      ) : null}
       <div>
         <label htmlFor="fullName" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
           Full name *
         </label>
-        <input id="fullName" className={inputClass} {...register('fullName')} />
+        <Input id="fullName" invalid={Boolean(errors.fullName)} {...register('fullName')} />
         {errors.fullName ? (
           <p className="mt-1 text-xs text-vermilion">{errors.fullName.message}</p>
         ) : null}
@@ -97,10 +109,10 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
         <label htmlFor="mobileNumber" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
           Mobile number *
         </label>
-        <input
+        <Input
           id="mobileNumber"
           inputMode="tel"
-          className={inputClass}
+          invalid={Boolean(errors.mobileNumber)}
           {...register('mobileNumber')}
         />
         {errors.mobileNumber ? (
@@ -113,9 +125,8 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
           <label htmlFor="state" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
             State
           </label>
-          <select
+          <Select
             id="state"
-            className={inputClass}
             {...register('state', {
               onChange: () => setValue('city', ''),
             })}
@@ -126,7 +137,7 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
                 {state}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div>
@@ -134,18 +145,17 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
             City
           </label>
           {cityOptions.length > 0 ? (
-            <select id="city" className={inputClass} {...register('city')}>
+            <Select id="city" {...register('city')}>
               <option value="">Select city</option>
               {cityOptions.map((city) => (
                 <option key={city} value={city}>
                   {city}
                 </option>
               ))}
-            </select>
+            </Select>
           ) : (
-            <input
+            <Input
               id="city"
-              className={inputClass}
               placeholder="Select a state first"
               disabled={!selectedState}
               {...register('city')}
@@ -158,30 +168,21 @@ export function EnquiryForm({ source, presetCategorySlug, onSubmitted }: Enquiry
         <label htmlFor="interestedCategory" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
           Interested in
         </label>
-        <select
-          id="interestedCategory"
-          className={inputClass}
-          {...register('interestedCategory')}
-        >
+        <Select id="interestedCategory" {...register('interestedCategory')}>
           <option value="">Any category</option>
           {categories?.map((category) => (
             <option key={category._id} value={category.slug}>
               {category.name}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       <div>
         <label htmlFor="message" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
           Message (optional)
         </label>
-        <textarea
-          id="message"
-          rows={3}
-          className={inputClass}
-          {...register('message')}
-        />
+        <Textarea id="message" rows={3} {...register('message')} />
       </div>
 
       {createEnquiry.isError ? (

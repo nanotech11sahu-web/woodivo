@@ -1,4 +1,4 @@
-import { Target, Eye } from 'lucide-react';
+import { Target, Eye, User } from 'lucide-react';
 import { useAboutPage } from '@/features/about/about-api';
 import { useBanners } from '@/features/banners/banners-api';
 import { SectionBannerSlider } from '@/components/shared/section-banner-slider';
@@ -199,7 +199,7 @@ export function AboutPage() {
                 <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                   {about.teamMembers.map((member, index) => (
                     <div key={index} className="text-center">
-                      <div className="mx-auto h-28 w-28 overflow-hidden rounded-full border border-border-warm bg-ivory">
+                      <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-border-warm bg-brass-pale">
                         {member.photo?.url ? (
                           <img
                             src={member.photo.url}
@@ -208,7 +208,9 @@ export function AboutPage() {
                             decoding="async"
                             className="h-full w-full object-cover"
                           />
-                        ) : null}
+                        ) : (
+                          <User className="h-12 w-12 text-brass" strokeWidth={1.5} />
+                        )}
                       </div>
                       <h3 className="mt-4 text-lg text-teak">{member.name}</h3>
                       <p className="text-xs font-semibold uppercase tracking-wider text-brass">

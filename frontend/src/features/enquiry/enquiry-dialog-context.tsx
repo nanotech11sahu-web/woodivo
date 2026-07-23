@@ -6,10 +6,18 @@ interface EnquiryDialogState {
   isOpen: boolean;
   source: EnquirySource;
   presetCategorySlug?: string;
+  presetProductSlug?: string;
+  presetProductName?: string;
+}
+
+interface OpenEnquiryDialogOptions {
+  categorySlug?: string;
+  productSlug?: string;
+  productName?: string;
 }
 
 interface EnquiryDialogContextValue extends EnquiryDialogState {
-  openEnquiryDialog: (source: EnquirySource, presetCategorySlug?: string) => void;
+  openEnquiryDialog: (source: EnquirySource, options?: OpenEnquiryDialogOptions) => void;
   closeEnquiryDialog: () => void;
 }
 
@@ -30,8 +38,14 @@ export function EnquiryDialogProvider({ children }: { children: ReactNode }) {
   });
 
   const openEnquiryDialog = useCallback(
-    (source: EnquirySource, presetCategorySlug?: string) => {
-      setState({ isOpen: true, source, presetCategorySlug });
+    (source: EnquirySource, options?: OpenEnquiryDialogOptions) => {
+      setState({
+        isOpen: true,
+        source,
+        presetCategorySlug: options?.categorySlug,
+        presetProductSlug: options?.productSlug,
+        presetProductName: options?.productName,
+      });
     },
     [],
   );

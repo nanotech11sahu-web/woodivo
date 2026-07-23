@@ -11,7 +11,14 @@ import { EnquiryForm } from './enquiry-form';
  * single use case would be the extra dependency, not this.
  */
 export function EnquiryDialog() {
-  const { isOpen, source, presetCategorySlug, closeEnquiryDialog } = useEnquiryDialog();
+  const {
+    isOpen,
+    source,
+    presetCategorySlug,
+    presetProductSlug,
+    presetProductName,
+    closeEnquiryDialog,
+  } = useEnquiryDialog();
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -53,9 +60,11 @@ export function EnquiryDialog() {
             </button>
           </div>
           <EnquiryForm
-            key={`${source}-${presetCategorySlug ?? ''}`}
+            key={`${source}-${presetCategorySlug ?? ''}-${presetProductSlug ?? ''}`}
             source={source}
             presetCategorySlug={presetCategorySlug}
+            presetProductSlug={presetProductSlug}
+            presetProductName={presetProductName}
           />
         </div>
       ) : null}

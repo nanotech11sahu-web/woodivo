@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, X } from 'lucide-react';
-import { useCategory } from '@/features/categories/categories-api';
+import { useCategories, useCategory } from '@/features/categories/categories-api';
 import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useProducts } from '@/features/products/products-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
@@ -35,17 +35,26 @@ const SORT_LABELS: Record<ProductPublicSort, string> = {
 const SORT_OPTIONS = Object.keys(SORT_LABELS) as ProductPublicSort[];
 
 export function CategoryListingPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, subCategorySlug } = useParams<{ slug: string; subCategorySlug?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const { openEnquiryDialog } = useEnquiryDialog();
   const navigate = useNavigate();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const page = Math.max(1, Number(searchParams.get('page')) || 1);
-  const subCategorySlugs = (searchParams.get('subcategory') ?? '').split(',').filter(Boolean);
+  // A single subcategory gets a clean nested path (`/categories/clocks/wall-clocks`)
+  // — subcategory slugs are globally unique, so this is unambiguous and
+  // shareable/crawlable, unlike the old query-param-only version. Multiple
+  // subcategories selected at once are still a filter combination, not a
+  // single resource, so those stay in `?subcategory=a,b`.
+  const subCategorySlugs = subCategorySlug
+    ? [subCategorySlug]
+    : (searchParams.get('subcategory') ?? '').split(',').filter(Boolean);
   const sort = (searchParams.get('sort') as ProductPublicSort | null) || 'featured';
   const minPriceParam = searchParams.get('minPrice');
   const maxPriceParam = searchParams.get('maxPrice');
+  const availability = (searchParams.get('availability') ?? '').split(',').filter(Boolean);
+  const onSale = searchParams.get('onSale') === 'true';
 
   // Draft state so the search box and price inputs reflect every
   // keystroke immediately, while the URL (and therefore the `useProducts`
@@ -90,7 +99,8 @@ export function CategoryListingPage() {
 
   const category = useCategory(slug);
   const subCategories = useSubCategories(slug);
-  const hasSubCategories = Boolean(subCategories.data && subCategories.data.length > 0);
+  const { data: allCategories } = useCategories();
+  const otherCategories = allCategories?.filter((c) => c.slug !== slug) ?? [];
 
   const products = useProducts({
     category: slug,
@@ -101,6 +111,8 @@ export function CategoryListingPage() {
     sort,
     minPrice: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
     maxPrice: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
+    stockStatus: availability.length ? availability.join(',') : undefined,
+    onSale: onSale || undefined,
   });
 
   useSeoMeta({
@@ -146,27 +158,57 @@ export function CategoryListingPage() {
   }
 
   function toggleSubCategory(nextSlug: string) {
+    const current = new Set(subCategorySlugs);
+    if (current.has(nextSlug)) current.delete(nextSlug);
+    else current.add(nextSlug);
+
+    const remaining = [...current];
+    const query = new URLSearchParams(searchParams);
+    query.delete('page');
+    query.delete('subcategory');
+
+    if (remaining.length === 1) {
+      navigate({ pathname: `/categories/${slug}/${remaining[0]}`, search: query.toString() });
+    } else if (remaining.length > 1) {
+      query.set('subcategory', remaining.join(','));
+      navigate({ pathname: `/categories/${slug}`, search: query.toString() });
+    } else {
+      navigate({ pathname: `/categories/${slug}`, search: query.toString() });
+    }
+  }
+
+  function toggleAvailability(value: string) {
+    const current = new Set(availability);
+    if (current.has(value)) current.delete(value);
+    else current.add(value);
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete('page');
-      const current = new Set(subCategorySlugs);
-      if (current.has(nextSlug)) current.delete(nextSlug);
-      else current.add(nextSlug);
-      if (current.size) next.set('subcategory', [...current].join(','));
-      else next.delete('subcategory');
+      if (current.size) next.set('availability', [...current].join(','));
+      else next.delete('availability');
+      return next;
+    });
+  }
+
+  function setOnSale(value: boolean) {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('page');
+      if (value) next.set('onSale', 'true');
+      else next.delete('onSale');
       return next;
     });
   }
 
   function clearAllFilters() {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete('page');
-      next.delete('subcategory');
-      next.delete('minPrice');
-      next.delete('maxPrice');
-      return next;
-    });
+    const query = new URLSearchParams(searchParams);
+    query.delete('page');
+    query.delete('subcategory');
+    query.delete('minPrice');
+    query.delete('maxPrice');
+    query.delete('availability');
+    query.delete('onSale');
+    navigate({ pathname: `/categories/${slug}`, search: query.toString() });
     setMinPriceDraft('');
     setMaxPriceDraft('');
   }
@@ -182,7 +224,11 @@ export function CategoryListingPage() {
   }
 
   const activeFilterCount =
-    subCategorySlugs.length + (minPriceDraft ? 1 : 0) + (maxPriceDraft ? 1 : 0);
+    subCategorySlugs.length +
+    (minPriceDraft ? 1 : 0) +
+    (maxPriceDraft ? 1 : 0) +
+    availability.length +
+    (onSale ? 1 : 0);
 
   const activeSubCategoryNames = subCategorySlugs
     .map((s) => subCategories.data?.find((sc) => sc.slug === s)?.name)
@@ -228,20 +274,22 @@ export function CategoryListingPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-[240px_1fr] lg:items-start lg:gap-8">
-          {hasSubCategories ? (
-            <aside className="hidden lg:sticky lg:top-20 lg:block lg:rounded-[var(--radius-card)] lg:border lg:border-border-warm lg:bg-ivory lg:p-5 lg:shadow-card">
-              <CategoryFilterSidebar
-                subCategories={subCategories.data ?? []}
-                selectedSlugs={subCategorySlugs}
-                onToggleSubCategory={toggleSubCategory}
-                minPrice={minPriceDraft}
-                maxPrice={maxPriceDraft}
-                onMinPriceChange={setMinPriceDraft}
-                onMaxPriceChange={setMaxPriceDraft}
-                onClearAll={clearAllFilters}
-              />
-            </aside>
-          ) : null}
+          <aside className="hidden lg:sticky lg:top-20 lg:block lg:rounded-[var(--radius-card)] lg:border lg:border-border-warm lg:bg-ivory lg:p-5 lg:shadow-card">
+            <CategoryFilterSidebar
+              subCategories={subCategories.data ?? []}
+              selectedSlugs={subCategorySlugs}
+              onToggleSubCategory={toggleSubCategory}
+              minPrice={minPriceDraft}
+              maxPrice={maxPriceDraft}
+              onMinPriceChange={setMinPriceDraft}
+              onMaxPriceChange={setMaxPriceDraft}
+              selectedAvailability={availability}
+              onToggleAvailability={toggleAvailability}
+              onSale={onSale}
+              onOnSaleChange={setOnSale}
+              onClearAll={clearAllFilters}
+            />
+          </aside>
 
           <div>
             <ProductFilterBar
@@ -252,7 +300,7 @@ export function CategoryListingPage() {
               onSortChange={setSort}
               sortLabels={SORT_LABELS}
               sortOptions={SORT_OPTIONS}
-              onOpenMobileFilters={hasSubCategories ? () => setMobileFiltersOpen(true) : undefined}
+              onOpenMobileFilters={() => setMobileFiltersOpen(true)}
               mobileFilterCount={activeFilterCount}
             />
 
@@ -269,7 +317,7 @@ export function CategoryListingPage() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => openEnquiryDialog('category', cat.slug)}
+                    onClick={() => openEnquiryDialog('category', { categorySlug: cat.slug })}
                     className="mt-4 inline-flex h-10 items-center rounded-[var(--radius-pill)] border border-brass px-5 text-sm font-semibold text-brass hover:bg-brass-pale"
                   >
                     Enquire About {cat.name}
@@ -294,6 +342,25 @@ export function CategoryListingPage() {
             </section>
           </div>
         </div>
+
+        {otherCategories.length > 0 ? (
+          <div className="mt-16 border-t border-border-warm pt-8">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-charcoal-soft">
+              Explore other categories
+            </h2>
+            <div className="mt-4 flex flex-wrap gap-2.5">
+              {otherCategories.map((other) => (
+                <Link
+                  key={other._id}
+                  to={`/categories/${other.slug}`}
+                  className="rounded-[var(--radius-pill)] border border-border-warm px-4 py-2 text-sm text-charcoal hover:border-brass hover:text-brass"
+                >
+                  {other.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {mobileFiltersOpen ? (
@@ -325,6 +392,10 @@ export function CategoryListingPage() {
                 maxPrice={maxPriceDraft}
                 onMinPriceChange={setMinPriceDraft}
                 onMaxPriceChange={setMaxPriceDraft}
+                selectedAvailability={availability}
+                onToggleAvailability={toggleAvailability}
+                onSale={onSale}
+                onOnSaleChange={setOnSale}
                 onClearAll={clearAllFilters}
               />
             </div>

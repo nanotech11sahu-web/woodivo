@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { LayoutGrid, Menu, MessageSquareText, Phone, Search, X } from 'lucide-react';
 import { useCategories } from '@/features/categories/categories-api';
+import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useSettings } from '@/features/settings/settings-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { cn } from '@/lib/utils';
@@ -18,11 +19,13 @@ const NAV_LINKS = [
 export function SiteHeader() {
   const { data: settings } = useSettings();
   const { data: categories } = useCategories();
+  const { data: subCategories } = useSubCategories();
   const { openEnquiryDialog } = useEnquiryDialog();
   const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [hoveredCategorySlug, setHoveredCategorySlug] = useState<string | null>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
 
@@ -101,18 +104,59 @@ export function SiteHeader() {
               <span className="hidden xl:inline">Categories</span>
             </button>
             {categoriesOpen && categories && categories.length > 0 ? (
-              <div className="absolute right-0 top-full w-64 pt-3">
-                <div className="rounded-[var(--radius-card)] border border-border-warm bg-ivory p-2 shadow-pop">
-                  {categories.map((category) => (
-                    <Link
-                      key={category._id}
-                      to={`/categories/${category.slug}`}
-                      className="block rounded px-3 py-2 text-sm text-charcoal hover:bg-ivory-deep hover:text-brass"
-                      onClick={() => setCategoriesOpen(false)}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
+              <div className="absolute right-0 top-full pt-3">
+                <div className="flex w-[36rem] max-w-[90vw] rounded-[var(--radius-card)] border border-border-warm bg-ivory shadow-pop">
+                  <div className="w-56 shrink-0 border-r border-border-warm p-2">
+                    {categories.map((category) => {
+                      const isActive = (hoveredCategorySlug ?? categories[0]?.slug) === category.slug;
+                      return (
+                        <Link
+                          key={category._id}
+                          to={`/categories/${category.slug}`}
+                          onMouseEnter={() => setHoveredCategorySlug(category.slug)}
+                          onClick={() => setCategoriesOpen(false)}
+                          className={cn(
+                            'block rounded px-3 py-2 text-sm text-charcoal hover:bg-ivory-deep hover:text-brass',
+                            isActive && 'bg-ivory-deep text-brass',
+                          )}
+                        >
+                          {category.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <div className="flex-1 p-4">
+                    {(() => {
+                      const activeSlug = hoveredCategorySlug ?? categories[0]?.slug;
+                      const activeCategory = categories.find((c) => c.slug === activeSlug);
+                      const children = subCategories?.filter((sc) => sc.category.slug === activeSlug) ?? [];
+                      if (children.length === 0) {
+                        return (
+                          <Link
+                            to={`/categories/${activeSlug}`}
+                            onClick={() => setCategoriesOpen(false)}
+                            className="text-sm font-medium text-brass hover:underline"
+                          >
+                            View all {activeCategory?.name}
+                          </Link>
+                        );
+                      }
+                      return (
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                          {children.map((sub) => (
+                            <Link
+                              key={sub._id}
+                              to={`/categories/${activeSlug}/${sub.slug}`}
+                              onClick={() => setCategoriesOpen(false)}
+                              className="rounded px-2 py-1.5 text-sm text-charcoal-soft hover:bg-ivory-deep hover:text-brass"
+                            >
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
             ) : null}
@@ -207,8 +251,9 @@ export function SiteHeader() {
 
 function navLinkClass({ isActive }: { isActive: boolean }): string {
   return cn(
-    'text-sm font-medium transition-colors hover:text-brass',
-    isActive ? 'text-brass' : 'text-charcoal',
+    'relative py-1 text-sm font-medium tracking-wide transition-colors hover:text-brass',
+    'after:absolute after:-bottom-1 after:left-0 after:h-[1.5px] after:bg-brass after:transition-all after:duration-200',
+    isActive ? 'text-brass after:w-full' : 'text-charcoal after:w-0',
   );
 }
 

@@ -51,7 +51,7 @@ export function SiteFooter() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <img src="/brand/woodivo-mark.png" alt="" className="h-10 w-10 rounded-md" />
-            <h3 className="mt-3 text-xl font-bold text-ivory">{siteName}</h3>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-ivory">{siteName}</h3>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-ivory-deep/75">
               {settings?.footer?.aboutText ??
                 'Handcrafted wooden temples, doors and custom furniture — made to order by hand, in the wood you choose.'}
@@ -85,6 +85,7 @@ export function SiteFooter() {
               <li><Link to="/gallery" className="hover:text-brass-light">Gallery</Link></li>
               <li><Link to="/customize" className="hover:text-brass-light">Customize</Link></li>
               <li><Link to="/contact" className="hover:text-brass-light">Contact</Link></li>
+              <li><Link to="/sitemap" className="hover:text-brass-light">Sitemap</Link></li>
             </ul>
           </div>
 

@@ -1,6 +1,11 @@
 import { cn } from '@/lib/utils';
 import type { SubCategory } from '@/types/subcategory';
 
+const AVAILABILITY_OPTIONS: { value: string; label: string }[] = [
+  { value: 'in_stock', label: 'In stock' },
+  { value: 'made_to_order', label: 'Made to order' },
+];
+
 /**
  * Amazon-style left-rail filter panel for CategoryListingPage — replaces
  * the old two-step flow (a full-screen grid of subcategory tiles the
@@ -21,6 +26,10 @@ export function CategoryFilterSidebar({
   maxPrice,
   onMinPriceChange,
   onMaxPriceChange,
+  selectedAvailability,
+  onToggleAvailability,
+  onSale,
+  onOnSaleChange,
   onClearAll,
 }: {
   subCategories: SubCategory[];
@@ -30,9 +39,18 @@ export function CategoryFilterSidebar({
   maxPrice: string;
   onMinPriceChange: (value: string) => void;
   onMaxPriceChange: (value: string) => void;
+  selectedAvailability: string[];
+  onToggleAvailability: (value: string) => void;
+  onSale: boolean;
+  onOnSaleChange: (value: boolean) => void;
   onClearAll: () => void;
 }) {
-  const hasActiveFilters = selectedSlugs.length > 0 || Boolean(minPrice) || Boolean(maxPrice);
+  const hasActiveFilters =
+    selectedSlugs.length > 0 ||
+    Boolean(minPrice) ||
+    Boolean(maxPrice) ||
+    selectedAvailability.length > 0 ||
+    onSale;
 
   return (
     <div className="space-y-6">
@@ -107,6 +125,44 @@ export function CategoryFilterSidebar({
             className="h-9 w-full min-w-0 rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep px-2.5 text-sm text-charcoal placeholder:text-charcoal-soft/60 focus:border-brass focus:outline-none"
           />
         </div>
+      </div>
+
+      <div>
+        <h3 className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-charcoal-soft">Availability</h3>
+        <ul className="space-y-1">
+          {AVAILABILITY_OPTIONS.map((option) => {
+            const checked = selectedAvailability.includes(option.value);
+            return (
+              <li key={option.value}>
+                <label className="flex cursor-pointer items-center gap-2.5 rounded-[var(--radius-card)] px-1.5 py-1.5 hover:bg-ivory-deep">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => onToggleAvailability(option.value)}
+                    className="h-4 w-4 shrink-0 rounded border-border-warm text-brass accent-brass"
+                  />
+                  <span className={cn('text-sm', checked ? 'font-semibold text-charcoal' : 'text-charcoal-soft')}>
+                    {option.label}
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div>
+        <label className="flex cursor-pointer items-center gap-2.5 rounded-[var(--radius-card)] px-1.5 py-1.5 hover:bg-ivory-deep">
+          <input
+            type="checkbox"
+            checked={onSale}
+            onChange={(event) => onOnSaleChange(event.target.checked)}
+            className="h-4 w-4 shrink-0 rounded border-border-warm text-brass accent-brass"
+          />
+          <span className={cn('text-sm', onSale ? 'font-semibold text-charcoal' : 'text-charcoal-soft')}>
+            On sale only
+          </span>
+        </label>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { BlogListingPage } from '@/pages/blogs/blog-listing-page';
 import { BlogDetailsPage } from '@/pages/blogs/blog-details-page';
 import { ContactPage } from '@/pages/contact/contact-page';
 import { AboutPage } from '@/pages/about/about-page';
+import { SitemapPage } from '@/pages/misc/sitemap-page';
 import { NotFoundPage } from '@/pages/misc/not-found-page';
 
 // Every page from the master prompt's "Public Website" page list has had a
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: 'about', element: <AboutPage /> },
       { path: 'categories', element: <CategoriesIndexPage /> },
       { path: 'categories/:slug', element: <CategoryListingPage /> },
+      { path: 'categories/:slug/:subCategorySlug', element: <CategoryListingPage /> },
       { path: 'products/:slug', element: <ProductDetailsPage /> },
       { path: 'search', element: <SearchResultsPage /> },
       { path: 'gallery', element: <GalleryPage /> },
@@ -39,6 +41,7 @@ export const router = createBrowserRouter([
       { path: 'blogs', element: <BlogListingPage /> },
       { path: 'blogs/:slug', element: <BlogDetailsPage /> },
       { path: 'contact', element: <ContactPage /> },
+      { path: 'sitemap', element: <SitemapPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
