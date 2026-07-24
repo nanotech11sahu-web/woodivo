@@ -89,8 +89,8 @@ export function SocialPostsPage() {
       header: 'Title',
       render: (row) => (
         <div>
-          <p className="font-medium text-espresso">{row.sourceTitle ?? row.folderName}</p>
-          <p className="text-xs text-ink-muted">{row.folderName}</p>
+          <p className="font-medium text-espresso">{row.sourceTitle ?? row.reference}</p>
+          <p className="text-xs text-ink-muted">{row.reference}</p>
         </div>
       ),
     },

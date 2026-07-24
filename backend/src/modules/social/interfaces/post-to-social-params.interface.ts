@@ -25,13 +25,14 @@ export interface PostToSocialParams {
 }
 
 export interface PostToSocialResult {
-  folderName: string;
+  reference: string;
+  jobId: string;
   status: string;
 }
 
 export interface BulkSocialResultItem {
   id: string;
   success: boolean;
-  folderName?: string;
+  reference?: string;
   error?: string;
 }

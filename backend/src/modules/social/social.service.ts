@@ -87,7 +87,7 @@ export class SocialService {
       try {
         const params = await fetchAndMap(id);
         const result = await this.postToSocial(params);
-        results.push({ id, success: true, folderName: result.folderName });
+        results.push({ id, success: true, reference: result.reference });
       } catch (error) {
         this.logger.error(
           `Failed to post ${id} to social: ${(error as Error).message}`,

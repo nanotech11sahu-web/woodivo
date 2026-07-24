@@ -19,7 +19,7 @@ export interface SocialPostPlatformResult {
 
 export interface SocialPostSummary {
   id: string;
-  folderName: string;
+  reference: string;
   sourceType: SocialPostSourceType;
   sourceId: string | null;
   sourceTitle: string | null;
