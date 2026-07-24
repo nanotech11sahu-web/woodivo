@@ -103,9 +103,9 @@ export function mapProductToSocialParams(
   overrides: PostToSocialDto,
   configService: ConfigService,
 ): PostToSocialParams {
-  const mediaUrl = product.images?.[0]?.url;
-  if (!mediaUrl) {
-    throw new Error(`Product "${product.name}" has no image to post`);
+  const mediaUrls = (product.images ?? []).map((image) => image.url).filter(Boolean);
+  if (mediaUrls.length === 0) {
+    throw new Error(`Product "${product.name}" has no images to post`);
   }
 
   const category = product.category as unknown as
@@ -135,7 +135,7 @@ export function mapProductToSocialParams(
       : ['Facebook', 'Instagram'],
     language: 'English',
     additionalInstructions: overrides.additionalInstructions,
-    mediaUrl,
+    mediaUrls,
     sourceType: 'PRODUCT',
     sourceId: String(product._id),
     urgent: overrides.postNow,

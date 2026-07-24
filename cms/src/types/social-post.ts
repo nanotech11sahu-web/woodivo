@@ -8,7 +8,7 @@ export type SocialPostStatus =
   | 'COMPLETED'
   | 'FAILED';
 
-export type SocialPostSourceType = 'PRODUCT' | 'BLOG' | 'OTHER';
+export type SocialPostSourceType = 'PRODUCT' | 'BLOG' | 'CUSTOM' | 'OTHER';
 
 export interface SocialPostPlatformResult {
   platform: 'FACEBOOK' | 'INSTAGRAM';

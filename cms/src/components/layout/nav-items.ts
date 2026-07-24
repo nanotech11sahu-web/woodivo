@@ -17,6 +17,7 @@ import {
   Search,
   Wand2,
   Share2,
+  ImagePlus,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -60,6 +61,7 @@ export const NAV_SECTIONS: NavSection[] = [
     label: 'Operations',
     items: [
       { to: '/social', label: 'Social Posts', icon: Share2 },
+      { to: '/custom-posts', label: 'Custom Posts', icon: ImagePlus },
       { to: '/enquiries', label: 'Enquiries', icon: Inbox },
       { to: '/users', label: 'Users & Roles', icon: Users },
       { to: '/media', label: 'Media Library', icon: Images },

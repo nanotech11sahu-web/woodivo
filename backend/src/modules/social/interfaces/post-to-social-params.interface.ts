@@ -12,12 +12,15 @@ export interface PostToSocialParams {
   platforms: string[];
   language?: string;
   additionalInstructions?: string;
-  mediaUrl: string;
+  // One or more image URLs - a single item is an ordinary post, more than
+  // one is published as a Facebook/Instagram carousel by the Publisher.
+  mediaUrls: string[];
   // Passed through to the Publisher so its own status listing (which
   // Woodivo's CMS reads directly, see SocialAdminController) can show what
   // Woodivo content each post came from, without the Publisher needing to
-  // know anything about Product/Blog schemas.
-  sourceType: 'PRODUCT' | 'BLOG';
+  // know anything about Product/Blog schemas. CUSTOM is a CMS-authored post
+  // with no Product/Blog behind it (see CustomPostsAdminController).
+  sourceType: 'PRODUCT' | 'BLOG' | 'CUSTOM';
   sourceId: string;
   // "Post Now" - skip the wait for the next scheduled slot (see
   // SocialService.triggerNow, called right after submission when set).
