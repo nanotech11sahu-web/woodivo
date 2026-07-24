@@ -10,7 +10,7 @@ export interface PostToSocialOptions {
 export interface PostToSocialResultItem {
   id: string;
   success: boolean;
-  folderName?: string;
+  reference?: string;
   error?: string;
 }
 
