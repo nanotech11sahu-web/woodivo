@@ -28,6 +28,7 @@ export function CustomPostListPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingSocialIds, setPendingSocialIds] = useState<string[] | null>(null);
   const [postNow, setPostNow] = useState(false);
+  const [postAsReel, setPostAsReel] = useState(false);
 
   const { data, isLoading, isError } = useCustomPosts({
     page,
@@ -85,9 +86,13 @@ export function CustomPostListPage() {
   async function handleConfirmPostToSocial() {
     if (!pendingSocialIds) return;
     try {
+      const options =
+        postNow || postAsReel
+          ? { ...(postNow ? { postNow: true } : {}), ...(postAsReel ? { isReel: true } : {}) }
+          : undefined;
       const response = await postToSocial.mutateAsync({
         ids: pendingSocialIds,
-        options: postNow ? { postNow: true } : undefined,
+        options,
       });
       const succeeded = response.results.filter((r) => r.success);
       const failed = response.results.filter((r) => !r.success);
@@ -108,6 +113,7 @@ export function CustomPostListPage() {
 
       setPendingSocialIds(null);
       setPostNow(false);
+      setPostAsReel(false);
       setSelectedIds(new Set());
     } catch (error) {
       toast.error("Couldn't post to social", getErrorMessage(error));
@@ -126,6 +132,8 @@ export function CustomPostListPage() {
             alt={row.images[0].alt || row.title}
             className="h-10 w-10 rounded-md border border-border-warm object-cover"
           />
+        ) : row.video ? (
+          <video src={row.video.url} className="h-10 w-10 rounded-md border border-border-warm object-cover" />
         ) : (
           <div className="h-10 w-10 rounded-md border border-dashed border-border-warm" />
         ),
@@ -137,7 +145,9 @@ export function CustomPostListPage() {
         <div>
           <p className="font-medium text-espresso">{row.title}</p>
           <p className="text-xs text-ink-muted">
-            {row.images.length} image{row.images.length === 1 ? '' : 's'}
+            {row.video
+              ? 'Video (Reel)'
+              : `${row.images.length} image${row.images.length === 1 ? '' : 's'}`}
           </p>
         </div>
       ),
@@ -285,20 +295,36 @@ export function CustomPostListPage() {
         onCancel={() => {
           setPendingSocialIds(null);
           setPostNow(false);
+          setPostAsReel(false);
         }}
       >
-        <label className="flex items-start gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 rounded border-border-warm accent-walnut"
-            checked={postNow}
-            onChange={(event) => setPostNow(event.target.checked)}
-          />
-          <span>
-            <span className="font-medium text-espresso">Post now</span> — skip the next
-            scheduled slot (10am/1pm/5pm/8pm) and publish as soon as possible.
-          </span>
-        </label>
+        <div className="space-y-2">
+          <label className="flex items-start gap-2 text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 rounded border-border-warm accent-walnut"
+              checked={postNow}
+              onChange={(event) => setPostNow(event.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-espresso">Post now</span> — skip the next
+              scheduled slot (10am/1pm/5pm/8pm) and publish as soon as possible.
+            </span>
+          </label>
+          <label className="flex items-start gap-2 text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 rounded border-border-warm accent-walnut"
+              checked={postAsReel}
+              onChange={(event) => setPostAsReel(event.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-espresso">Post as Reel</span> — only works for
+              posts that carry a video; publishes to Instagram Reels and Facebook Reels instead
+              of a normal image post.
+            </span>
+          </label>
+        </div>
       </ConfirmDialog>
     </div>
   );

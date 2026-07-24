@@ -78,9 +78,31 @@ export class MediaService {
     return Promise.all(files.map((file) => this.uploadImage(file, folder)));
   }
 
-  async deleteImage(publicId: string): Promise<{ deleted: boolean }> {
+  /** Single-video upload for the Custom Posts "Post as Reel" flow. */
+  async uploadVideo(
+    file: Express.Multer.File,
+    folder: MediaFolder,
+  ): Promise<MediaAssetDto> {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    const result = await this.streamUpload(file.buffer, folder, 'video');
+
+    return {
+      url: result.secure_url,
+      publicId: result.public_id,
+      alt: '',
+    };
+  }
+
+  async deleteImage(
+    publicId: string,
+    resourceType: 'image' | 'video' = 'image',
+  ): Promise<{ deleted: boolean }> {
     const response = (await this.cloudinary.uploader.destroy(publicId, {
       invalidate: true,
+      resource_type: resourceType,
     })) as { result: string };
     return { deleted: response.result === 'ok' };
   }
@@ -162,12 +184,13 @@ export class MediaService {
   private streamUpload(
     buffer: Buffer,
     folder: MediaFolder,
+    resourceType: 'image' | 'video' = 'image',
   ): Promise<UploadApiResponse> {
     return new Promise((resolve, reject) => {
       const uploadStream = this.cloudinary.uploader.upload_stream(
         {
           folder: `${CLOUDINARY_ROOT_FOLDER}/${folder}`,
-          resource_type: 'image',
+          resource_type: resourceType,
         },
         (error?: UploadApiErrorResponse, result?: UploadApiResponse) => {
           if (error || !result) {

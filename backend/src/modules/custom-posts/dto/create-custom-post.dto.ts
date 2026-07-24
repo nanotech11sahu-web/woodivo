@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
-  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsOptional,
@@ -17,12 +16,22 @@ export class CreateCustomPostDto {
   @MaxLength(150)
   title!: string;
 
+  // Required unless `video` is provided instead - see the class-level check
+  // in CustomPostsService.create (Mongoose validators can't easily express
+  // "one of these two fields", so that's enforced in the service).
+  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty({ message: 'At least one image is required' })
   @ArrayMaxSize(10, { message: 'A post can carry at most 10 images' })
   @ValidateNested({ each: true })
   @Type(() => MediaAssetDto)
-  images!: MediaAssetDto[];
+  images?: MediaAssetDto[];
+
+  // A single video asset - mutually exclusive with `images`. Set this to
+  // post as an Instagram/Facebook Reel instead of a normal image post.
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MediaAssetDto)
+  video?: MediaAssetDto;
 
   @IsString()
   caption!: string;

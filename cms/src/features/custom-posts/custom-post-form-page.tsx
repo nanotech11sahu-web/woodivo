@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { MultiImageUploader } from '@/components/shared/multi-image-uploader';
+import { VideoUploader } from '@/components/shared/video-uploader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,21 +34,27 @@ export function CustomPostFormPage() {
   const updateCustomPost = useUpdateCustomPost(id ?? '');
 
   const [images, setImages] = useState<MediaAsset[]>([]);
+  const [video, setVideo] = useState<MediaAsset | undefined>(undefined);
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CustomPostFormValues>({
     resolver: zodResolver(customPostFormSchema),
     defaultValues: CUSTOM_POST_FORM_DEFAULTS,
   });
 
+  const mediaMode = watch('mediaMode');
+
   useEffect(() => {
     if (!customPost) return;
     reset({
       title: customPost.title,
+      mediaMode: customPost.video ? 'video' : 'images',
       caption: customPost.caption,
       keywords: customPost.keywords.join(', '),
       tone: customPost.tone ?? '',
@@ -55,17 +62,23 @@ export function CustomPostFormPage() {
       status: customPost.status,
     });
     setImages(customPost.images);
+    setVideo(customPost.video);
   }, [customPost, reset]);
 
   async function onSubmit(values: CustomPostFormValues) {
-    if (images.length === 0) {
+    if (values.mediaMode === 'images' && images.length === 0) {
       toast.error('Images required', 'Upload at least one image before saving.');
+      return;
+    }
+    if (values.mediaMode === 'video' && !video) {
+      toast.error('Video required', 'Upload a video before saving.');
       return;
     }
 
     const payload = {
       title: values.title,
-      images,
+      images: values.mediaMode === 'images' ? images : [],
+      video: values.mediaMode === 'video' ? video : undefined,
       caption: values.caption,
       keywords: parseKeywords(values.keywords ?? ''),
       tone: values.tone || undefined,
@@ -130,13 +143,38 @@ export function CustomPostFormPage() {
               {errors.title && <p className="mt-1 text-xs text-rust">{errors.title.message}</p>}
             </div>
 
-            <MultiImageUploader
-              label="Images"
-              value={images}
-              onChange={setImages}
-              folder="custom-posts"
-              hint="All images are sent together as a Facebook/Instagram carousel, each watermarked with the Woodivo mark."
-            />
+            <div>
+              <Label htmlFor="mediaMode">Post type</Label>
+              <Select
+                id="mediaMode"
+                className="mt-1.5 max-w-48"
+                value={mediaMode}
+                onChange={(event) =>
+                  setValue('mediaMode', event.target.value as 'images' | 'video')
+                }
+              >
+                <option value="images">Images</option>
+                <option value="video">Video (Reel)</option>
+              </Select>
+            </div>
+
+            {mediaMode === 'images' ? (
+              <MultiImageUploader
+                label="Images"
+                value={images}
+                onChange={setImages}
+                folder="custom-posts"
+                hint="All images are sent together as a Facebook/Instagram carousel, each watermarked with the Woodivo mark."
+              />
+            ) : (
+              <VideoUploader
+                label="Video"
+                value={video}
+                onChange={setVideo}
+                folder="custom-posts"
+                hint="Published as a Reel on Instagram and Facebook when you use 'Post as Reel' on the list page."
+              />
+            )}
 
             <div>
               <Label htmlFor="caption">Caption / brief</Label>

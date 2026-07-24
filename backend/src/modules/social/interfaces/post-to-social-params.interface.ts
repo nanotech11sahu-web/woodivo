@@ -25,6 +25,9 @@ export interface PostToSocialParams {
   // "Post Now" - skip the wait for the next scheduled slot (see
   // SocialService.triggerNow, called right after submission when set).
   urgent?: boolean;
+  // "Post as Reel" - Custom Posts only; the Publisher rejects this unless
+  // mediaUrls is exactly one video.
+  isReel?: boolean;
 }
 
 export interface PostToSocialResult {

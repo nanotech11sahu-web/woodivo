@@ -38,3 +38,8 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
   'image/webp',
   'image/avif',
 ];
+
+// Single-video uploads only (Custom Posts "Post as Reel" flow) - larger cap
+// than images since Reels are commonly 10-60s of compressed video.
+export const MAX_VIDEO_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024; // 100MB
+export const ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/quicktime'];

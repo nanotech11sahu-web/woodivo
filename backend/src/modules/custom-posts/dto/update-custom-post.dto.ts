@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
-  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsOptional,
@@ -20,11 +19,15 @@ export class UpdateCustomPostDto {
 
   @IsOptional()
   @IsArray()
-  @ArrayNotEmpty({ message: 'At least one image is required' })
   @ArrayMaxSize(10, { message: 'A post can carry at most 10 images' })
   @ValidateNested({ each: true })
   @Type(() => MediaAssetDto)
   images?: MediaAssetDto[];
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MediaAssetDto)
+  video?: MediaAssetDto;
 
   @IsOptional()
   @IsString()

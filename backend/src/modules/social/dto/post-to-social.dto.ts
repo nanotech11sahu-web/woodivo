@@ -36,4 +36,9 @@ export class PostToSocialDto {
   @IsOptional()
   @IsBoolean()
   postNow?: boolean;
+
+  // "Post as Reel" - Custom Posts only, requires the post to carry a video.
+  @IsOptional()
+  @IsBoolean()
+  isReel?: boolean;
 }

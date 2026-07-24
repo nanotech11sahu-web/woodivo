@@ -8,6 +8,9 @@ export interface CustomPost {
   _id: string;
   title: string;
   images: MediaAsset[];
+  // A single video asset for the "Post as Reel" flow - mutually exclusive
+  // with `images` (a post carries either images or a video, never both).
+  video?: MediaAsset;
   caption: string;
   keywords: string[];
   tone?: string;
@@ -28,7 +31,8 @@ export interface CustomPostListParams {
 
 export interface CustomPostPayload {
   title: string;
-  images: MediaAsset[];
+  images?: MediaAsset[];
+  video?: MediaAsset;
   caption: string;
   keywords?: string[];
   tone?: string;

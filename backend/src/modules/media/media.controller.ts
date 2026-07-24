@@ -16,7 +16,7 @@ import { MediaService } from './media.service';
 import { UploadMediaDto } from './dto/upload-media.dto';
 import { DeleteMediaDto } from './dto/delete-media.dto';
 import { QueryMediaDto } from './dto/query-media.dto';
-import { imageUploadOptions } from './config/multer.config';
+import { imageUploadOptions, videoUploadOptions } from './config/multer.config';
 
 @Controller('admin/media')
 @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR)
@@ -48,8 +48,17 @@ export class MediaController {
     return this.mediaService.uploadImages(files, dto.folder);
   }
 
+  @Post('upload-video')
+  @UseInterceptors(FileInterceptor('file', videoUploadOptions))
+  uploadVideo(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadMediaDto,
+  ) {
+    return this.mediaService.uploadVideo(file, dto.folder);
+  }
+
   @Post('delete')
   delete(@Body() dto: DeleteMediaDto) {
-    return this.mediaService.deleteImage(dto.publicId);
+    return this.mediaService.deleteImage(dto.publicId, dto.resourceType);
   }
 }

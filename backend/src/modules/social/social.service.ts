@@ -54,6 +54,7 @@ export class SocialService {
     form.append('sourceId', params.sourceId);
     form.append('sourceTitle', params.title);
     if (params.urgent) form.append('urgent', 'true');
+    if (params.isReel) form.append('isReel', 'true');
     mediaFiles.forEach(({ buffer, contentType, extension }, index) => {
       form.append(
         'media',

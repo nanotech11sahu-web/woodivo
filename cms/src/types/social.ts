@@ -5,6 +5,8 @@ export interface PostToSocialOptions {
   additionalInstructions?: string;
   /** Skip the wait for the next scheduled slot and publish as soon as possible. */
   postNow?: boolean;
+  /** Post as an Instagram/Facebook Reel - Custom Posts only, requires a video. */
+  isReel?: boolean;
 }
 
 export interface PostToSocialResultItem {

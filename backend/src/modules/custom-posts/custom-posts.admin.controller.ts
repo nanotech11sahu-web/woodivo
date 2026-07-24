@@ -91,9 +91,18 @@ export function mapCustomPostToSocialParams(
   post: CustomPostDocument,
   overrides: PostToSocialDto,
 ): PostToSocialParams {
-  const mediaUrls = post.images.map((image) => image.url).filter(Boolean);
+  const mediaUrls = overrides.isReel
+    ? post.video?.url
+      ? [post.video.url]
+      : []
+    : post.images.map((image) => image.url).filter(Boolean);
+
   if (mediaUrls.length === 0) {
-    throw new Error(`Custom post "${post.title}" has no images to post`);
+    throw new Error(
+      overrides.isReel
+        ? `Custom post "${post.title}" has no video to post as a Reel`
+        : `Custom post "${post.title}" has no images to post`,
+    );
   }
 
   return {
@@ -111,5 +120,6 @@ export function mapCustomPostToSocialParams(
     sourceType: 'CUSTOM',
     sourceId: String(post._id),
     urgent: overrides.postNow,
+    isReel: overrides.isReel,
   };
 }

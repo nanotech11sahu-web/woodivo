@@ -28,6 +28,13 @@ export class CustomPost {
   @Prop({ type: [MediaAssetSchema], default: [] })
   images!: MediaAsset[];
 
+  // Single video asset for the "Post as Reel" flow - mutually exclusive with
+  // `images` at the form level (see custom-post-form-page.tsx); a post
+  // either carries images (posted as a normal/carousel post) or a video
+  // (posted as a Reel), never both.
+  @Prop({ type: MediaAssetSchema })
+  video?: MediaAsset;
+
   // The social caption/brief - what the user called "SEO for social media".
   @Prop({ required: true, trim: true })
   caption!: string;

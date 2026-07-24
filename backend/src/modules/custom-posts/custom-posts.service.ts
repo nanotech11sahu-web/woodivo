@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, QueryFilter } from 'mongoose';
 import {
@@ -26,7 +26,29 @@ export class CustomPostsService {
   ) {}
 
   async create(dto: CreateCustomPostDto): Promise<CustomPostDocument> {
+    this.assertHasImagesOrVideo(dto.images, dto.video);
     return new this.customPostModel(dto).save();
+  }
+
+  /**
+   * A post carries either images (posted as a normal/carousel post) or a
+   * single video (posted as a Reel) - never both, never neither. Mongoose's
+   * own validators can't express "exactly one of these two fields", so it's
+   * enforced here instead.
+   */
+  private assertHasImagesOrVideo(
+    images?: { url: string }[],
+    video?: { url: string },
+  ): void {
+    const hasImages = Boolean(images?.length);
+    const hasVideo = Boolean(video);
+
+    if (!hasImages && !hasVideo) {
+      throw new BadRequestException('A custom post needs either images or a video');
+    }
+    if (hasImages && hasVideo) {
+      throw new BadRequestException('A custom post cannot carry both images and a video');
+    }
   }
 
   async findAllAdmin(
@@ -67,6 +89,7 @@ export class CustomPostsService {
   async update(id: string, dto: UpdateCustomPostDto): Promise<CustomPostDocument> {
     const post = await this.findByIdAdmin(id);
     Object.assign(post, dto);
+    this.assertHasImagesOrVideo(post.images, post.video);
     return post.save();
   }
 
