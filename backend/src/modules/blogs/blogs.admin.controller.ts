@@ -99,9 +99,15 @@ export function mapBlogToSocialParams(
   overrides: PostToSocialDto,
   configService: ConfigService,
 ): PostToSocialParams {
-  const mediaUrl = blog.featuredImage?.url ?? blog.images?.[0]?.url;
-  if (!mediaUrl) {
-    throw new Error(`Blog "${blog.title}" has no image to post`);
+  const mediaUrls = Array.from(
+    new Set(
+      [blog.featuredImage?.url, ...(blog.images ?? []).map((image) => image.url)].filter(
+        (url): url is string => Boolean(url),
+      ),
+    ),
+  );
+  if (mediaUrls.length === 0) {
+    throw new Error(`Blog "${blog.title}" has no images to post`);
   }
 
   const category = blog.category as unknown as
@@ -134,7 +140,7 @@ export function mapBlogToSocialParams(
       : ['Facebook', 'Instagram'],
     language: 'English',
     additionalInstructions: overrides.additionalInstructions,
-    mediaUrl,
+    mediaUrls,
     sourceType: 'BLOG',
     sourceId: String(blog._id),
     urgent: overrides.postNow,
