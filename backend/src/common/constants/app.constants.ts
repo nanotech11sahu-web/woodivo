@@ -25,6 +25,7 @@ export enum MediaFolder {
   SETTINGS = 'settings',
   ABOUT = 'about',
   ENQUIRIES = 'enquiries',
+  CUSTOM_POSTS = 'custom-posts',
   MISC = 'misc',
 }
 

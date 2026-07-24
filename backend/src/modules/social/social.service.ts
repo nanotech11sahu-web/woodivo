@@ -19,8 +19,9 @@ const EXTENSION_BY_CONTENT_TYPE: Record<string, string> = {
 /**
  * Talks to the Woodivo Social Publisher - a separately deployed service that
  * generates AI captions and publishes to Facebook/Instagram. This service
- * builds the seo.txt-formatted brief, downloads the media (Cloudinary URL)
- * into memory, and submits both to the Publisher's POST /posts endpoint.
+ * builds the seo.txt-formatted brief, downloads every media item (Cloudinary
+ * URLs) into memory, and submits them all to the Publisher's POST /posts
+ * endpoint - more than one image becomes a Facebook/Instagram carousel.
  *
  * Deliberately has no knowledge of Product/Blog schemas - callers map their
  * own documents into PostToSocialParams.
@@ -39,8 +40,12 @@ export class SocialService {
       );
     }
 
-    const { buffer, contentType, extension } = await this.downloadMedia(
-      params.mediaUrl,
+    if (params.mediaUrls.length === 0) {
+      throw new Error('At least one media URL is required to post to social');
+    }
+
+    const mediaFiles = await Promise.all(
+      params.mediaUrls.map((url) => this.downloadMedia(url)),
     );
 
     const form = new FormData();
@@ -49,11 +54,13 @@ export class SocialService {
     form.append('sourceId', params.sourceId);
     form.append('sourceTitle', params.title);
     if (params.urgent) form.append('urgent', 'true');
-    form.append(
-      'media',
-      new Blob([Uint8Array.from(buffer)], { type: contentType }),
-      `media${extension}`,
-    );
+    mediaFiles.forEach(({ buffer, contentType, extension }, index) => {
+      form.append(
+        'media',
+        new Blob([Uint8Array.from(buffer)], { type: contentType }),
+        `media-${index}${extension}`,
+      );
+    });
 
     const response = await fetch(`${config.apiUrl}/posts`, {
       method: 'POST',
