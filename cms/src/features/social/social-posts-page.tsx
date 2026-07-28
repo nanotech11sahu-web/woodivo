@@ -186,7 +186,7 @@ export function SocialPostsPage() {
       render: (row) =>
         isRetryable(row) ? (
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             disabled={retryMutation.isPending}
             onClick={() => handleRetry(row)}
