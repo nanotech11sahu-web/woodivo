@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import type { PaginatedResult } from '@/types/common';
 import type { SocialHealthResult, SocialPostSummary } from '@/types/social-post';
@@ -49,5 +49,19 @@ export function useSocialPosts(page: number, limit: number) {
     queryFn: () => fetchSocialPosts(page, limit),
     // Statuses change while jobs are in flight - keep the table reasonably live.
     refetchInterval: 15_000,
+  });
+}
+
+async function retrySocialPost(id: string): Promise<void> {
+  await apiClient.post(`/admin/social/posts/${id}/retry`);
+}
+
+export function useRetrySocialPost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: retrySocialPost,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [SOCIAL_KEY, 'posts'] });
+    },
   });
 }

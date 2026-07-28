@@ -1,12 +1,26 @@
 import { useState } from 'react';
-import { ExternalLink, RefreshCw } from 'lucide-react';
+import { ExternalLink, RefreshCw, RotateCcw } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
 import { DataTable, type DataTableColumn } from '@/components/shared/data-table';
 import { Pagination } from '@/components/shared/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useSocialHealth, useSocialPosts } from './social-api';
+import { toast } from '@/lib/toast';
+import { useRetrySocialPost, useSocialHealth, useSocialPosts } from './social-api';
 import type { SocialPostStatus, SocialPostSummary } from '@/types/social-post';
+
+// A PROCESSING post is only worth manually retrying once it's been stuck
+// well past a normal processing window - otherwise it's just mid-pipeline
+// and retrying would race the worker actually handling it.
+const STUCK_PROCESSING_MS = 30 * 60 * 1000;
+
+function isRetryable(row: SocialPostSummary): boolean {
+  if (row.status === 'FAILED') return true;
+  if (row.status === 'PROCESSING' && row.startedAt) {
+    return Date.now() - new Date(row.startedAt).getTime() > STUCK_PROCESSING_MS;
+  }
+  return false;
+}
 
 const PAGE_LIMIT = 20;
 
@@ -73,6 +87,16 @@ function HealthBanner() {
 export function SocialPostsPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useSocialPosts(page, PAGE_LIMIT);
+  const retryMutation = useRetrySocialPost();
+
+  const handleRetry = (row: SocialPostSummary) => {
+    retryMutation.mutate(row.id, {
+      onSuccess: () =>
+        toast.success('Post queued for retry', `${row.sourceTitle ?? row.reference} will be picked up on the next run.`),
+      onError: (error) =>
+        toast.error('Retry failed', error instanceof Error ? error.message : undefined),
+    });
+  };
 
   const columns: DataTableColumn<SocialPostSummary>[] = [
     {
@@ -155,6 +179,22 @@ export function SocialPostsPage() {
             )}
           </div>
         ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      render: (row) =>
+        isRetryable(row) ? (
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={retryMutation.isPending}
+            onClick={() => handleRetry(row)}
+          >
+            <RotateCcw size={14} />
+            Retry
+          </Button>
+        ) : null,
     },
   ];
 

@@ -180,6 +180,38 @@ export class SocialService {
     return response.json();
   }
 
+  /**
+   * Proxies the Publisher's POST /posts/:id/retry - resets a FAILED post (or
+   * one stuck mid-pipeline with no forward progress) back to PENDING so the
+   * next scheduler tick picks it up again. Already-published platforms are
+   * never reposted; the Publisher only resumes whatever didn't finish.
+   */
+  async retryPost(id: string): Promise<unknown> {
+    const config = this.configService.get<SocialConfig>('social');
+    if (!config?.apiUrl || !config?.apiKey) {
+      throw new Error(
+        'SOCIAL_PUBLISHER_API_URL and SOCIAL_PUBLISHER_API_KEY must be configured',
+      );
+    }
+
+    const response = await fetch(
+      `${config.apiUrl}/posts/${encodeURIComponent(id)}/retry`,
+      {
+        method: 'POST',
+        headers: { 'x-api-key': config.apiKey },
+        signal: AbortSignal.timeout(config.requestTimeoutMs),
+      },
+    );
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      throw new Error(
+        `Social Publisher rejected the retry (${response.status}): ${body || response.statusText}`,
+      );
+    }
+    return response.json();
+  }
+
   /** Proxies the Publisher's GET /posts/:id. */
   async getPost(id: string): Promise<unknown> {
     const config = this.configService.get<SocialConfig>('social');
