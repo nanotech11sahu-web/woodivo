@@ -124,7 +124,7 @@ export function SocialPostsPage() {
       render: (row) => (
         <div>
           <Badge variant={STATUS_VARIANT[row.status]}>{STATUS_LABEL[row.status]}</Badge>
-          {row.status === 'FAILED' && row.failureReason && (
+          {row.failureReason && (
             <p className="mt-1 max-w-xs text-xs text-rust">{row.failureReason}</p>
           )}
         </div>
