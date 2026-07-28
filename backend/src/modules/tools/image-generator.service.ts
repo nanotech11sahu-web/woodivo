@@ -35,18 +35,11 @@ interface ImageGenJob extends ImageGenJobStatus {
 }
 
 const IMAGE_WIDTH = 1024;
-const IMAGE_HEIGHT = 768;
 const DELAY_BETWEEN_REQUESTS_MS = 2000;
-// The original CLI script had no timeout at all — it just waited however
-// long pollinations.ai took. 45s was too aggressive: on the free tier,
-// generation can legitimately take longer than that for some prompts, and
-// what looked like a "timeout" bug was really just us giving up early on a
-// request that would have succeeded. Give it real headroom instead.
-const FETCH_TIMEOUT_MS = 120_000;
-// pollinations.ai throttles bursts of requests — a 2s gap isn't always
-// enough, so retry transient failures (500/timeout/429) instead of giving up
-// after one shot. 429 gets a longer, increasing backoff since it's an
-// explicit "slow down" signal.
+const FETCH_TIMEOUT_MS = 30_000;
+// Unsplash's free tier throttles to 50 req/hour — retry transient failures
+// (500/timeout/429) instead of giving up after one shot. 429 gets a longer,
+// increasing backoff since it's an explicit "slow down" signal.
 const MAX_ATTEMPTS_PER_IMAGE = 4;
 const RETRY_BASE_DELAY_MS = 3_000;
 const RATE_LIMIT_BASE_DELAY_MS = 8_000;
@@ -296,19 +289,63 @@ export class ImageGeneratorService {
     return this.enqueue(() => this.fetchImageRaw(prompt));
   }
 
+  /**
+   * Unsplash is search-based, not generative — the "prompt" text from the
+   * prompts file is used as a search query and we take the top real-photo
+   * match, rather than generating pixels from scratch like pollinations.ai
+   * did. Requires UNSPLASH_ACCESS_KEY (free, no card, from
+   * unsplash.com/developers).
+   */
   private async fetchImageRaw(prompt: string): Promise<Buffer> {
-    const seed = Math.floor(Math.random() * 1_000_000);
-    const encodedPrompt = encodeURIComponent(prompt);
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${IMAGE_WIDTH}&height=${IMAGE_HEIGHT}&nologo=true&seed=${seed}`;
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+    if (!accessKey) {
+      throw new Error(
+        'UNSPLASH_ACCESS_KEY is not configured on the backend — add it to backend/.env',
+      );
+    }
 
+    const searchUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(prompt)}&per_page=1&orientation=landscape`;
+
+    const searchRes = await this.fetchWithTimeout(searchUrl, {
+      headers: { Authorization: `Client-ID ${accessKey}` },
+    });
+    if (!searchRes.ok) {
+      throw new Error(`HTTP ${searchRes.status} (Unsplash search)`);
+    }
+    const searchData = (await searchRes.json()) as {
+      results: Array<{
+        urls: { raw: string };
+        links: { download_location: string };
+      }>;
+    };
+    const photo = searchData.results?.[0];
+    if (!photo) {
+      throw new Error(`no Unsplash results for "${prompt}"`);
+    }
+
+    // Required by Unsplash's API guidelines whenever a photo is downloaded
+    // for use — fire-and-forget, a failure here shouldn't fail the image.
+    this.fetchWithTimeout(photo.links.download_location, {
+      headers: { Authorization: `Client-ID ${accessKey}` },
+    }).catch(() => undefined);
+
+    const imageRes = await this.fetchWithTimeout(
+      `${photo.urls.raw}&w=${IMAGE_WIDTH}&fit=max&q=80`,
+    );
+    if (!imageRes.ok) {
+      throw new Error(`HTTP ${imageRes.status} (Unsplash image download)`);
+    }
+    return Buffer.from(await imageRes.arrayBuffer());
+  }
+
+  private async fetchWithTimeout(
+    url: string,
+    init?: { headers?: Record<string, string> },
+  ): Promise<Response> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      return Buffer.from(await res.arrayBuffer());
+      return await fetch(url, { ...init, signal: controller.signal });
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error(`timed out after ${FETCH_TIMEOUT_MS / 1000}s`);

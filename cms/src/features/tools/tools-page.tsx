@@ -142,8 +142,8 @@ export function ToolsPage() {
           </CardHeader>
           <CardContent>
             <p className="mb-4 text-sm text-ink-muted">
-              Upload a prompts <code>.md</code> file (<code>[Blog 1] hero.jpg</code> followed by the prompt
-              text). Images come back as one zip, grouped into a folder per tag.
+              Upload a prompts <code>.md</code> file (<code>[Blog 1] hero.jpg</code> followed by a description
+              used as an Unsplash search query). Images come back as one zip, grouped into a folder per tag.
             </p>
             <input
               ref={promptsInputRef}
