@@ -39,7 +39,7 @@ export function EnquiryDialog() {
       onClick={(event) => {
         if (event.target === dialogRef.current) closeEnquiryDialog();
       }}
-      className="m-auto w-[min(30rem,92vw)] rounded-[var(--radius-card)] border border-border-warm bg-ivory p-0 backdrop:bg-charcoal/60 backdrop:backdrop-blur-sm"
+      className="m-auto w-[min(38rem,94vw)] rounded-[var(--radius-card)] border border-border-warm bg-ivory p-0 backdrop:bg-charcoal/60 backdrop:backdrop-blur-sm"
     >
       {isOpen ? (
         <div className="p-6 sm:p-8">

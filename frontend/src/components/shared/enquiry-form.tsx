@@ -117,29 +117,31 @@ export function EnquiryForm({
           {t('enquiry_form.enquiring_about')} <span className="font-semibold">{presetProductName}</span>
         </div>
       ) : null}
-      <div>
-        <label htmlFor="fullName" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-          {t('enquiry_form.full_name')}
-        </label>
-        <Input id="fullName" invalid={Boolean(errors.fullName)} {...register('fullName')} />
-        {errors.fullName ? (
-          <p className="mt-1 text-xs text-vermilion">{errors.fullName.message}</p>
-        ) : null}
-      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="fullName" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
+            {t('enquiry_form.full_name')}
+          </label>
+          <Input id="fullName" invalid={Boolean(errors.fullName)} {...register('fullName')} />
+          {errors.fullName ? (
+            <p className="mt-1 text-xs text-vermilion">{errors.fullName.message}</p>
+          ) : null}
+        </div>
 
-      <div>
-        <label htmlFor="mobileNumber" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
-          {t('enquiry_form.mobile_number')}
-        </label>
-        <Input
-          id="mobileNumber"
-          inputMode="tel"
-          invalid={Boolean(errors.mobileNumber)}
-          {...register('mobileNumber')}
-        />
-        {errors.mobileNumber ? (
-          <p className="mt-1 text-xs text-vermilion">{errors.mobileNumber.message}</p>
-        ) : null}
+        <div>
+          <label htmlFor="mobileNumber" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft">
+            {t('enquiry_form.mobile_number')}
+          </label>
+          <Input
+            id="mobileNumber"
+            inputMode="tel"
+            invalid={Boolean(errors.mobileNumber)}
+            {...register('mobileNumber')}
+          />
+          {errors.mobileNumber ? (
+            <p className="mt-1 text-xs text-vermilion">{errors.mobileNumber.message}</p>
+          ) : null}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

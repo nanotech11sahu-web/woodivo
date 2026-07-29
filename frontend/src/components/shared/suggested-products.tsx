@@ -56,7 +56,7 @@ export function SuggestedProducts({ contact, excludeProductSlug, source }: Sugge
       <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-brass">
         {t('enquiry_form.you_may_also_like')}
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {suggestions.map((product) => (
           <SuggestedProductCard
             key={product._id}
