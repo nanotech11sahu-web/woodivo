@@ -207,20 +207,18 @@ export function ProductDetailsPage() {
           ) : null}
           <h1 className="mt-2 text-4xl text-teak">{product.name}</h1>
 
-          <div className="mt-3 flex items-baseline gap-3">
-            <span className="text-2xl font-semibold text-charcoal">
-              {formatPrice(hasDiscount ? product.discountPrice : product.price)}
-            </span>
-            {hasDiscount ? (
-              <>
-                <span className="text-base text-charcoal-soft/70 line-through">
-                  {formatPrice(product.price)}
-                </span>
+          <div className="mt-3 flex flex-col gap-1">
+            <div className="flex items-baseline gap-3">
+              <span className="text-2xl font-semibold text-charcoal">
+                {formatPrice(hasDiscount ? product.discountPrice : product.price)}
+              </span>
+              {hasDiscount ? (
                 <span className="rounded-[var(--radius-pill)] bg-rust px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-ivory">
                   {Math.round(((product.price - product.discountPrice!) / product.price) * 100)}% Off
                 </span>
-              </>
-            ) : null}
+              ) : null}
+            </div>
+            <span className="text-sm text-charcoal-soft/70">Send enquiry to get the actual price</span>
           </div>
 
           {overview ? (

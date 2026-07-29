@@ -46,6 +46,11 @@ const SeoFormPage = lazyImport(() => import('@/features/seo/seo-form-page'), 'Se
 const UserListPage = lazyImport(() => import('@/features/users/user-list-page'), 'UserListPage');
 const MediaLibraryPage = lazyImport(() => import('@/features/media/media-library-page'), 'MediaLibraryPage');
 const ToolsPage = lazyImport(() => import('@/features/tools/tools-page'), 'ToolsPage');
+const SocialPostsPage = lazyImport(() => import('@/features/social/social-posts-page'), 'SocialPostsPage');
+const CustomPostListPage = lazyImport(() => import('@/features/custom-posts/custom-post-list-page'), 'CustomPostListPage');
+const CustomPostFormPage = lazyImport(() => import('@/features/custom-posts/custom-post-form-page'), 'CustomPostFormPage');
+const AutoReplyRulesListPage = lazyImport(() => import('@/features/auto-reply-rules/auto-reply-rules-list-page'), 'AutoReplyRulesListPage');
+const AutoReplyRuleFormPage = lazyImport(() => import('@/features/auto-reply-rules/auto-reply-rule-form-page'), 'AutoReplyRuleFormPage');
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -87,6 +92,13 @@ export const router = createBrowserRouter([
           { path: '/banners', element: <BannerListPage /> },
           { path: '/banners/new', element: <BannerFormPage /> },
           { path: '/banners/:id/edit', element: <BannerFormPage /> },
+          { path: '/social', element: <SocialPostsPage /> },
+          { path: '/custom-posts', element: <CustomPostListPage /> },
+          { path: '/custom-posts/new', element: <CustomPostFormPage /> },
+          { path: '/custom-posts/:id/edit', element: <CustomPostFormPage /> },
+          { path: '/auto-reply-rules', element: <AutoReplyRulesListPage /> },
+          { path: '/auto-reply-rules/new', element: <AutoReplyRuleFormPage /> },
+          { path: '/auto-reply-rules/:id/edit', element: <AutoReplyRuleFormPage /> },
           { path: '/enquiries', element: <EnquiryListPage /> },
           { path: '/enquiries/:id', element: <EnquiryDetailPage /> },
           { path: '/users', element: <UserListPage /> },

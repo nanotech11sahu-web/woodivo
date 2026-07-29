@@ -11,6 +11,12 @@ export interface DataTableColumn<T> {
   headerClassName?: string;
 }
 
+interface DataTableSelection<T> {
+  selectedIds: Set<string>;
+  onToggleRow: (row: T) => void;
+  onToggleAll: () => void;
+}
+
 interface DataTableProps<T> {
   columns: DataTableColumn<T>[];
   data: T[];
@@ -19,6 +25,8 @@ interface DataTableProps<T> {
   isError?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Opt-in row selection (checkbox column). Omit for tables that don't need bulk actions. */
+  selection?: DataTableSelection<T>;
 }
 
 export function DataTable<T>({
@@ -29,13 +37,27 @@ export function DataTable<T>({
   isError = false,
   emptyTitle = 'Nothing here yet',
   emptyDescription,
+  selection,
 }: DataTableProps<T>) {
+  const allSelected = selection ? data.length > 0 && data.every((row) => selection.selectedIds.has(getRowKey(row))) : false;
+
   return (
     <div className="overflow-hidden rounded-card border border-border-warm bg-card">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border-warm bg-sand/60">
+              {selection && (
+                <th className="w-10 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-border-warm accent-walnut"
+                    checked={allSelected}
+                    onChange={selection.onToggleAll}
+                    aria-label="Select all rows"
+                  />
+                </th>
+              )}
               {columns.map((column) => (
                 <th
                   key={column.key}
@@ -53,6 +75,7 @@ export function DataTable<T>({
             {isLoading &&
               Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index} className="border-b border-border-warm last:border-0">
+                  {selection && <td className="px-4 py-3.5" />}
                   {columns.map((column) => (
                     <td key={column.key} className="px-4 py-3.5">
                       <div className="h-4 w-full max-w-32 animate-pulse rounded bg-sand-dark" />
@@ -63,7 +86,7 @@ export function DataTable<T>({
 
             {!isLoading && isError && (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10">
+                <td colSpan={columns.length + (selection ? 1 : 0)} className="px-4 py-10">
                   <div className="flex flex-col items-center gap-2 text-center text-rust">
                     <AlertCircle size={22} />
                     <p className="text-sm">Couldn't load this data. Try refreshing the page.</p>
@@ -74,7 +97,7 @@ export function DataTable<T>({
 
             {!isLoading && !isError && data.length === 0 && (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10">
+                <td colSpan={columns.length + (selection ? 1 : 0)} className="px-4 py-10">
                   <div className="flex flex-col items-center gap-2 text-center">
                     <Inbox size={22} className="text-ink-muted" />
                     <p className="text-sm font-medium text-espresso">{emptyTitle}</p>
@@ -88,18 +111,32 @@ export function DataTable<T>({
 
             {!isLoading &&
               !isError &&
-              data.map((row) => (
-                <tr
-                  key={getRowKey(row)}
-                  className="border-b border-border-warm last:border-0 hover:bg-sand/40"
-                >
-                  {columns.map((column) => (
-                    <td key={column.key} className={cn('px-4 py-3.5 align-middle', column.className)}>
-                      {column.render(row)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              data.map((row) => {
+                const rowKey = getRowKey(row);
+                return (
+                  <tr
+                    key={rowKey}
+                    className="border-b border-border-warm last:border-0 hover:bg-sand/40"
+                  >
+                    {selection && (
+                      <td className="px-4 py-3.5">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-border-warm accent-walnut"
+                          checked={selection.selectedIds.has(rowKey)}
+                          onChange={() => selection.onToggleRow(row)}
+                          aria-label={`Select row ${rowKey}`}
+                        />
+                      </td>
+                    )}
+                    {columns.map((column) => (
+                      <td key={column.key} className={cn('px-4 py-3.5 align-middle', column.className)}>
+                        {column.render(row)}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>

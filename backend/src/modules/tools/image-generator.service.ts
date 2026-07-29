@@ -14,6 +14,11 @@ export interface PromptEntry {
   prompt: string;
 }
 
+interface UnsplashPhoto {
+  urls: { raw: string };
+  links: { download_location: string };
+}
+
 export type ImageGenJobStatusValue = 'running' | 'done' | 'failed';
 
 export interface ImageGenJobStarted {
@@ -35,18 +40,11 @@ interface ImageGenJob extends ImageGenJobStatus {
 }
 
 const IMAGE_WIDTH = 1024;
-const IMAGE_HEIGHT = 768;
 const DELAY_BETWEEN_REQUESTS_MS = 2000;
-// The original CLI script had no timeout at all — it just waited however
-// long pollinations.ai took. 45s was too aggressive: on the free tier,
-// generation can legitimately take longer than that for some prompts, and
-// what looked like a "timeout" bug was really just us giving up early on a
-// request that would have succeeded. Give it real headroom instead.
-const FETCH_TIMEOUT_MS = 120_000;
-// pollinations.ai throttles bursts of requests — a 2s gap isn't always
-// enough, so retry transient failures (500/timeout/429) instead of giving up
-// after one shot. 429 gets a longer, increasing backoff since it's an
-// explicit "slow down" signal.
+const FETCH_TIMEOUT_MS = 30_000;
+// Unsplash's free tier throttles to 50 req/hour — retry transient failures
+// (500/timeout/429) instead of giving up after one shot. 429 gets a longer,
+// increasing backoff since it's an explicit "slow down" signal.
 const MAX_ATTEMPTS_PER_IMAGE = 4;
 const RETRY_BASE_DELAY_MS = 3_000;
 const RATE_LIMIT_BASE_DELAY_MS = 8_000;
@@ -296,19 +294,115 @@ export class ImageGeneratorService {
     return this.enqueue(() => this.fetchImageRaw(prompt));
   }
 
+  /**
+   * Unsplash is search-based, not generative — the "prompt" text from the
+   * prompts file is used as a search query and we take the top real-photo
+   * match, rather than generating pixels from scratch like pollinations.ai
+   * did. Requires UNSPLASH_ACCESS_KEY (free, no card, from
+   * unsplash.com/developers).
+   *
+   * Prompts files are still written in the old pollinations.ai style —
+   * long generative scene descriptions ("Realistic photograph of a small
+   * furniture workshop display: a sheesham chair, a teak side table...")
+   * — which almost never match anything as a literal Unsplash search
+   * query (that API matches keywords/tags on real stock photos, not full
+   * sentences). Rather than depend on every prompts file being rewritten
+   * in a different style, fall back to progressively shorter queries
+   * built from the same prompt before giving up.
+   */
   private async fetchImageRaw(prompt: string): Promise<Buffer> {
-    const seed = Math.floor(Math.random() * 1_000_000);
-    const encodedPrompt = encodeURIComponent(prompt);
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${IMAGE_WIDTH}&height=${IMAGE_HEIGHT}&nologo=true&seed=${seed}`;
+    const accessKey = process.env.UNSPLASH_ACCESS_KEY;
+    if (!accessKey) {
+      throw new Error(
+        'UNSPLASH_ACCESS_KEY is not configured on the backend — add it to backend/.env',
+      );
+    }
 
+    let photo: UnsplashPhoto | undefined;
+    for (const query of this.buildSearchQueries(prompt)) {
+      photo = await this.searchUnsplashPhoto(query, accessKey);
+      if (photo) break;
+    }
+    if (!photo) {
+      throw new Error(`no Unsplash results for "${prompt}"`);
+    }
+
+    // Required by Unsplash's API guidelines whenever a photo is downloaded
+    // for use — fire-and-forget, a failure here shouldn't fail the image.
+    this.fetchWithTimeout(photo.links.download_location, {
+      headers: { Authorization: `Client-ID ${accessKey}` },
+    }).catch(() => undefined);
+
+    const imageRes = await this.fetchWithTimeout(
+      `${photo.urls.raw}&w=${IMAGE_WIDTH}&fit=max&q=80`,
+    );
+    if (!imageRes.ok) {
+      throw new Error(`HTTP ${imageRes.status} (Unsplash image download)`);
+    }
+    return Buffer.from(await imageRes.arrayBuffer());
+  }
+
+  /**
+   * Full prompt first (works fine for already-short/keyword-style prompts),
+   * then shorter word-count prefixes of the same text. Common photography
+   * boilerplate ("Realistic photograph of", "close-up", "shot of") is
+   * stripped first since it's noise for a keyword search and would
+   * otherwise eat into the word budget of the shorter attempts.
+   *
+   * Unsplash appears to AND-match every word in a query - a query
+   * containing any single term it has no photos tagged with (verified:
+   * Indian wood species like "sheesham" return 0 results even alone)
+   * fails regardless of how short the rest of the query is. The prefix
+   * tiers alone can't recover from that, so the last resort is each
+   * individual word on its own - virtually guaranteed to land on at
+   * least one common, well-tagged term (e.g. "dining", "table") rather
+   * than fail outright.
+   */
+  private buildSearchQueries(prompt: string): string[] {
+    const cleaned = prompt
+      .replace(
+        /\b(realistic|photograph(?:s|y)?|photo|image|close-?up|shot|picture|render(?:ing)?|of|showing|a|an|the|in|on|at|with|and)\b/gi,
+        ' ',
+      )
+      .replace(/[,.—-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const words = (cleaned || prompt).split(/\s+/).filter(Boolean);
+
+    const queries = [prompt];
+    for (const wordCount of [6, 4, 2]) {
+      if (words.length > wordCount) {
+        queries.push(words.slice(0, wordCount).join(' '));
+      }
+    }
+    queries.push(...words.filter((w) => w.length > 3));
+    return [...new Set(queries)];
+  }
+
+  private async searchUnsplashPhoto(
+    query: string,
+    accessKey: string,
+  ): Promise<UnsplashPhoto | undefined> {
+    const searchUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`;
+
+    const searchRes = await this.fetchWithTimeout(searchUrl, {
+      headers: { Authorization: `Client-ID ${accessKey}` },
+    });
+    if (!searchRes.ok) {
+      throw new Error(`HTTP ${searchRes.status} (Unsplash search)`);
+    }
+    const searchData = (await searchRes.json()) as { results: UnsplashPhoto[] };
+    return searchData.results?.[0];
+  }
+
+  private async fetchWithTimeout(
+    url: string,
+    init?: { headers?: Record<string, string> },
+  ): Promise<Response> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      return Buffer.from(await res.arrayBuffer());
+      return await fetch(url, { ...init, signal: controller.signal });
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error(`timed out after ${FETCH_TIMEOUT_MS / 1000}s`);

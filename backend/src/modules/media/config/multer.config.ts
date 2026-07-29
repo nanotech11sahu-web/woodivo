@@ -3,7 +3,9 @@ import { memoryStorage } from 'multer';
 import type { Request } from 'express';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
+  ALLOWED_VIDEO_MIME_TYPES,
   MAX_UPLOAD_SIZE_BYTES,
+  MAX_VIDEO_UPLOAD_SIZE_BYTES,
 } from '@common/constants/app.constants';
 
 export const imageUploadOptions = {
@@ -20,6 +22,29 @@ export const imageUploadOptions = {
       callback(
         new BadRequestException(
           `Unsupported file type "${file.mimetype}". Allowed: ${ALLOWED_IMAGE_MIME_TYPES.join(', ')}`,
+        ),
+        false,
+      );
+      return;
+    }
+    callback(null, true);
+  },
+};
+
+export const videoUploadOptions = {
+  storage: memoryStorage(),
+  limits: {
+    fileSize: MAX_VIDEO_UPLOAD_SIZE_BYTES,
+  },
+  fileFilter: (
+    _req: Request,
+    file: Express.Multer.File,
+    callback: (error: Error | null, acceptFile: boolean) => void,
+  ): void => {
+    if (!ALLOWED_VIDEO_MIME_TYPES.includes(file.mimetype)) {
+      callback(
+        new BadRequestException(
+          `Unsupported file type "${file.mimetype}". Allowed: ${ALLOWED_VIDEO_MIME_TYPES.join(', ')}`,
         ),
         false,
       );

@@ -96,15 +96,13 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
           {product.name}
         </Link>
         {typeof product.price === 'number' ? (
-          <div className="mt-0.5 flex items-baseline gap-2">
-            <span className="text-base font-semibold text-charcoal">
-              {formatPrice(hasDiscount ? product.discountPrice : product.price)}
-            </span>
-            {hasDiscount ? (
-              <span className="text-xs text-charcoal-soft/70 line-through">
-                {formatPrice(product.price)}
+          <div className="mt-0.5 flex flex-col gap-0.5">
+            <div className="flex items-baseline gap-2">
+              <span className="text-base font-semibold text-charcoal">
+                {formatPrice(hasDiscount ? product.discountPrice : product.price)}
               </span>
-            ) : null}
+            </div>
+            <span className="text-xs text-charcoal-soft/70">Send enquiry to get the actual price</span>
           </div>
         ) : null}
         <button

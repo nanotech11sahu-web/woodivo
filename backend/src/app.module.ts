@@ -34,6 +34,8 @@ import { SeoModule } from '@modules/seo/seo.module';
 import { SeoEntriesModule } from '@modules/seo-entries/seo-entries.module';
 import { SeederModule } from '@database/seeders/seeder.module';
 import { ToolsModule } from '@modules/tools/tools.module';
+import { CustomPostsModule } from '@modules/custom-posts/custom-posts.module';
+import { AutoReplyRulesModule } from '@modules/auto-reply-rules/auto-reply-rules.module';
 
 @Module({
   imports: [
@@ -84,6 +86,8 @@ import { ToolsModule } from '@modules/tools/tools.module';
     SeoEntriesModule,
     SeederModule,
     ToolsModule,
+    CustomPostsModule,
+    AutoReplyRulesModule,
   ],
   providers: [
     // Rate limiting

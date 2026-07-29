@@ -40,6 +40,7 @@ export type MediaFolder =
   | 'testimonials'
   | 'settings'
   | 'about'
+  | 'custom-posts'
   | 'misc';
 
 export type EntityStatus = 'active' | 'inactive';

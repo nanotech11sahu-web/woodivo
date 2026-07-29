@@ -1,7 +1,11 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class DeleteMediaDto {
   @IsString()
   @MinLength(1)
   publicId!: string;
+
+  @IsOptional()
+  @IsIn(['image', 'video'])
+  resourceType?: 'image' | 'video';
 }

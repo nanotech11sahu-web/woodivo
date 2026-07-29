@@ -57,6 +57,23 @@ function useOrganizationJsonLd(): void {
     ? Object.values(settings.socialLinks).filter((url): url is string => Boolean(url))
     : [];
 
+  // NAP (name/address/phone) consistency between this schema and wherever
+  // the business is also listed (Google Business Profile, IndiaMART,
+  // JustDial, etc.) is what those directories and Google's local-business
+  // matching actually check - so this only ever reflects the CMS operator's
+  // own contact settings, same "don't fabricate" rule as the rest of this
+  // schema.
+  const address = settings?.contact
+    ? {
+        ...(settings.contact.address ? { streetAddress: settings.contact.address } : {}),
+        ...(settings.contact.city ? { addressLocality: settings.contact.city } : {}),
+        ...(settings.contact.state ? { addressRegion: settings.contact.state } : {}),
+        ...(settings.contact.pincode ? { postalCode: settings.contact.pincode } : {}),
+        addressCountry: 'IN',
+      }
+    : {};
+  const hasAddress = Object.keys(address).length > 1; // more than just the hardcoded country
+
   const schema =
     settings && (settings.siteName || settings.logo)
       ? {
@@ -67,6 +84,7 @@ function useOrganizationJsonLd(): void {
           url: window.location.origin,
           ...(settings.contact?.phone ? { telephone: settings.contact.phone } : {}),
           ...(settings.contact?.email ? { email: settings.contact.email } : {}),
+          ...(hasAddress ? { address: { '@type': 'PostalAddress', ...address } } : {}),
           ...(sameAs.length > 0 ? { sameAs } : {}),
         }
       : undefined;

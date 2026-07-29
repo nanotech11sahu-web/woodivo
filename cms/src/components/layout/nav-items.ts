@@ -16,6 +16,9 @@ import {
   BookUser,
   Search,
   Wand2,
+  Share2,
+  ImagePlus,
+  MessageCircleReply,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -58,6 +61,9 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: 'Operations',
     items: [
+      { to: '/social', label: 'Social Posts', icon: Share2 },
+      { to: '/custom-posts', label: 'Custom Posts', icon: ImagePlus },
+      { to: '/auto-reply-rules', label: 'Auto-Reply Rules', icon: MessageCircleReply },
       { to: '/enquiries', label: 'Enquiries', icon: Inbox },
       { to: '/users', label: 'Users & Roles', icon: Users },
       { to: '/media', label: 'Media Library', icon: Images },
