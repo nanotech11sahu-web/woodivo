@@ -90,7 +90,10 @@
     "sending": "Sending…",
     "enquire_now": "Enquire Now",
     "thank_you_title": "Thank you, we've got it.",
-    "thank_you_text": "One of our craftsmen's team will call you back shortly to discuss your requirement."
+    "thank_you_text": "One of our craftsmen's team will call you back shortly to discuss your requirement.",
+    "you_may_also_like": "You may also like",
+    "send_enquiry": "Send enquiry",
+    "enquiry_sent": "Enquiry sent"
   },
   "misc": {
     "coming_soon_text": "This page is still being crafted. Check back soon, or get in touch with our team directly in the meantime.",

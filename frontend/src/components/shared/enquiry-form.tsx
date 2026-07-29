@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { INDIAN_STATES, getCitiesForState } from '@/lib/use-india-locations';
+import { SuggestedProducts } from './suggested-products';
 
 interface EnquiryFormProps {
   source: EnquirySource;
@@ -33,6 +35,13 @@ export function EnquiryForm({
   const { t } = useTranslation();
   const { data: categories } = useCategories();
   const createEnquiry = useCreateEnquiry();
+  const [submittedContact, setSubmittedContact] = useState<{
+    fullName: string;
+    mobileNumber: string;
+    state?: string;
+    city?: string;
+    interestedCategory?: string;
+  } | null>(null);
 
   const {
     register,
@@ -70,6 +79,13 @@ export function EnquiryForm({
       },
       {
         onSuccess: () => {
+          setSubmittedContact({
+            fullName: values.fullName,
+            mobileNumber: values.mobileNumber,
+            state: values.state || undefined,
+            city: values.city || undefined,
+            interestedCategory: values.interestedCategory || undefined,
+          });
           reset();
           onSubmitted?.();
         },
@@ -77,7 +93,7 @@ export function EnquiryForm({
     );
   });
 
-  if (createEnquiry.isSuccess) {
+  if (createEnquiry.isSuccess && submittedContact) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
         <CheckCircle2 className="h-12 w-12 text-brass" strokeWidth={1.5} />
@@ -85,6 +101,11 @@ export function EnquiryForm({
         <p className="max-w-xs text-sm text-charcoal-soft">
           {t('enquiry_form.thank_you_text')}
         </p>
+        <SuggestedProducts
+          contact={submittedContact}
+          excludeProductSlug={presetProductSlug}
+          source={source}
+        />
       </div>
     );
   }

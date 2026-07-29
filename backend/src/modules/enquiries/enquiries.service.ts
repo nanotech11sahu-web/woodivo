@@ -144,7 +144,7 @@ export class EnquiriesService {
       this.enquiryModel
         .find(filter)
         .populate('interestedCategory', 'name slug')
-        .populate('interestedProduct', 'name slug')
+        .populate('interestedProduct', 'name slug price discountPrice')
         .sort(sort)
         .skip(skip)
         .limit(limit)
@@ -159,7 +159,7 @@ export class EnquiriesService {
     const enquiry = await this.enquiryModel
       .findById(id)
       .populate('interestedCategory', 'name slug')
-      .populate('interestedProduct', 'name slug')
+      .populate('interestedProduct', 'name slug price discountPrice')
       .exec();
     if (!enquiry) throw new NotFoundException('Enquiry not found');
     return enquiry;

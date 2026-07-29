@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from '@/lib/toast';
 import { getErrorMessage } from '@/lib/http-error';
+import type { EnquiryProductRef } from '@/types/enquiry';
 import { useEnquiry, useUpdateEnquiry, useDeleteEnquiry } from './enquiries-api';
 import { ENQUIRY_STATUSES, SOURCE_LABELS } from './enquiry-constants';
 import { enquiryUpdateFormSchema, type EnquiryUpdateFormValues } from './enquiry-form-schema';
@@ -121,10 +122,16 @@ export function EnquiryDetailPage() {
             <DetailRow label="City" value={enquiry.city || '\u2014'} />
             <DetailRow label="Interested in" value={enquiry.interestedCategory?.name ?? '\u2014'} />
             {enquiry.interestedProduct ? (
-              <DetailRow
-                label={enquiry.source === 'custom_order' ? 'Product to customize' : 'Product'}
-                value={enquiry.interestedProduct.name}
-              />
+              <>
+                <DetailRow
+                  label={enquiry.source === 'custom_order' ? 'Product to customize' : 'Product'}
+                  value={enquiry.interestedProduct.name}
+                />
+                <DetailRow
+                  label="Product price"
+                  value={<ProductPrice product={enquiry.interestedProduct} />}
+                />
+              </>
             ) : null}
             <DetailRow label="Source" value={SOURCE_LABELS[enquiry.source]} />
             <div>
@@ -220,5 +227,23 @@ function DetailRow({ label, value }: { label: string; value: ReactNode }) {
       <span className="text-ink-muted">{label}</span>
       <span className="font-medium text-espresso">{value}</span>
     </div>
+  );
+}
+
+/** Storefront masks prices as ₹XXX behind the enquiry flow — admins still need the real number here. */
+function ProductPrice({ product }: { product: EnquiryProductRef }) {
+  if (typeof product.price !== 'number') return <>—</>;
+  const hasDiscount =
+    typeof product.discountPrice === 'number' && product.discountPrice < product.price;
+  if (!hasDiscount) {
+    return <>₹{product.price.toLocaleString('en-IN')}</>;
+  }
+  return (
+    <>
+      ₹{product.discountPrice!.toLocaleString('en-IN')}{' '}
+      <span className="text-xs text-ink-muted line-through">
+        ₹{product.price.toLocaleString('en-IN')}
+      </span>
+    </>
   );
 }

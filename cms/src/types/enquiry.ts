@@ -21,6 +21,8 @@ export interface EnquiryProductRef {
   _id: string;
   name: string;
   slug: string;
+  price?: number;
+  discountPrice?: number;
 }
 
 export interface Enquiry {
