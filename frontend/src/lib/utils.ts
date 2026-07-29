@@ -11,24 +11,14 @@ export function toWhatsAppDigits(phone: string): string {
 }
 
 /**
- * INR price formatting for product cards/detail pages — `en-IN` matches
- * `formatDate` above and every other hardcoded India-specific assumption
- * in this codebase. No decimals: furniture prices here are always whole
- * rupees, and showing ".00" on every card is just noise.
- *
- * All digits except the final one are masked with "X" (e.g. ₹X,XX9),
- * so the grouping/currency shape is visible without exposing the full price.
+ * Product prices are never shown as real numbers on the storefront — the
+ * actual price is only given out through the enquiry flow. `value` is still
+ * required (and validated) so callers only get the placeholder for products
+ * that genuinely have a price set, same as before this became a fixed string.
  */
 export function formatPrice(value: number | undefined): string | undefined {
   if (typeof value !== 'number' || Number.isNaN(value)) return undefined;
-  const formatted = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(value);
-
-  const lastDigitIndex = formatted.length - 1 - [...formatted].reverse().findIndex((ch) => /\d/.test(ch));
-  return [...formatted].map((ch, i) => (/\d/.test(ch) && i !== lastDigitIndex ? 'X' : ch)).join('');
+  return '₹XXX';
 }
 
 /**
