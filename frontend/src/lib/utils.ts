@@ -15,14 +15,20 @@ export function toWhatsAppDigits(phone: string): string {
  * `formatDate` above and every other hardcoded India-specific assumption
  * in this codebase. No decimals: furniture prices here are always whole
  * rupees, and showing ".00" on every card is just noise.
+ *
+ * All digits except the final one are masked with "X" (e.g. ₹X,XX9),
+ * so the grouping/currency shape is visible without exposing the full price.
  */
 export function formatPrice(value: number | undefined): string | undefined {
   if (typeof value !== 'number' || Number.isNaN(value)) return undefined;
-  return new Intl.NumberFormat('en-IN', {
+  const formatted = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0,
   }).format(value);
+
+  const lastDigitIndex = formatted.length - 1 - [...formatted].reverse().findIndex((ch) => /\d/.test(ch));
+  return [...formatted].map((ch, i) => (/\d/.test(ch) && i !== lastDigitIndex ? 'X' : ch)).join('');
 }
 
 /**
