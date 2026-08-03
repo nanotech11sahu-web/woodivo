@@ -5,6 +5,7 @@ import { SectionHeading } from '@/components/shared/section-heading';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
+import { optimizeImageUrl } from '@/lib/utils';
 
 export function TestimonialsSection() {
   const { t } = useTranslation();
@@ -49,7 +50,7 @@ export function TestimonialsSection() {
                 <figcaption className="mt-5 flex items-center gap-3">
                   {testimonial.clientPhoto?.url ? (
                     <img
-                      src={testimonial.clientPhoto.url}
+                      src={optimizeImageUrl(testimonial.clientPhoto.url, 80)}
                       alt={testimonial.clientPhoto.alt || testimonial.clientName}
                       loading="lazy"
                       decoding="async"

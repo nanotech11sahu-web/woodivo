@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { optimizeImageUrl } from '@/lib/utils';
 
 interface MediaGalleryImage {
   url: string;
@@ -31,8 +32,9 @@ export function MediaGallery({
       <div className="aspect-square overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep">
         {active?.url ? (
           <img
-            src={active.url}
+            src={optimizeImageUrl(active.url, 1000)}
             alt={active.alt || itemName}
+            fetchPriority="high"
             className="h-full w-full object-cover"
           />
         ) : null}
@@ -52,7 +54,7 @@ export function MediaGallery({
               }`}
             >
               <img
-                src={image.url}
+                src={optimizeImageUrl(image.url, 200)}
                 alt={image.alt || itemName}
                 loading="lazy"
                 decoding="async"

@@ -6,7 +6,7 @@ import { useFeaturedProducts, useProducts } from '@/features/products/products-a
 import { useCreateEnquiry } from '@/features/enquiry/enquiry-api';
 import type { EnquirySource } from '@/types/enquiry';
 import type { Product } from '@/types/product';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, optimizeImageUrl } from '@/lib/utils';
 
 interface SubmittedContact {
   fullName: string;
@@ -105,7 +105,7 @@ function SuggestedProductCard({
       >
         {product.images?.[0]?.url ? (
           <img
-            src={product.images[0].url}
+            src={optimizeImageUrl(product.images[0].url, 300)}
             alt={product.images[0].alt || product.name}
             loading="lazy"
             decoding="async"

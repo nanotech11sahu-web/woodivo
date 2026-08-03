@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { GalleryItem } from '@/types/gallery';
+import { optimizeImageUrl } from '@/lib/utils';
 
 interface GalleryLightboxProps {
   items: GalleryItem[];
@@ -105,7 +106,7 @@ export function GalleryLightbox({ items, activeIndex, onClose, onNavigate }: Gal
               />
             ) : (
               <img
-                src={item.media.url}
+                src={optimizeImageUrl(item.media.url, 1200)}
                 alt={item.media.alt || item.caption || 'Gallery image'}
                 className="max-h-[85vh] w-full object-contain"
               />

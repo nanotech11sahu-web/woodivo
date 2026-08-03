@@ -4,6 +4,7 @@ import { useCategories } from '@/features/categories/categories-api';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
 import { CardSlider, sliderItemWidths } from '@/components/shared/card-slider';
+import { optimizeImageUrl } from '@/lib/utils';
 
 /**
  * Reference-style "All categories" strip: small square thumbnails with a
@@ -44,7 +45,7 @@ export function FeaturedCategoriesSection() {
                 <span className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-border-warm bg-ivory-deep transition-all duration-300 group-hover:border-brass group-hover:shadow-md group-hover:shadow-charcoal/5">
                   {category.thumbnail?.url ? (
                     <img
-                      src={category.thumbnail.url}
+                      src={optimizeImageUrl(category.thumbnail.url, 300)}
                       alt={category.thumbnail.alt || category.name}
                       loading="lazy"
                       decoding="async"

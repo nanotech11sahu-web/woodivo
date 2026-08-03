@@ -3,7 +3,7 @@ import { ImageOff } from 'lucide-react';
 import type { MediaAsset } from '@/types/common';
 import type { ProductCategoryRef, ProductStockStatus } from '@/types/product';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
-import { formatPrice, cn } from '@/lib/utils';
+import { formatPrice, cn, optimizeImageUrl } from '@/lib/utils';
 
 /**
  * Deliberately narrower than the full `Product` type. The two places this
@@ -55,7 +55,7 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
       >
         {product.images?.[0]?.url ? (
           <img
-            src={product.images[0].url}
+            src={optimizeImageUrl(product.images[0].url, 600)}
             alt={product.images[0].alt || product.name}
             loading="lazy"
             decoding="async"
@@ -71,7 +71,7 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
         )}
         {secondImage?.url ? (
           <img
-            src={secondImage.url}
+            src={optimizeImageUrl(secondImage.url, 600)}
             alt={secondImage.alt || product.name}
             loading="lazy"
             decoding="async"

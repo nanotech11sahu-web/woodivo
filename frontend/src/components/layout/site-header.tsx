@@ -7,7 +7,7 @@ import { useSubCategories } from '@/features/subcategories/subcategories-api';
 import { useSettings } from '@/features/settings/settings-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
-import { cn } from '@/lib/utils';
+import { cn, optimizeImageUrl } from '@/lib/utils';
 
 export function SiteHeader() {
   const { t } = useTranslation();
@@ -51,7 +51,12 @@ export function SiteHeader() {
           onClick={() => setMobileOpen(false)}
         >
           {settings?.logo?.url ? (
-            <img src={settings.logo.url} alt={siteName} className="h-12 w-auto sm:h-14 lg:h-16" />
+            <img
+              src={optimizeImageUrl(settings.logo.url, 160)}
+              alt={siteName}
+              fetchPriority="high"
+              className="h-12 w-auto sm:h-14 lg:h-16"
+            />
           ) : (
             <img src="/brand/woodivo-logo-full.png" alt={siteName} className="h-12 w-auto sm:h-14 lg:h-16" />
           )}

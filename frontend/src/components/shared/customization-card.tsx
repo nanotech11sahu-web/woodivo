@@ -1,4 +1,5 @@
 import type { Customization } from '@/types/customization';
+import { optimizeImageUrl } from '@/lib/utils';
 
 /**
  * A single "already made" showcase card on the /customize page — cover
@@ -14,7 +15,7 @@ export function CustomizationCard({ item }: { item: Customization }) {
       <div className="relative aspect-[4/3] overflow-hidden bg-ivory-deep">
         {cover ? (
           <img
-            src={cover.url}
+            src={optimizeImageUrl(cover.url, 500)}
             alt={cover.alt || item.title}
             loading="lazy"
             decoding="async"

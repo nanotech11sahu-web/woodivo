@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCategories } from '@/features/categories/categories-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
+import { optimizeImageUrl } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -35,7 +36,7 @@ export function CategoriesIndexPage() {
               <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-border-warm bg-ivory-deep sm:h-24 sm:w-24">
                 {category.thumbnail?.url ? (
                   <img
-                    src={category.thumbnail.url}
+                    src={optimizeImageUrl(category.thumbnail.url, 200)}
                     alt={category.thumbnail.alt || category.name}
                     loading="lazy"
                     decoding="async"

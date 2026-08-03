@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, optimizeImageUrl } from '@/lib/utils';
 import type { Banner } from '@/types/banner';
 
 const AUTOPLAY_MS = 5000;
@@ -53,9 +53,10 @@ export function SectionBannerSlider({
         {slides.map((banner, slideIndex) => (
           <img
             key={banner._id}
-            src={banner.desktopImage.url}
+            src={optimizeImageUrl(banner.desktopImage.url, 1600)}
             alt={banner.desktopImage.alt || banner.title}
             loading={slideIndex === 0 ? 'eager' : 'lazy'}
+            fetchPriority={slideIndex === 0 ? 'high' : 'auto'}
             decoding="async"
             className={cn(
               'absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out',

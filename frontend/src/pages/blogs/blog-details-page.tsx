@@ -9,7 +9,7 @@ import { ProductCard } from '@/components/shared/product-card';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useJsonLd } from '@/lib/use-json-ld';
 import { isNotFoundError } from '@/lib/http-error';
-import { formatDate, truncate } from '@/lib/utils';
+import { formatDate, truncate, optimizeImageUrl } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -205,8 +205,9 @@ export function BlogDetailsPage() {
       {blog.featuredImage?.url ? (
         <div className="mt-8 aspect-[16/9] overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep">
           <img
-            src={blog.featuredImage.url}
+            src={optimizeImageUrl(blog.featuredImage.url, 1000)}
             alt={blog.featuredImage.alt || blog.title}
+            fetchPriority="high"
             className="h-full w-full object-cover"
           />
         </div>

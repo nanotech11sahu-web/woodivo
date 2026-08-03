@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBanners } from '@/features/banners/banners-api';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
-import { cn } from '@/lib/utils';
+import { cn, optimizeImageUrl } from '@/lib/utils';
 
 const AUTOPLAY_MS = 5000;
 
@@ -80,12 +80,16 @@ export function HeroSection() {
                 {banner.desktopImage.url ? (
                   <picture>
                     {banner.mobileImage?.url ? (
-                      <source media="(max-width: 639px)" srcSet={banner.mobileImage.url} />
+                      <source
+                        media="(max-width: 639px)"
+                        srcSet={optimizeImageUrl(banner.mobileImage.url, 800)}
+                      />
                     ) : null}
                     <img
-                      src={banner.desktopImage.url}
+                      src={optimizeImageUrl(banner.desktopImage.url, 1600)}
                       alt={banner.desktopImage.alt || banner.title}
                       loading={slideIndex === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={slideIndex === 0 ? 'high' : 'auto'}
                       decoding="async"
                       className="absolute inset-0 h-full w-full object-cover"
                     />

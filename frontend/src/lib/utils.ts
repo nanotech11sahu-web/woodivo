@@ -11,6 +11,24 @@ export function toWhatsAppDigits(phone: string): string {
 }
 
 /**
+ * Every image on this site is a Cloudinary URL served byte-for-byte as
+ * originally uploaded -- PageSpeed Insights flagged ~4MB of avoidable
+ * transfer from this alone, and an 18.6s mobile LCP largely traces back to
+ * it. Cloudinary applies transformations from a URL segment inserted right
+ * after `/upload/`, so `f_auto` (serve WebP/AVIF where supported), `q_auto`
+ * (automatic quality), and `w_<width>` (resize server-side instead of
+ * shipping the full original) turn any existing URL into an optimized one
+ * with no re-upload needed. Non-Cloudinary URLs pass through untouched.
+ */
+export function optimizeImageUrl(url: string, width: number): string {
+  const marker = '/image/upload/';
+  const markerIndex = url.indexOf(marker);
+  if (markerIndex === -1) return url;
+  const insertAt = markerIndex + marker.length;
+  return `${url.slice(0, insertAt)}f_auto,q_auto,w_${width}/${url.slice(insertAt)}`;
+}
+
+/**
  * Made-to-order products keep the price hidden behind the enquiry flow since
  * each piece is quoted individually; in-stock/out-of-stock products have a
  * fixed real price and show it directly.

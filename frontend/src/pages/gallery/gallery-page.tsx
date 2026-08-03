@@ -5,7 +5,7 @@ import { PlayCircle } from 'lucide-react';
 import { useGalleryItems } from '@/features/gallery/gallery-api';
 import { useSeoMeta } from '@/lib/use-seo-meta';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { cn } from '@/lib/utils';
+import { cn, optimizeImageUrl } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -157,7 +157,7 @@ export function GalleryPage() {
                     className="group relative mb-4 block w-full break-inside-avoid overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep"
                   >
                     <img
-                      src={item.media.url}
+                      src={optimizeImageUrl(item.media.url, 400)}
                       alt={item.media.alt || item.caption || 'Gallery image'}
                       className="w-full transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"

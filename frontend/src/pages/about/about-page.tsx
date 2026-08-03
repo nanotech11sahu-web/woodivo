@@ -4,7 +4,7 @@ import { useAboutPage } from '@/features/about/about-api';
 import { useBanners } from '@/features/banners/banners-api';
 import { SectionBannerSlider } from '@/components/shared/section-banner-slider';
 import { useSeoMeta } from '@/lib/use-seo-meta';
-import { truncate } from '@/lib/utils';
+import { truncate, optimizeImageUrl } from '@/lib/utils';
 import { Breadcrumbs } from '@/components/shared/breadcrumbs';
 import { SectionSpinner } from '@/components/shared/spinner';
 import { ErrorNote } from '@/components/shared/error-note';
@@ -101,7 +101,7 @@ export function AboutPage() {
                 {about.storyImage?.url ? (
                   <div className="aspect-[4/3] overflow-hidden rounded-[var(--radius-card)] border border-border-warm bg-ivory-deep">
                     <img
-                      src={about.storyImage.url}
+                      src={optimizeImageUrl(about.storyImage.url, 800)}
                       alt={about.storyImage.alt || about.storyTitle || 'Our story'}
                       loading="lazy"
                       decoding="async"
@@ -204,7 +204,7 @@ export function AboutPage() {
                       <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border border-border-warm bg-brass-pale">
                         {member.photo?.url ? (
                           <img
-                            src={member.photo.url}
+                            src={optimizeImageUrl(member.photo.url, 200)}
                             alt={member.photo.alt || member.name}
                             loading="lazy"
                             decoding="async"

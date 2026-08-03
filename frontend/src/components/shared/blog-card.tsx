@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { MediaAsset } from '@/types/common';
-import { formatDate } from '@/lib/utils';
+import { formatDate, optimizeImageUrl } from '@/lib/utils';
 
 /**
  * Narrower than the full `Blog` type, same reasoning as `ProductCardItem`
@@ -35,7 +35,7 @@ export function BlogCard({ blog }: { blog: BlogCardItem }) {
       <div className="aspect-square w-24 shrink-0 overflow-hidden rounded-[var(--radius-card)] bg-brass-pale sm:aspect-[16/10] sm:w-full sm:rounded-none">
         {blog.featuredImage?.url ? (
           <img
-            src={blog.featuredImage.url}
+            src={optimizeImageUrl(blog.featuredImage.url, 500)}
             alt={blog.featuredImage.alt || blog.title}
             loading="lazy"
             decoding="async"
