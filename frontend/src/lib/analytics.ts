@@ -88,11 +88,17 @@ export function trackPageView(path: string, title?: string): void {
   }
 }
 
-/** Fired once an enquiry is successfully saved — the one action that actually matters for ad spend decisions. */
+/**
+ * Fired once an enquiry is successfully saved — the one action that
+ * actually matters for ad spend decisions. gtag's event params object is
+ * technically optional, but omitting it entirely (rather than passing `{}`)
+ * left this specific event silently undelivered in testing, unlike every
+ * other call site here which always passes one -- so this always does too.
+ */
 export function trackEnquirySubmitted(): void {
   if (!import.meta.env.PROD) return;
   if (typeof window.gtag === 'function') {
-    window.gtag('event', 'generate_lead');
+    window.gtag('event', 'generate_lead', {});
   }
   if (typeof window.fbq === 'function') {
     window.fbq('track', 'Lead');
