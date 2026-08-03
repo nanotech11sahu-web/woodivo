@@ -446,7 +446,7 @@ export class ProductsService {
       .populate({
         path: 'relatedProducts',
         match: { status: ProductStatus.ACTIVE },
-        select: 'name slug images price discountPrice',
+        select: 'name slug images price discountPrice stockStatus',
       })
       .populate({
         path: 'relatedBlogs',
@@ -489,7 +489,7 @@ export class ProductsService {
           status: ProductStatus.ACTIVE,
           _id: { $ne: product._id },
         })
-        .select('name slug images price discountPrice')
+        .select('name slug images price discountPrice stockStatus')
         .sort({ displayOrder: 1 })
         .limit(RELATED_FALLBACK_LIMIT)
         .exec();

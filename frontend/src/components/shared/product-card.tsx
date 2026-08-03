@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ImageOff } from 'lucide-react';
 import type { MediaAsset } from '@/types/common';
-import type { ProductCategoryRef } from '@/types/product';
+import type { ProductCategoryRef, ProductStockStatus } from '@/types/product';
 import { useEnquiryDialog } from '@/features/enquiry/enquiry-dialog-context';
 import { formatPrice, cn } from '@/lib/utils';
 
@@ -24,6 +24,7 @@ export interface ProductCardItem {
   category?: ProductCategoryRef | string;
   price?: number;
   discountPrice?: number;
+  stockStatus?: ProductStockStatus;
 }
 
 /**
@@ -45,6 +46,7 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
     typeof product.discountPrice === 'number' &&
     typeof product.price === 'number' &&
     product.discountPrice < product.price;
+  const isQuoteOnly = product.stockStatus === 'made_to_order' || product.stockStatus === undefined;
 
   return (
     <div className="group flex flex-col">
@@ -77,7 +79,7 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
             className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:scale-[1.04] group-hover:opacity-100"
           />
         ) : null}
-        {hasDiscount ? (
+        {hasDiscount && !isQuoteOnly ? (
           <span className="absolute left-2.5 top-2.5 rounded-[var(--radius-pill)] bg-vermilion px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ivory">
             {Math.round(((product.price! - product.discountPrice!) / product.price!) * 100)}% Off
           </span>
@@ -99,10 +101,12 @@ export function ProductCard({ product }: { product: ProductCardItem }) {
           <div className="mt-0.5 flex flex-col gap-0.5">
             <div className="flex items-baseline gap-2">
               <span className="text-base font-semibold text-charcoal">
-                {formatPrice(hasDiscount ? product.discountPrice : product.price)}
+                {isQuoteOnly ? '₹XXX' : formatPrice(hasDiscount ? product.discountPrice : product.price)}
               </span>
             </div>
-            <span className="text-xs text-charcoal-soft/70">Send enquiry to get the actual price</span>
+            {isQuoteOnly ? (
+              <span className="text-xs text-charcoal-soft/70">Send enquiry to get the actual price</span>
+            ) : null}
           </div>
         ) : null}
         <button

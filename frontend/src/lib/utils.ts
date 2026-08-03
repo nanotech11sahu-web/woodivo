@@ -11,14 +11,13 @@ export function toWhatsAppDigits(phone: string): string {
 }
 
 /**
- * Product prices are never shown as real numbers on the storefront — the
- * actual price is only given out through the enquiry flow. `value` is still
- * required (and validated) so callers only get the placeholder for products
- * that genuinely have a price set, same as before this became a fixed string.
+ * Made-to-order products keep the price hidden behind the enquiry flow since
+ * each piece is quoted individually; in-stock/out-of-stock products have a
+ * fixed real price and show it directly.
  */
 export function formatPrice(value: number | undefined): string | undefined {
   if (typeof value !== 'number' || Number.isNaN(value)) return undefined;
-  return '₹XXX';
+  return `₹${value.toLocaleString('en-IN')}`;
 }
 
 /**

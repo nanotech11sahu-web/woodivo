@@ -44,6 +44,7 @@ export interface RelatedProductRef {
   images?: MediaAsset[];
   price?: number;
   discountPrice?: number;
+  stockStatus?: ProductStockStatus;
 }
 
 // What findBySlugPublic's relatedBlogs populate actually returns
