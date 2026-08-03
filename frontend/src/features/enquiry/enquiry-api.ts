@@ -1,8 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { trackEnquirySubmitted } from '@/lib/analytics';
 import type { CreateEnquiryPayload, EnquiryConfirmation } from '@/types/enquiry';
 import type { MediaAsset } from '@/types/common';
 
+/** Single mutation backing every enquiry form on the site -- tracking the
+ * lead event here, rather than in each form, means every submission path
+ * (contact form, customize form, suggested-products quick-enquiry) reports
+ * consistently without each caller needing to remember to. */
 export function useCreateEnquiry() {
   return useMutation({
     mutationFn: async (payload: CreateEnquiryPayload) => {
@@ -11,6 +16,9 @@ export function useCreateEnquiry() {
         payload,
       );
       return data;
+    },
+    onSuccess: () => {
+      trackEnquirySubmitted();
     },
   });
 }
