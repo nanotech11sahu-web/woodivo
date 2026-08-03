@@ -168,7 +168,6 @@ export function ProductDetailsPage() {
   const relatedBlogs = product.relatedBlogs;
   const faqs = product.faqs;
   const hasDiscount = typeof product.discountPrice === 'number' && product.discountPrice < product.price;
-  const isQuoteOnly = product.stockStatus === 'made_to_order';
 
   const descriptionSections = product.description ? parseProductDescription(product.description) : [];
   const overview = descriptionSections.find((section) => section.title === 'Overview');
@@ -211,17 +210,14 @@ export function ProductDetailsPage() {
           <div className="mt-3 flex flex-col gap-1">
             <div className="flex items-baseline gap-3">
               <span className="text-2xl font-semibold text-charcoal">
-                {isQuoteOnly ? '₹XXX' : formatPrice(hasDiscount ? product.discountPrice : product.price)}
+                {formatPrice(hasDiscount ? product.discountPrice : product.price)}
               </span>
-              {hasDiscount && !isQuoteOnly ? (
+              {hasDiscount ? (
                 <span className="rounded-[var(--radius-pill)] bg-rust px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-ivory">
                   {Math.round(((product.price - product.discountPrice!) / product.price) * 100)}% Off
                 </span>
               ) : null}
             </div>
-            {isQuoteOnly ? (
-              <span className="text-sm text-charcoal-soft/70">Send enquiry to get the actual price</span>
-            ) : null}
           </div>
 
           {overview ? (

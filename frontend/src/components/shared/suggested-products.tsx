@@ -124,9 +124,7 @@ function SuggestedProductCard({
         {product.name}
       </Link>
       {typeof product.price === 'number' ? (
-        <span className="text-xs font-semibold text-charcoal">
-          {product.stockStatus === 'made_to_order' ? '₹XXX' : formatPrice(product.price)}
-        </span>
+        <span className="text-xs font-semibold text-charcoal">{formatPrice(product.price)}</span>
       ) : null}
       <button
         type="button"
