@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { SiteHeader } from './site-header';
 import { SiteFooter } from './site-footer';
@@ -6,7 +6,6 @@ import { WhatsAppFloatButton } from './whatsapp-float-button';
 import { MobileTabBar } from './mobile-tab-bar';
 import { ScrollToTop } from './scroll-to-top';
 import { EnquiryDialog } from '@/components/shared/enquiry-dialog';
-import { SectionSpinner } from '@/components/shared/spinner';
 import { useSettings } from '@/features/settings/settings-api';
 import { useJsonLd } from '@/lib/use-json-ld';
 import { initAnalytics, trackPageView } from '@/lib/analytics';
@@ -102,9 +101,7 @@ export function SiteLayout() {
       <ScrollToTop />
       <SiteHeader />
       <main className="flex-1 pb-16 sm:pb-0">
-        <Suspense fallback={<SectionSpinner />}>
-          <Outlet />
-        </Suspense>
+        <Outlet />
       </main>
       <SiteFooter />
       <MobileTabBar />
